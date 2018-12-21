@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class=""></div>
+    这是预约
   </div>
 </template>
 

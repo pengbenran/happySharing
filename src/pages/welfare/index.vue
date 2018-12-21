@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class=""></div>
+    这是福利页面
   </div>
 </template>
 

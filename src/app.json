@@ -1,11 +1,50 @@
 {
   "pages": [
     "pages/index/main",
-    "pages/logs/main"  ],
+    "pages/logs/main",
+    "pages/appointment/main",
+    "pages/welfare/main",
+    "pages/order/main",
+    "pages/myself/main"],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "WeChat",
     "navigationBarTextStyle": "black"
+  },
+    "tabBar": {
+    "selectedColor":"#01a4bf",
+    "list": [
+      {
+        "pagePath": "pages/index/main",
+        "iconPath": "/static/images/home.png",
+        "selectedIconPath": "/static/images/homeselect.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/appointment/main",
+        "iconPath": "/static/images/appointment.png",
+        "selectedIconPath": "/static/images/appointmentselect.png",
+        "text": "预约"
+      },
+      {
+        "pagePath": "pages/welfare/main",
+        "iconPath": "/static/images/welfare.png",
+        "selectedIconPath": "/static/images/welfareselect.png",
+        "text": "福利"
+      },
+      {
+        "pagePath": "pages/order/main",
+        "iconPath": "/static/images/order.png",
+        "selectedIconPath": "/static/images/orderselect.png",
+        "text": "订单"
+      },
+      {
+        "pagePath": "pages/myself/main",
+        "iconPath": "/static/images/myself.png",
+        "selectedIconPath": "/static/images/myselfselect.png",
+        "text": "我的"
+      }
+    ]
   }
 }
