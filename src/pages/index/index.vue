@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class=""></div>
+    <div class=""><span>{{msg}}</span></div>
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 export default {
   data () {
     return {
-      
+      msg:"ewrewr"
     }
   },
 
@@ -26,7 +26,12 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+.container{
+	width: 100px;background: red;height: 200px; 
+	span{
+		display: block;width: 100px;height: 100px;background-color: hotpink;
+	}
+} 
 
 </style>
