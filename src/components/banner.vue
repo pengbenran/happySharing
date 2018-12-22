@@ -13,7 +13,7 @@ export default {
       imageUrl:'/static/images/banner.png'
      },{
       imageUrl:'/static/images/banner.png'
-     },{
+     },{ 
       imageUrl:'/static/images/banner.png'
      }]
     }
@@ -22,11 +22,11 @@ export default {
   components: {
     
   },
-
+ 
   methods: {
    
   },
-
+ 
   created () {
     // 调用应用实例的方法获取全局数据
   }
