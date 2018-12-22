@@ -1,14 +1,12 @@
 {
   "pages": [
-  "pages/auro/main",
-    "pages/index/main",
+  	"pages/index/main",
+    "pages/auro/main",
     "pages/logs/main",
     "pages/appointment/main",
     "pages/welfare/main",
     "pages/order/main",
     "pages/myself/main" 
-    
-    
     ],
   "window": {
     "backgroundTextStyle": "light",
