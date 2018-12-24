@@ -6,7 +6,7 @@
 		<Banner></Banner>
 		<!--类目-->
 		<div class="cate centered">
-			<div v-for="(item , index) in cate" class="cate-li">
+			<div v-for="(item , index) in cate" :key="item.cateid" class="cate-li">
 				<div class="img"><img :src="item.image" /></div>
 				<div class="name">{{item.name}}</div>
 			</div>
@@ -14,127 +14,84 @@
 		<!--超值优惠-->
 		<div class="discount-wrap centered">
 			<div class="title">超值优惠</div>
-			<scroll-view class="scroll-view_H" scroll-x style="width: 100%">
-				<div class="discount">
-					<div v-for="(item , index) in discount" class="discount-li">
-						<div class="img"><img :src="item.img" /></div>
-						<div class="name-make clr">
-							<div class="name fl">{{item.name}}</div>
-							<div class="make fr">{{item.make}}</div>
-						</div>
-						<div class="desc">{{item.desc}}</div>
-						<div class="original-people clr">
-							<div class="original fl">原价:{{item.original}}</div>
-							<div class="people fr">{{item.people}}</div>
-						</div>
-						<div class="Present-discounts-sell clr">
-							<div class="Present fl">￥:{{item.Present}}</div>
-							<div class="discounts fl">优惠:{{item.discounts}}</div>
-							<div class="sell fr">已售:{{item.sell}}</div>
-						</div>
-					</div>
-				</div>
-			</scroll-view>
+			<div class="discount">
+				<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount>
+			</div>
 		</div>
 		<!--超赞推荐-->
 		<div class="rec-wrap centered">
 			<div class="title ">超赞推荐</div>
 			<div class="image"><img src="/static/images/rec-banner.png" /></div>
-			<div v-for="(item , index) in rec" class="rec-li clr">
-				<div class="img fl"><img :src="item.img" /></div>
-				<div class="rec-center fl">
-					<div class="tit">{{item.title}}</div>
-					<div class="name">{{item.name}}</div>
-					<div class="present ">￥:{{item.present}}</div>
-					<div class="original ">原价:{{item.original}}</div>
-					<div class="dianzhan">点赞:{{item.dianzhan}}</div>
-				</div>
-
-				<div class="rec-right fr">
-					<div class="make ">{{item.make}}</div>
-					<div class="people ">{{item.people}}</div>
-					<div class="sell ">已售:{{item.sell}}</div>
-				</div>
-
-			</div>
+            <goodslist v-for="(item , index) in rec" :goodlist="item" :key="item.recId"></goodslist>
 		</div>
-		<!--2-->
-		<div class="rec-wrap centered">
-			<div class="image"><img src="/static/images/rec-banner.png" /></div>
-			<div v-for="(item , index) in rec" class="rec-li clr">
-				<div class="img fl"><img :src="item.img" /></div>
-				<div class="rec-center fl">
-					<div class="tit">{{item.title}}</div>
-					<div class="name">{{item.name}}</div>
-					<div class="present ">￥:{{item.present}}</div>
-					<div class="original ">原价:{{item.original}}</div>
-					<div class="dianzhan">点赞:{{item.dianzhan}}</div>
-				</div>
-
-				<div class="rec-right fr">
-					<div class="make ">{{item.make}}</div>
-					<div class="people ">{{item.people}}</div>
-					<div class="sell ">已售:{{item.sell}}</div>
-				</div>
-
-			</div>
-		</div>
-
 	</div>
 </template>
 
 <script> 
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
+	import discount from '@/components/discount'
+	import goodslist from '@/components/goodslist'
 	export default {
 		data() {
 			return {
 
 				cate: [{
-
+						cateid:1,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
+						cateid:2,
 						name: "火锅", 
 						image: "/static/images/down_icon_h.png"
 					},
 					{
+						cateid:3,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
+						cateid:4,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
+						cateid:5,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
+						cateid:6,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
+						cateid:7,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
+						cateid:8,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
+						cateid:9,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
+						cateid:10,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 				],
+				wid:'240px',
+				magleft:'10px',
 				discount: [
-
-					{
+					{ 
+						goodsid:1,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "免预约",
@@ -147,6 +104,7 @@
 						dianzhan: "1188"
 					},
 					{
+						goodsid:2,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "需预约",
@@ -159,6 +117,7 @@
 						dianzhan: "1188"
 					},
 					{
+						goodsid:3,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "免预约",
@@ -173,6 +132,7 @@
 
 				],
 				rec: [{
+					recId:1,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -185,6 +145,7 @@
 					sell: "2368",
 					dianzhan: "1188"
 				}, {
+					recId:2,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -197,43 +158,7 @@
 					sell: "200",
 					dianzhan: "1188"
 				}, {
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188"
-				}, ],
-				rec1: [{
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188"
-				}, {
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "需预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188"
-				}, {
+					recId:3,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -246,13 +171,14 @@
 					sell: "200",
 					dianzhan: "1188"
 				}, ]
-
 			}
 		},
 
 		components: {
 			Search,
-			Banner
+			Banner,
+			discount,
+			goodslist
 		},
 
 		methods: {
@@ -267,49 +193,7 @@
 </script>
 
 <style scoped lang="less">
-	/*浮动*/
-	
-	.fl {
-		float: left;
-	}
-	
-	.fr {
-		float: right;
-	}
-	/*清除浮动*/
-	
-	.clr {
-		&:after {
-			content: "";
-			display: block;
-			clear: both
-		}
-		zoom:1
-	}
-	/*字体图标*/
-	
-	@font-face {
-		font-family: 'iconfont';
-		/* project id 977189 */
-		src: url('//at.alicdn.com/t/font_977189_gjvgj44cte.eot');
-		src: url('//at.alicdn.com/t/font_977189_gjvgj44cte.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.woff') format('woff'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.ttf') format('truetype'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.svg#iconfont') format('svg');
-	}
-	/*公共居中*/
-	/*中间居中*/
-	
-	.centered {
-		width: 95%;
-		margin: 0 auto;
-	}
-	/*隐藏滚动条*/
-	
-	 ::-webkit-scrollbar {
-		width: 0;
-		height: 0;
-		color: transparent;
-	}
 	/*类目*/
-	
 	.cate {
 		display: flex;
 		justify-content: space-between;
@@ -346,73 +230,8 @@
 		}
 		.discount {
 			display: flex;
-			.discount-li {
-				margin-left: 20px;
-				width: 240px;
-				&:nth-child(1) {
-					margin-left: 0;
-				}
-				.img {
-					width: 100%;
-					height: 75px;
-					img {
-						width: 100%;
-						height: 100%;
-						border-radius: 5px;
-					}
-				}
-				.name {
-					font-size: 12px;
-					color: #ff0000;
-					border-bottom: 1px solid #ff0000;
-					margin: 6px 0;
-				}
-				.make {
-					font-size: 10px;
-					color: #4aa9fe;
-					width: 40px;
-					height: 15px;
-					border-radius: 5px;
-					border: 1px solid #4aa9fe;
-					line-height: 15px;
-					text-align: center;
-					margin-top: 8px;
-				}
-				.desc {
-					font-size: 15px;
-					color: #111111;
-					line-height: 18px;
-					width: 220px;
-				}
-				.original-people {
-					padding-bottom: 8px;
-					.original {
-						text-decoration: line-through;
-						color: #999999;
-						font-size: 12px;
-					}
-					.people {
-						color: #999999;
-						font-size: 12px;
-					}
-				}
-				.Present-discounts-sell {
-					.Present {
-						color: #ff0000;
-						font-size: 17px;
-					}
-					.discounts {
-						color: #999999;
-						font-size: 12px;
-						margin-left: 6px;
-						line-height: 25px;
-					}
-					.sell {
-						color: #666666;
-						font-size: 12px;
-					}
-				}
-			}
+	        overflow-x:auto;
+	        overflow-y:hidden;  
 		}
 	}
 	/*超赞推荐*/
@@ -434,84 +253,6 @@
 				width: 100%;
 				height: 100%;
 				border-radius: 5px;
-			}
-		}
-		.rec-li {
-			padding-bottom: 16px;
-			margin-top: 16px;
-			border-bottom: 1px solid #dedede;
-			.img {
-				width: 80px;
-				height: 80px;
-				overflow: hidden;
-				img {
-					border-radius: 5px;
-					width: 100%;
-					height: 100%;
-				}
-			}
-			.rec-center {
-				width: 210px;
-				line-height: 20px;
-				overflow: hidden;
-				padding-left: 12px;
-				box-sizing: border-box;
-				.tit {
-					font-size: 15px;
-					color: #111111;
-				}
-				.name {
-					font-size: 12px;
-					color: #999999;
-				}
-				.present {
-					color: #ff0000;
-					font-size: 17px;
-				}
-				.name {
-					font-size: 12px;
-					color: #999999;
-				}
-				.original {
-					text-decoration: line-through;
-					color: #999999;
-					font-size: 12px;
-				}
-				.dianzhan {
-					width: 68px;
-					height: 15px;
-					color: #ffb10f;
-					border: 1px solid #ffb10f;
-					border-radius: 5px;
-					text-align: center;
-					line-height: 15px;
-					font-size: 11px;
-					font-family: "宋体";
-				}
-			}
-			.rec-right {
-				width: 60px;
-				line-height: 24px;
-				overflow: hidden;
-				.make {
-					font-size: 10px;
-					color: #4aa9fe;
-					width: 40px;
-					height: 15px;
-					border-radius: 5px;
-					border: 1px solid #4aa9fe;
-					line-height: 15px;
-					text-align: center;
-					margin-top: 8px;
-				}
-				.people {
-					color: #999999;
-					font-size: 12px;
-				}
-				.sell {
-					color: #666666;
-					font-size: 12px;
-				}
 			}
 		}
 	}
