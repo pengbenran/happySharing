@@ -1,7 +1,6 @@
 <template>
 	<div>
 		<div class="discount-wrap centered">
-			<div class="title">为你推荐</div>
 			<div class="discount">
 				<div v-for="(item , index) in discount" class="discount-li">
 					<div class="img"><img :src="item.img" /></div>
@@ -123,13 +122,7 @@
 		width: 95%;margin:  0 auto;
 	}
 	.discount-wrap {
-		padding: 24px 0 40px 0;
-		.title {
-			font-size: 18px;
-			color: #111111;
-			margin-bottom: 18px;
-			font-weight: bold;
-		}
+		padding-bottom:20px ;
 		.discount {
 			display: flex;
 			flex-wrap: wrap;

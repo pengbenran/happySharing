@@ -21,6 +21,7 @@
 						<div class="name-make clr">
 							<div class="name fl">{{item.name}}</div>
 							<div class="make fr">{{item.make}}</div>
+							
 						</div>
 						<div class="desc">{{item.desc}}</div>
 						<div class="original-people clr">
@@ -246,7 +247,6 @@
 					sell: "200",
 					dianzhan: "1188"
 				}, ]
-
 			}
 		},
 
@@ -256,7 +256,7 @@
 		},
 
 		methods: {
-
+         
 		},
 
 		created() {
