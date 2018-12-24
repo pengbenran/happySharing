@@ -7,16 +7,16 @@
     </div>
     <!-- banner图 -->
     <div class="banner">
-      <Banner></Banner>  
+      <Banner></Banner>   
     </div>
     <!-- 积分商城 -->
-    <div class="pointLogo">
+    <div class="pointLogo"> 
       <img src="/static/images/pointLogo.png" mode="widthFix">
-    </div>
+    </div> 
     <!-- 地区列表 -->
-    <div class="addressItem">
+    <div class="addressItem"> 
       <div class="addressItemList" v-for="(item,index) in addressItem">
-        <img :src="item.icon" mode="widthFix">
+        <img :src="item.icon" mode="widthFix"> 
         <span>{{item.name}}</span>
       </div>
     </div>
@@ -33,15 +33,22 @@
       <span>这是一条公告公告</span>
     </div>
     <!-- 分类列表 -->
+  
      <kindTemplate :kind_item='kindItem'></kindTemplate>
+
+     <!--为你推荐-->
+     <discount></discount> 
   </div>
+  
 </template>
 
 <script>
+import discount from '@/components/discount'
 import Search from '@/components/search'
 import Banner from '@/components/banner'
 import kindTemplate from '@/components/kindTemplate'
 export default {
+	
   data () {
     return {
      addressItem:[{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'},{name:"东湖区",icon:'/static/images/up_icon_a.png'}],
@@ -51,9 +58,10 @@ export default {
   },
 
   components: {
-    Search,
+    Search, 
     Banner,
-    kindTemplate
+    kindTemplate,
+    discount,
   },
 
   methods: {
@@ -67,6 +75,16 @@ export default {
 </script>
 
 <style scoped lang="less">
+/*隐藏滚动条*/
+  ::-webkit-scrollbar { 
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+/*centered*/
+.centered{
+	width: 95%;margin: 0 auto;
+}
 .container{
 	.top{
     display: flex;
@@ -107,6 +125,8 @@ export default {
       }
     }
   } 
+
+  
   // @keyframes kf-marque-animation{ 0% { transform: translateX(0); } 100% { transform: translateX(-53.3%); } }
   .adv{
     border:1px solid #ddd;

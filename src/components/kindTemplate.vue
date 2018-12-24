@@ -1,6 +1,9 @@
 <template>
-  <div class="kind">
+	
+  <div class="kind centered">
+
     <div class="kindList"  v-for="(item,index) in kind_item" style="background:#FEB2B6">
+  <navigator url="../../pages/product-list/main">
       <div class="kindIntro">
         <div class="tipIcon"><img :src="item.kindicon"></div>
         <div class="kindname oneover">{{item.kindname}}</div>
@@ -9,16 +12,18 @@
       <div class="rightImg">
         <img :src="item.kindImg" mode="widthFix">
       </div>
-    </div>
+    </navigator>
+   </div>
+
   </div>
-  
+   
 </template>
-<script>
+<script> 
 export default {
   props: ['kind_item'],
   data () {
     return {
-    
+      
     }
   },
   components: {
@@ -36,9 +41,13 @@ export default {
 </script>
 
 <style scoped lang="less">
+/*中间居中*/
+.centered{
+	width: 95%;margin:  0 auto;
+}
   .kind{
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     flex-wrap: wrap;
     .kindList{
       width:48%;

@@ -83,22 +83,20 @@
 	</div>
 </template>
 
-<script>
+<script> 
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	export default {
 		data() {
 			return {
-				
-			
 
 				cate: [{
-					
+
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
-						name: "火锅",
+						name: "火锅", 
 						image: "/static/images/down_icon_h.png"
 					},
 					{
@@ -136,7 +134,7 @@
 				],
 				discount: [
 
-					{ 
+					{
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "免预约",
@@ -263,7 +261,7 @@
 
 		created() {
 			// 调用应用实例的方法获取全局数据
-			
+
 		}
 	}
 </script>
@@ -297,16 +295,24 @@
 		src: url('//at.alicdn.com/t/font_977189_gjvgj44cte.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.woff') format('woff'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.ttf') format('truetype'), url('//at.alicdn.com/t/font_977189_gjvgj44cte.svg#iconfont') format('svg');
 	}
 	/*公共居中*/
+	/*中间居中*/
 	
 	.centered {
-		width: 350px;
+		width: 95%;
 		margin: 0 auto;
+	}
+	/*隐藏滚动条*/
+	
+	 ::-webkit-scrollbar {
+		width: 0;
+		height: 0;
+		color: transparent;
 	}
 	/*类目*/
 	
 	.cate {
 		display: flex;
-		justify-content: space-around;
+		justify-content: space-between;
 		flex-wrap: wrap;
 		text-align: center;
 		.cate-li {
