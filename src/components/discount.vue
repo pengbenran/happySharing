@@ -24,7 +24,7 @@
 		props: ['discountList','wid','magleft'],
 		data() {
 			return {
-			
+				
 			}
 		},
 
@@ -43,13 +43,12 @@
 </script>
 
 <style scoped lang="less">
-	/*中间居中*/
-
-	.discount-li {
-		border: 1px solid #cccccc;
-		flex-shrink: 0;
-		margin-bottom: 15px;
-		border-radius: 5px;
+/*中间居中*/
+.discount-li {
+	border: 1px solid #cccccc;
+	flex-shrink: 0;
+	margin-bottom: 15px;
+	border-radius: 5px;
 		// &:nth-child(1),
 		// &:nth-child(2) {
 		// 	margin: 0;
@@ -78,11 +77,6 @@
 				color: #4aa9fe;
 				width: 40px;
 				height: 15px;
-				border-radius: 5px;
-				border: 1px solid #4aa9fe;
-				line-height: 15px;
-				text-align: center;
-				margin-top: 8px;
 			}
 			.desc {
 				font-size: 15px;
@@ -90,7 +84,6 @@
 				line-height: 18px;
 			}
 			.original-people {
-
 				padding-bottom: 8px;
 				.original {
 					text-decoration: line-through;
@@ -118,6 +111,6 @@
 					font-size: 12px;
 				}
 			}
-		}
-	}	
+		}	
+	}
 </style>

@@ -22,7 +22,7 @@
 		<div class="rec-wrap centered">
 			<div class="title ">超赞推荐</div>
 			<div class="image"><img src="/static/images/rec-banner.png" /></div>
-            <goodslist v-for="(item , index) in rec" :goodlist="item" :key="item.recId"></goodslist>
+			<goodslist v-for="(item , index) in rec" :goodlist="item" :key="item.recId"></goodslist>
 		</div>
 	</div>
 </template>
@@ -182,7 +182,7 @@
 		},
 
 		methods: {
-
+         
 		},
 
 		created() {

@@ -131,6 +131,12 @@ export default {
 .centered{
 	width: 95%;margin: 0 auto;
 }
+		.index-title { 
+			font-size: 18px;
+			color: #111111;
+			margin: 24px auto 18px auto;
+			font-weight: bold;
+		}
 .container{
 	.top{
     display: flex;
