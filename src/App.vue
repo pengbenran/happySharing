@@ -8,7 +8,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
 /* this rule will be remove */
 * {
   transition: width 2s;
@@ -38,4 +38,36 @@ img{
   height: 100%;
   display: inline-block;
 }
+  /*浮动*/
+  
+  .fl {
+    float: left;
+  }
+  
+  .fr {
+    float: right;
+  }
+  /*清除浮动*/
+  
+  .clr {
+    &:after {
+      content: "";
+      display: block;
+      clear: both
+    }
+    zoom:1
+  }
+  /*中间居中*/
+  
+  .centered {
+    width: 95%;
+    margin: 0 auto;
+  }
+  /*隐藏滚动条*/
+  
+   ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    color: transparent;
+  }
 </style>
