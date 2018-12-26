@@ -12,7 +12,6 @@
         </div>
       </navigator>
     </div>
-
   </div>
 
 </template>

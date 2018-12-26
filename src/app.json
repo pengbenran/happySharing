@@ -1,7 +1,8 @@
 {
   "pages": [
-    "pages/auro/main",
+   
     "pages/index/main",
+    "pages/auro/main",
   	"pages/product-list/main",
   	"pages/appointment/main",
     "pages/logs/main",
@@ -16,7 +17,7 @@
     "navigationBarTextStyle": "black"
   },  
     "tabBar": {
-    "selectedColor":"#01a4bf",
+    "selectedColor":"#01a4bf", 
     "list": [
       {
         "pagePath": "pages/index/main",
