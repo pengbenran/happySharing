@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/auro/main",
     "pages/index/main",
+    "pages/auro/main",
   	"pages/product-list/main",
   	"pages/appointment/main",
     "pages/logs/main",

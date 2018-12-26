@@ -182,7 +182,10 @@
 		},
 
 		methods: {
-         
+         jump(index){
+         	console.log(111);
+         	console.log(index)
+         }
 		},
 
 		created() {

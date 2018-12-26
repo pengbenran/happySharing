@@ -96,7 +96,6 @@ export default {
             sell: "200",
             dianzhan: "1188"
           }
-
         ],
         wid:"48%",
         magleft:'0px'
