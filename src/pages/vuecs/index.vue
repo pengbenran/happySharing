@@ -1,6 +1,9 @@
 <template>
-	<div>
-		千米 : <input type="text" v-model="kilometers"> 米 : <input type="text" v-model="meters">
+	<div id="app">
+		<div>名字： <input type="text" v-model="aaa.name"/> </div>
+		<div v-for="(item,index) in bbb">{{item.name}}</div>
+		
+		<button @click="add()">an</button>
 	</div>
 </template>
 
@@ -8,8 +11,12 @@
 	export default {
 		data() {
 			return {
-				kilometers: 0,
-				meters: 0
+				aaa:{name:""},
+				bbb:[
+				   {name:"游萧明"},
+				   {name:"游萧明"}
+				]
+				
 			}
 		},
 
@@ -18,28 +25,17 @@
 		},
 
 		methods: {
-
+			add(){
+				this.aaa.push(this.bbb)
+			}
 		},
 		created() {
 			// 调用应用实例的方法获取全局数据
 		},
-		watch: {
-			kilometers: function(val) {
-//				this.kilometers = val;
-//				this.meters = val * 1000;
-				console.log(val)
-			},
-			meters: function(val) {
-				this.kilometers = val / 1000;
-				this.meters = val;
-			}
-		}
+
 	}
 </script>
 
 <style scoped>
-	.class1 {
-		background: #444;
-		color: #eee;
-	}
+	
 </style>

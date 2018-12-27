@@ -1,11 +1,13 @@
 <template>
 	<div>
-		<div class="time" @click="Times">还剩 <span>{{d}}</span>天 <span>{{h}}</span> : <span>{{m}}</span> : <span>{{s}}</span> 开始</div>
+		<div class="time" @click="Times">
+			还剩  <span>{{d}}</span> 天  <span>{{h}}</span> : <span>{{m}}</span> : <span>{{s}}</span> 开始
+		</div>
 	</div>
 </template>
 
 <script>
-	export default {
+	export default { 
 		data() {
 			return {
 				d: null,
