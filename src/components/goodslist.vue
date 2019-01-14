@@ -6,10 +6,10 @@
     <div class="name">{{goodlist.name}}</div>
     <div class="present ">￥:{{goodlist.present}}</div>
     <div class="original ">原价:{{goodlist.original}}</div>
-    <div class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
+    <div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
   </div>
   <div class="rec-right fr">
-    <div class="make ">{{goodlist.make}}</div>
+    <div class="clr"><div class="make fr">{{goodlist.make}}</div></div>
     <div class="people ">{{goodlist.people}}</div>
     <div class="sell ">已售:{{goodlist.sell}}</div>
   </div>
@@ -20,7 +20,7 @@
     props: ['goodlist'],
     data () {
       return {
-
+         
       }
     },
     components: {
@@ -53,8 +53,8 @@
     }
   }
   .rec-center {
-    width: 210px;
-    line-height: 20px;
+    width: 176px;
+     line-height: 20px;
     overflow: hidden;
     padding-left: 12px;
     box-sizing: border-box;
@@ -92,9 +92,10 @@
     }
   }
   .rec-right {
-    width: 60px;
+    width: 70px;
     line-height: 24px;
     overflow: hidden;
+    text-align: right;
     .make {
       font-size: 10px;
       color: #4aa9fe;

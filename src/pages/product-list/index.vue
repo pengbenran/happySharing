@@ -120,9 +120,12 @@
 	}
 	
 	.product-list {
+		position: fixed;
 		display: flex;
 		justify-content: space-between;
 		text-align: center;
+		margin-top: 18px;
+		
 		.product-list-li{
 			margin-bottom: 16px;
 			.title {
