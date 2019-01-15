@@ -70,7 +70,7 @@ export default {
             Api.getCode(res.code).then(function(memberRes){
               if(memberRes.code!=500){
                 wx.setStorageSync('Token', memberRes.token)
-                wx.setStorageSync('memberId', memberRes.memberDo.memberId)
+                wx.setStorageSync('memberId', memberRes.memberDo.id)
                 store.commit("storeUserInfo",memberRes.memberDo)
               }
               else {

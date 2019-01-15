@@ -3,10 +3,10 @@
 		<div class="myself">
 			<!--头像-->
 			<div class="myself-head">
-				<div class="img"><img :src="head.img" /></div>
+				<div class="img"><img :src="userInfo.face" /></div>
 				<div class="cant">
-					<span>{{head.name}}</span>
-					<span>ID : {{head.id}}</span>
+					<span>{{userInfo.uname}}</span>
+					<span>ID : {{userInfo.id}}</span>
 				</div>
 				<div class="service">
 					<span class="iconfont">&#xe61a;</span>
@@ -16,31 +16,31 @@
 			<!--会员 推荐师-->
 			<div class="member-recommended">
 				<div class="xian"></div>
-				<navigator url="../../pages/myself-grade/main" hover-class="none">
+				<navigator url="../myself-grade/main" hover-class="none">
 					<div class="wrap-on">
 						<div class="wrap">
 
 							<!--会员-->
 							<div class="member">
-								<div class="top">初级会员</div>
+								<div class="top">{{userInfo.lvname}}</div>
 								<div class="bottom">
-									<div><span>100</span><span>累计积分</span></div>
-									<div><span>100</span><span>可用积分</span></div>
+									<div><span>{{totalPoint}}</span><span>累计积分</span></div>
+									<div><span>{{userInfo.point}}</span><span>可用积分</span></div>
 								</div>
 							</div>
 							<!--已开通推荐师-->
-							<div class="recommended" v-if="isRe1">
-								<div class="top">金牌推荐师</div>
+							<div class="recommended" v-if="userInfo.whetherDistribe!=0">
+								<div class="top">{{userInfo.dlvname}}</div>
 								<div class="bottom">
-									<div><span>100</span><span>累计佣金</span></div>
-									<div><span>100</span><span>可用佣金</span></div>
+									<div><span>{{userInfo.total}}</span><span>累计佣金</span></div>
+									<div><span>{{userInfo.balance}}</span><span>可用佣金</span></div>
 								</div>
 							</div>
 							<!--未开通推荐师-->
-							<div class="recommended" v-if="isRe2">
-								<div class="top">金牌推荐师</div>
+							<div class="recommended" v-if="userInfo.whetherDistribe==0">
+								<div class="top">开通推荐师</div>
 								<div class="bottom1">
-									<navigator class="hear" url="../../pages/myself-team/main" hover-class="navigator-hover">
+									<navigator class="hear" url="../myself-team/main" hover-class="navigator-hover">
 									<span>开通</span>
 									</navigator> 
 									<span>了解</span>
@@ -54,12 +54,11 @@
 
 			<div class="list">
 				<div class="list-cant" v-for="(item,index) in list">
-					<navigator :url="item.ourl" class="list-li" hover-class="navigator-hover">
+					<div class="list-li" @click="jumpUrl(item.ourl)">
 						<div class="name">{{item.name}}</div>
 						<div class="iconfont" style="color: #666666;">&#xe65c;</div>
-					</navigator>
+					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -69,41 +68,47 @@
 	export default {
 		data() {
 			return {
-				isRe1:false,
-				isRe2:true,
 				list: [{
-						name: "我的预约",
-						ourl: "../../pages/myself-grade/main"
-					},
-					{
-						name: "我的团队",
-						ourl: "../../pages/myself-team/main"
-					},
-					{
-						name: "推荐邀请",
-						ourl: "../../pages/myself-team/main"
-					},
-					{
-						name: "个人资料",
-						ourl: "../../pages/myself-data/main"
-					},
-				],
-				head: {
-					name: "bobo",
-					id: "12345",
-					img: "/static/images/head.png"
+					name: "我的预约",
+					ourl: "../myself-grade/main"
 				},
+				{
+					name: "我的团队",
+					ourl: "../myself-team/main"
+				},
+				{
+					name: "推荐邀请",
+					ourl: "../myself-team/main"
+				},
+				{
+					name: "个人资料",
+					ourl: "../myself-data/main"
+				},
+				],
 
-			userInfo:{},
-         
+				userInfo:{},
+
 			}
 		},
 		components: {
 
 		},
-
+		computed:{
+			totalPoint(){
+				let that=this 
+				return that.userInfo.point*1+that.userInfo.consumePoint*1
+			}
+		},
 		methods: {
-
+			jumpUrl(url){
+				let that=this
+				if(url=='../myself-data/main'){
+					 wx.navigateTo({ url: '../myself-data/main?memberId='+that.userInfo.id});
+				}
+				else{
+ 				wx.navigateTo({ url:url});
+				}
+			}
 		},
 		mounted() {
 			let that=this

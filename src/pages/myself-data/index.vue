@@ -1,30 +1,64 @@
 <template>
 	<div>
 		<div class="heads">
-			<div class="img"><img :src="heads.head" /></div>
+			<div class="img"><img :src="memberInfo.face" /></div>
 			<div class="cant">
-				<span>{{heads.name}}</span>
-				<span>{{heads.member}}</span>
+				<span>{{memberInfo.uname}}</span>
+				<span>{{memberInfo.lvname}}</span>
 			</div>
-			<div class="btn" @click="btn" v-if="compile=='编辑'">
-				{{compile}}
-			</div>
-			<div class="btn" @click="btn1" v-if="compile=='完成'">
+			<div class="btn" @click="updatememberInfo">
 				{{compile}}
 			</div>
 		</div>
 
 		<div class="mymessage">
-			<div class="mymessage-li" v-for="(item,index) in mymessage">
-				<span>{{item.attribute}}<i></i></span>
+			<div class="mymessage-li">
+				<span>我 的 I D<i></i></span>
 				<span>:</span>
-				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="item.value" :disabled="isDisabled" />
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.id" disabled="true" />
 			</div>
+			<div class="mymessage-li">
+				<span>消费金额<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.consumeAmount" disabled="true" />
+			</div>
+			<div class="mymessage-li">
+				<span>推荐人<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="tjname" disabled="true" />
+			</div>
+			<div class="mymessage-li">
+				<span>加入时间<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.time" disabled="true" />
+			</div>
+			<div class="mymessage-li">
+				<span>性 别<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="sex" :disabled="isDisabled" />
+			</div>
+			<div class="mymessage-li">
+				<span>真实姓名<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.name" :disabled="isDisabled" />
+			</div>
+			<div class="mymessage-li">
+				<span>电 话<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.mobile" :disabled="isDisabled" />
+			</div>
+			<div class="mymessage-li">
+				<span>地 区<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.city" :disabled="isDisabled" />
+			</div>
+
 		</div>
 
 	</div>
 </template>
 <script>
+	import Api from "@/api/userinfo";
 	export default {
 
 		data() {
@@ -32,82 +66,77 @@
 				compile: "编辑",
 				isOn: false,
 				isDisabled: true,
-				heads: {
-					head: "/static/images/head.png",
-					member: "高级会员",
-					name: "bobo",
-				},
-				mymessage: [{
-						attribute: "我 的 I D",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "消费金额",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "推荐人",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "推荐时间",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "性 别",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "职 业",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "微 信 号",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "QQ 号",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "电 话",
-						value: "余文迎谈恋爱了"
-					},
-					{
-						attribute: "地 区",
-						value: "余文迎谈恋爱了"
-					},
-				],
+				memberInfo:{},
+				sex:''
 			};
 		},
 		methods: {
-			btn(index) {
-				this.compile = "完成"
-				this.isOn = true
-				this.isDisabled = false
+			async updatememberInfo(){
+				let that=this
+				if(this.compile=='完成'){
+					wx.showLoading({
+						title: '请稍等',
+					})
+					this.memberInfo.sex=this.sex=='男'?1:this.sex=='女'?2:0
+					let updateRes=await Api.memberInfoUpdate(this.memberInfo)
+					if(updateRes.code==0){
+						wx.hideLoading()
+						that.compile='编辑'
+						that.isOn = false
+						that.isDisabled = true
+						wx.showToast({
+							title: '修改成功',
+							icon: 'success',
+							duration: 1500
+						})
+					}
+					
+				}
+				else{
+					this.compile='完成'
+					this.isOn = true
+					this.isDisabled = false
+				}
+			}
+			// btn(index) {
+			// 	this.compile = "完成"
+			// 	this.isOn = true
+			// 	this.isDisabled = false
 				
 
-			},
-			btn1() {
-				this.compile = "编辑"
-				this.isOn = false
-				this.isDisabled = true
-				wx.showToast({
-
-					title: '修改成功',
-
-					icon: 'success',
-
-					duration: 1500
-
-				})
-			},
+			// },
+			// btn1() {
+			// 	this.compile = "编辑"
+			// 	this.isOn = false
+			// 	this.isDisabled = true
+			// 	wx.showToast({
+			// 		title: '修改成功',
+			// 		icon: 'success',
+			// 		duration: 1500
+			// 	})
+			// },
 		},
-		onLoad(options){
-			console.log(options)
+		async onLoad(options){
+			let that=this
+			wx.showLoading({
+				title: '加载中',
+			})
+			let memberInfo=await Api.memberInfo(options)
+			if(memberInfo.code==0){
+				that.memberInfo=memberInfo.data
+				that.sex=that.memberInfo.sex==1?'男':that.memberInfo.sex==2?'女':'未知'
+				wx.hideLoading()
+			}	
 		},
 		computed: {
-
+			sexfilter(){
+				let that=this
+				return that.memberInfo.sex==1?'男':that.memberInfo.sex==2?'女':'未知'
+			},
+			tjname(){
+				let that=this
+				return that.memberInfo.tjname==null?'无推荐人':that.memberInfo.tjname
+			}
 		}
 	}
 </script>
