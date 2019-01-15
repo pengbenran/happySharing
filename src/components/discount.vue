@@ -1,5 +1,7 @@
-<template>	
+<template>
 	<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
+		<navigator url="../../pages/detail/main">
+		<day :d="discountList.d" :h="discountList.h" :m="discountList.m" :s="discountList.s"></day>
 		<div class="img"><img :src="discountList.img" /></div>
 		<div class="cant">
 			<div class="name-make clr">
@@ -17,25 +19,25 @@
 				<div class="sell fr">已售:{{discountList.sell}}</div>
 			</div>
 		</div>
-	</div>	
+		</navigator>
+	</div> 
 </template>
 <script>
+	import day from '@/components/day'
 	export default {
-		props: ['discountList','wid','magleft'],
+		props: ['discountList', 'wid', 'magleft'],
 		data() {
 			return {
 				
 			}
 		},
-
 		components: {
-
+			day
 		},
 
 		methods: {
-
+		
 		},
-
 		created() {
 			// 调用应用实例的方法获取全局数据
 		}
@@ -43,12 +45,14 @@
 </script>
 
 <style scoped lang="less">
-/*中间居中*/
-.discount-li {
-	border: 1px solid #cccccc;
-	flex-shrink: 0;
-	margin-bottom: 15px;
-	border-radius: 5px;
+	/*中间居中*/
+	
+	.discount-li {
+		border: 1px solid #DEDEDE; 
+		flex-shrink: 0;
+		position: relative;
+		margin-bottom: 30px;
+		border-radius: 5px;
 		// &:nth-child(1),
 		// &:nth-child(2) {
 		// 	margin: 0;
@@ -56,7 +60,7 @@
 		.img {
 			width: 100%;
 			border-radius: 5px;
-			height: 75px;
+			height: 200px;
 			img {
 				width: 100%;
 				height: 100%;
@@ -66,17 +70,23 @@
 		.cant {
 			box-sizing: border-box;
 			padding: 0 5px;
-			.name {
-				font-size: 12px;
-				color: #ff0000;
-				border-bottom: 1px solid #ff0000;
+			.name-make {
 				margin: 6px 0;
-			}
-			.make {
-				font-size: 10px;
-				color: #4aa9fe;
-				width: 40px;
-				height: 15px;
+				.name {
+					font-size: 12px;
+					color: #ff0000;
+					border-bottom: 1px solid #ff0000;
+				}
+				.make {
+					font-size: 10px;
+					color: #4aa9fe;
+					width: 40px;
+					height: 15px;
+					border: 1px solid #4aa9fe;
+					line-height: 15px;
+					text-align: center;
+					border-radius: 5px;
+				}
 			}
 			.desc {
 				font-size: 15px;
@@ -84,7 +94,7 @@
 				line-height: 18px;
 			}
 			.original-people {
-				padding-bottom: 8px;
+				padding: 8px 0;
 				.original {
 					text-decoration: line-through;
 					color: #999999;
@@ -96,6 +106,7 @@
 				}
 			}
 			.Present-discounts-sell {
+				padding-bottom: 14px;
 				.Present {
 					color: #ff0000;
 					font-size: 17px;
@@ -111,6 +122,6 @@
 					font-size: 12px;
 				}
 			}
-		}	
+		}
 	}
 </style>

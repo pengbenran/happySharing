@@ -28,12 +28,12 @@ export default {
 <style scoped lang="less">
 .seach{
 	width: 250px;
-	height:50px;
+	height:33px;
 	background: #fafafa;
 	border-radius: 5px;
-	line-height: 50px;
+	line-height: 33px;
 	color: #9A9A9A;
-	font-size: 0.9em;
+	font-size: 12px;
 	text-align: center;
 }
 

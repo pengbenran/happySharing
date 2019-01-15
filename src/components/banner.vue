@@ -1,7 +1,7 @@
 <template>
 	<div>
-   <swiper class="swiper" indicator-dots='true' autoplay='true'>
-    <swiper-item v-for="(item,index) in banner" :key='item' :index="index"><img :src="item.imageUrl" mode="widthFix"></swiper-item>
+   <swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
+    <swiper-item v-for="(item,index) in banner" :key='item' :index="index"><img :src="item.imageUrl" ></swiper-item>
   </swiper>
 	</div>	 
 </template>
@@ -34,13 +34,18 @@ export default {
 </script>
 
 <style scoped lang="less">
+.i_sw .wx-swiper-dot{
+ 
+background-color:#fff;
+
+}
 img{
   width: 100%;
   height: 100%;
   display: block;
 }
 .swiper{
- height:100px;
- // height: auto;
+ height:90px;
+
 }
 </style>
