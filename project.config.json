@@ -10,7 +10,7 @@
 	},
 	"miniprogramRoot": "dist/wx/",
 	"compileType": "miniprogram",
-	"appid": "wxc6a44ea909442b31",
+	"appid": "wx60d3bdc1dff4931d",
 	"projectname": "happy",
 	"condition": {
 		"search": {

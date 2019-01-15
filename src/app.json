@@ -7,6 +7,7 @@
     "pages/myself-cash/main",
     "pages/myself-detail/main" ,
     "pages/myself-grade/main" ,
+    "pages/myself-dredge/main" , 
     "pages/order-detail/main",
     "pages/order/main",
     "pages/welfare/main",

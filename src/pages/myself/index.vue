@@ -1,5 +1,5 @@
 <template>
-	<div class="container">		
+	<div class="container">
 		<div class="myself">
 			<!--头像-->
 			<div class="myself-head">
@@ -13,49 +13,53 @@
 					<span>客服</span>
 				</div>
 			</div>
+
 			<!--会员 推荐师-->
 			<div class="member-recommended">
 				<div class="xian"></div>
-				<navigator url="../../pages/myself-grade/main" hover-class="none">
-					<div class="wrap-on">
-						<div class="wrap">
-
-							<!--会员-->
-							<div class="member">
-								<div class="top">初级会员</div>
-								<div class="bottom">
-									<div><span>100</span><span>累计积分</span></div>
-									<div><span>100</span><span>可用积分</span></div>
-								</div>
-							</div>
-							<!--已开通推荐师-->
-							<div class="recommended" v-if="isRe1">
-								<div class="top">金牌推荐师</div>
-								<div class="bottom">
-									<div><span>100</span><span>累计佣金</span></div>
-									<div><span>100</span><span>可用佣金</span></div>
-								</div>
-							</div>
-							<!--未开通推荐师-->
-							<div class="recommended" v-if="isRe2">
-								<div class="top">金牌推荐师</div>
-								<div class="bottom1">
-									<navigator class="hear" url="../../pages/myself-team/main" hover-class="navigator-hover">
-									<span>开通</span>
-									</navigator> 
-									<span>了解</span>
-								</div>
-							</div>
-							
-						</div>
-					</div>
+				<navigator class="member-recommended-href" url="../../pages/myself-grade/main" hover-class="none">
 				</navigator>
-			</div>
+				<div class="wrap-on">
+					<div class="wrap">
 
+						<!--会员-->
+						<div class="member">
+							<div class="top">初级会员</div>
+							<div class="bottom">
+								<div><span>100</span><span>累计积分</span></div>
+								<div><span>100</span><span>可用积分</span></div>
+							</div>
+						</div>
+						<!--已开通推荐师-->
+						<div class="recommended" v-if="isRe1">
+							<div class="top">金牌推荐师</div>
+							<div class="bottom">
+								<div><span>100</span><span>累计佣金</span></div>
+								<div><span>100</span><span>可用佣金</span></div>
+							</div>
+						</div>
+						<!--未开通推荐师-->
+						<div class="recommended" v-if="isRe2">
+							<div class="top">金牌推荐师</div>
+							<div class="bottom1">
+								<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
+									<span>开通</span>
+								</navigator>
+								<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
+									<span>了解</span>
+								</navigator>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+			<!--下面列表-->
 			<div class="list">
 				<div class="list-cant" v-for="(item,index) in list">
 					<navigator :url="item.ourl" class="list-li" hover-class="navigator-hover">
-						<div class="name">{{item.name}}</div>
+						<div class="name"> {{item.name}} </div>
 						<div class="iconfont" style="color: #666666;">&#xe65c;</div>
 					</navigator>
 				</div>
@@ -69,8 +73,8 @@
 	export default {
 		data() {
 			return {
-				isRe1:false,
-				isRe2:true,
+				isRe1: false,
+				isRe2: true,
 				list: [{
 						name: "我的预约",
 						ourl: "../../pages/myself-grade/main"
@@ -94,8 +98,8 @@
 					img: "/static/images/head.png"
 				},
 
-			userInfo:{},
-         
+				userInfo: {},
+
 			}
 		},
 		components: {
@@ -106,14 +110,18 @@
 
 		},
 		mounted() {
-			let that=this
-			that.userInfo=store.state.userInfo
+			let that = this
+			that.userInfo = store.state.userInfo
 		},
 	}
 </script>
 
 <style lang="less">
-
+	/*跳转按下后样式*/
+	
+	.navigator-hover {
+		background-color: #e5f3ff;
+	}
 	
 	.myself {
 		/*头部*/
@@ -149,6 +157,7 @@
 				span {
 					display: block;
 					text-align: center;
+					margin-top: 2px;
 					&:nth-child(1) {}
 					&:nth-child(2) {
 						font-size: 12px;
@@ -160,6 +169,17 @@
 		/*会员 推荐师*/
 		.member-recommended {
 			position: relative;
+			width: 100%;
+			padding: 0 12px;
+			border-radius: 3px;
+			box-sizing: border-box;
+			.member-recommended-href {
+				position: absolute;
+				top: 0;
+				width:100%;
+				height: 68%;
+				z-index: 999;
+			}
 			.xian {
 				width: 1px;
 				height: 50px;
@@ -170,10 +190,6 @@
 				background-color: rgba(255, 255, 255, .4);
 				margin-top: -25px;
 			}
-			width: 100%;
-			padding: 0 12px;
-			border-radius: 3px;
-			box-sizing: border-box;
 			.wrap-on {
 				width: 280px;
 				height: 156px;
@@ -222,55 +238,88 @@
 							}
 						}
 						/*未开通*/
-						.bottom1{
+						.bottom1 {
 							display: flex;
 							padding-top: 72px;
-							.hear{	
-								margin-right:4px; 
-								margin-left: 25px;
-								background: #fff;								
-								}
-								.navigator-hover{background-color: #057EF9;}							
-							span{
-								display: block;
+							.hear {
+								border-radius: 3px;
 								width: 60px;
 								height: 25px;
-								border: 1px solid #fff;
 								line-height: 25px;
+								border: 1px solid #fff;
+								text-align: center;
 								font-size: 14px;
-								text-align:center;
-								border-radius: 3px;							
-								&:nth-child(1){																		
-									color: #057ef9;									
+								&:nth-child(1) {
+									margin-right: 4px;
+									margin-left: 25px;
+									background: #fff;
+									span {
+										color: #057ef9;
+									}
 								}
-								&:nth-child(2){							
-									color: #fff;								
+								&:nth-child(2) {
+									span {
+										color: #fff;
+									}
 								}
 							}
-							
+							.navigator-hover {
+								background-color: #e5f3ff;
+							}
 						}
 					}
-				 
 				}
 			}
 		}
 		/*下面列表*/
 		.list {
-			padding-bottom: 100px;
+			padding-bottom: 81px;
 			.list-cant {
-				width: 100%;		
+				&:nth-child(1) {
+					.name {
+						&:before {
+							content: "\e610";
+						}
+					}
+				}
+				&:nth-child(2) {
+					.name {
+						&:before {
+							content: "\e624";
+						}
+					}
+				}
+				&:nth-child(3) {
+					.name {
+						&:before {
+							content: "\e7dd";
+						}
+					}
+				}
+				&:nth-child(4) {
+					.list-li {
+						.name {
+							&:before {
+								content: "\e609";
+								font-size: 20px;
+								margin-left: 2px;
+							}
+						}
+					}
+				}
+				width: 100%;
 				height: 50px;
-			    margin-top: 20px;
-				 line-height: 50px;
-				 &:nth-child(1){
-				 	margin-top: 50px;
-				 }
-				.list-li {				  
+				margin-top: 20px;
+				line-height: 50px;
+				&:nth-child(1) {
+					margin-top: 50px;
+				}
+				.list-li {
 					width: 100%;
 					padding: 0 30px;
 					box-sizing: border-box;
 					display: flex;
-					justify-content: space-between;					
+					justify-content: space-between;
 					.name {
 						font-size: 15px;
 						color: #111111;
@@ -281,34 +330,6 @@
 							color: #111111;
 							font-weight: bold;
 							vertical-align: middle;
-						}
-					}
-					&:nth-child(1) {
-						.name {
-							&:before {
-								content: "\e610";
-							}
-						}
-					}
-					&:nth-child(2) {
-						.name {
-							&:before {
-								content: "\e624";
-							}
-						}
-					}
-					&:nth-child(3) {
-						.name {
-							&:before {
-								content: "\e7dd";
-							}
-						} 
-					}
-					&:nth-child(4) {
-						.name {
-							&:before {
-								content: "\e609";
-							}
 						}
 					}
 				}
