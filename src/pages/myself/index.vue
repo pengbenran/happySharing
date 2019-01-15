@@ -14,10 +14,10 @@
 		<div class="myself">
 			<!--头像-->
             <div class="myself-head">
-            	<div class="img"><img :src="head.img"/></div>
+            	<div class="img"><img :src="userInfo.face"/></div>
             	<div class="cant">
-            		<span>{{head.name}}</span>
-            		<span>ID : {{head.id}}</span>
+            		<span>{{userInfo.uname}}</span>
+            		<span>ID : {{userInfo.id}}</span>
             	</div>
             	<div class="service">
             		<span class="iconfont">&#xe61a;</span>
@@ -30,10 +30,12 @@
 </template>
 
 <script>
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
-              head:{
+			userInfo:{},
+            head:{
               	name:"bobo",
               	id:"12345",
               	img:"/static/images/head.png"
@@ -48,7 +50,8 @@
 
 		},
 		mounted() {
-
+			let that=this
+			that.userInfo=store.state.userInfo
 		},
 	}
 </script>

@@ -1,9 +1,17 @@
 <script>
+// import store from './store/store'
 export default {
   created () {
     // 调用API从本地缓存中获取数据
     const logs = wx.getStorageSync('logs') || []
     logs.unshift(Date.now())
+     //在页面加载时读取sessionStorage里的状态信息
+    // if ( wx.getStorageSync("store") ) {
+    //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
+    // } 
+    // //在页面刷新时将vuex里的信息保存到sessionStorage里
+    // wx.setStorageSync("store",JSON.stringify(this.$store.state))
+  
   }
 }
 </script>

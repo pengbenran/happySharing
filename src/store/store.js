@@ -10,3 +10,5 @@ export default new Vuex.Store({
    storeUserInfo(state,userInfo){
    	state.userInfo=userInfo
    },
+}
+})

@@ -92,16 +92,19 @@
 				this.compile = "编辑"
 				this.isOn = false
 				this.isDisabled = true
-wx.showToast({
+				wx.showToast({
 
- title: '修改成功',
+					title: '修改成功',
 
- icon: 'success',
+					icon: 'success',
 
- duration: 1500
+					duration: 1500
 
-})
+				})
 			},
+		},
+		onLoad(options){
+			console.log(options)
 		},
 		computed: {
 
