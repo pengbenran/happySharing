@@ -7,16 +7,20 @@
 		<!--类目-->
 		<div class="cate centered">
 			<div v-for="(item , index) in cate" :key="item.cateid" class="cate-li">
-				<div class="img"><img :src="item.image" /></div>
-				<div class="name">{{item.name}}</div>
+				<navigator url="../../pages/auro-list/main">
+					<div class="img"><img :src="item.image" /></div>
+					<div class="name">{{item.name}}</div>
+				</navigator>
 			</div>
 		</div>
 		<!--超值优惠-->
 		<div class="discount-wrap centered">
 			<div class="title">超值优惠</div>
-			<div class="discount">
-				<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount>
-			</div>
+			<scroll-view scroll-x style="width: 100%;">
+				<div class="discount">
+					<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount>
+				</div>
+			</scroll-view>
 		</div>
 		<!--超赞推荐-->
 		<div class="rec-wrap centered">
@@ -27,7 +31,7 @@
 	</div>
 </template>
 
-<script> 
+<script>
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	import discount from '@/components/discount'
@@ -35,63 +39,61 @@
 	export default {
 		data() {
 			return {
-
 				cate: [{
-						cateid:1,
+						cateid: 1,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
-						cateid:2,
-						name: "火锅", 
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid:3,
+						cateid: 2,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
-						cateid:4,
+						cateid: 3,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
-						cateid:5,
+						cateid: 4,
 						name: "火锅",
 						image: "/static/images/down_icon_h.png"
 					},
 					{
-						cateid:6,
+						cateid: 5,
+						name: "火锅",
+						image: "/static/images/down_icon_h.png"
+					},
+					{
+						cateid: 6,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
-						cateid:7,
+						cateid: 7,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
-						cateid:8,
+						cateid: 8,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
-						cateid:9,
+						cateid: 9,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 					{
-						cateid:10,
+						cateid: 10,
 						name: "火锅",
 						image: "/static/images/down_icon_ff.png"
 					},
 				],
-				wid:'240px',
-				magleft:'10px',
-				discount: [
-					{ 
-						goodsid:1,
+				wid: '240px',
+				magleft: '10px',
+				discount: [{
+						goodsid: 1,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "免预约",
@@ -101,10 +103,11 @@
 						discounts: "83",
 						people: "2人",
 						sell: "2368",
-						dianzhan: "1188"
+						dianzhan: "1188",
+						
 					},
 					{
-						goodsid:2,
+						goodsid: 2,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "需预约",
@@ -114,10 +117,11 @@
 						discounts: "83",
 						people: "2人",
 						sell: "200",
-						dianzhan: "1188"
+						dianzhan: "1188",
+					
 					},
 					{
-						goodsid:3,
+						goodsid: 3,
 						img: "/static/images/banner.png",
 						name: "世茂/金塔/新力/莲塘/四店通用",
 						make: "免预约",
@@ -127,12 +131,13 @@
 						discounts: "83",
 						people: "2人",
 						sell: "200",
-						dianzhan: "1188"
+						dianzhan: "1188",
+					
 					},
 
 				],
 				rec: [{
-					recId:1,
+					recId: 1,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -143,9 +148,10 @@
 					discounts: "83",
 					people: "2人",
 					sell: "2368",
-					dianzhan: "1188"
+					dianzhan: "1188",
+					isshow:true,
 				}, {
-					recId:2,
+					recId: 2,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -156,9 +162,10 @@
 					discounts: "83",
 					people: "2人",
 					sell: "200",
-					dianzhan: "1188"
+					dianzhan: "1188",
+					isshow:true,
 				}, {
-					recId:3,
+					recId: 3,
 					img: "/static/images/d.png",
 					title: "西江月园林火锅",
 					name: "世茂/金塔/新力/莲塘/四店通用",
@@ -169,7 +176,8 @@
 					discounts: "83",
 					people: "2人",
 					sell: "200",
-					dianzhan: "1188"
+					dianzhan: "1188",
+				    isshow:true,
 				}, ]
 			}
 		},
@@ -182,10 +190,10 @@
 		},
 
 		methods: {
-         jump(index){
-         	console.log(111);
-         	console.log(index)
-         }
+			jump(index) {
+				console.log(111);
+				console.log(index)
+			}
 		},
 
 		created() {
@@ -197,6 +205,7 @@
 
 <style scoped lang="less">
 	/*类目*/
+	
 	.cate {
 		display: flex;
 		justify-content: space-between;
@@ -233,8 +242,7 @@
 		}
 		.discount {
 			display: flex;
-	        overflow-x:auto;
-	        overflow-y:hidden;  
+			padding-top: 10px;
 		}
 	}
 	/*超赞推荐*/

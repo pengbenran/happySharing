@@ -1,15 +1,25 @@
 {
   "pages": [
-    "pages/index/main",
-    "pages/auro/main",
-  	"pages/product-list/main",
-  	"pages/appointment/main",
-    "pages/logs/main",
-    "pages/welfare/main",
+    "pages/index/main", 
+    "pages/myself-team/main",
+    "pages/myself-data/main",
+    "pages/myself-exchange/main",
+    "pages/myself-cash/main",
+    "pages/myself-detail/main" ,
+    "pages/myself-grade/main" ,
+    "pages/order-detail/main",
     "pages/order/main",
-    "pages/myself/main"   
+    "pages/welfare/main",
+    "pages/appointment/main",
+    "pages/detail/main",
+    "pages/product-list/main",
+    "pages/auro-list/main",
+    "pages/auro/main",
+    	
+    "pages/logs/main",  
+    "pages/myself/main"  
     ],
-  "window": {
+  "window": { 
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "WeChat",
@@ -17,12 +27,13 @@
   },  
     "tabBar": {
     "selectedColor":"#01a4bf", 
+    
     "list": [
-      {
+      { 
         "pagePath": "pages/index/main",
-        "iconPath": "/static/images/home.png",
+        "iconPath": "/static/images/home.png", 
         "selectedIconPath": "/static/images/homeselect.png",
-        "text": "首页"
+        "text": "首页" 
       },
       {
         "pagePath": "pages/appointment/main",  

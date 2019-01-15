@@ -20,12 +20,14 @@ export default {
 }
 @font-face {
   font-family: 'iconfont';  /* project id 977244 */
-  src: url('//at.alicdn.com/t/font_977244_zwneg1xqiz.eot');
-  src: url('//at.alicdn.com/t/font_977244_zwneg1xqiz.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_977244_zwneg1xqiz.woff') format('woff'),
-  url('//at.alicdn.com/t/font_977244_zwneg1xqiz.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_977244_zwneg1xqiz.svg#iconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_977244_bkfv45bepv8.eot');
+  src: url('//at.alicdn.com/t/font_977244_bkfv45bepv8.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.woff') format('woff'),
+  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.svg#iconfont') format('svg');
 }
+
 .iconfont{
   font-family: 'iconfont';
   vertical-align: middle; 

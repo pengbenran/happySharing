@@ -14,7 +14,7 @@
 			<div class="latest">最新</div>
 			<div class="hot">最热</div>
 			<div class="active"></div>
-		</div>
+		</div> 
 		<!--列表-->
 		<div class="discount-wrap">
 			<div class="discount-li centered" v-for="(discountList,index) in discount">
@@ -136,6 +136,7 @@
 		justify-content: space-between;
 		text-align: center;
 		margin-top: 18px;
+		margin-top: ;
 		.product-list-li {
 			margin-bottom: 16px;
 			.title {
@@ -229,11 +230,11 @@
 			padding: 0 10px;border: 1px solid #cccccc;
 			width: 331px;height: 168px;
 			.name-make {
-				margin: 6px 0;
+				margin: 20px 0;
 				.name {
 					font-size: 12px;
-					color: #ff0000;
-					border-bottom: 1px solid #ff0000;
+					color: #999999;
+				/*	border-bottom: 1px solid #ff0000;*/
 				}
 				.make {
 					font-size: 10px;

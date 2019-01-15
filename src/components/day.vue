@@ -23,7 +23,7 @@
 
 <style scoped lang="less">
 .time{
-	position: absolute;left: 0;top: 0px;
+	position: absolute;left: 0;top: -10px;
 	width: 188px;height: 20px;
 	border-top-right-radius: 10px ;
 	border-top-left-radius:10px;
