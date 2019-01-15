@@ -1,23 +1,23 @@
 {
   "pages": [
-
-    "pages/index/main",
-    "pages/auro/main",
-    "pages/auro-list/main",  
-  	"pages/product-list/main",
-  	"pages/detail/main",
-  	"pages/appointment/main",
-    "pages/logs/main",
-    "pages/welfare/main",
-    "pages/order/main",
-    "pages/order-detail/main",
-    "pages/myself/main" ,
-    "pages/myself-grade/main" ,
+    "pages/index/main", 
+    "pages/myself-team/main",
+    "pages/myself-data/main",
+    "pages/myself-exchange/main",
+    "pages/myself-cash/main",
     "pages/myself-detail/main" ,
-    "pages/myself-cash/main" ,
-    "pages/myself-exchange/main" ,
-    "pages/myself-data/main" ,
-    "pages/myself-team/main"  
+    "pages/myself-grade/main" ,
+    "pages/order-detail/main",
+    "pages/order/main",
+    "pages/welfare/main",
+    "pages/appointment/main",
+    "pages/detail/main",
+    "pages/product-list/main",
+    "pages/auro-list/main",
+    "pages/auro/main",
+    	
+    "pages/logs/main",  
+    "pages/myself/main"  
     ],
   "window": { 
     "backgroundTextStyle": "light",

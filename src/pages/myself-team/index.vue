@@ -19,7 +19,7 @@
 					<span :class=" isIocn?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xeb2b;</span>
 					<span class="fl">全部会员</span>
-					<span class="fr">{{num1+num2+num3}}人</span>
+					<span class="fr">{{memberCount}}人</span>
 				</div>
 				<div class="data" v-if="isLi">
 					<div v-for="(item,index) in quan">
@@ -34,12 +34,12 @@
 					</div>
 				</div>
 			</div>
-			<div class="tamemate-li">
+			<div class="tamemate-li" v-for="(memberLvitem,memberLvindex) in memberLvDOList" :key="memberLvitem.id" :index="memberLvindex">
 				<div class="tamemate-tit clr" @click="show1">
 					<span :class=" isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">高级会员</span>
-					<span class="fr">{{num1}}人</span>
+					<span class="fl">{{memberLvitem.name}}</span>
+					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
 				<div class="data" v-if="isLi1">
 					<div class="data-li clr" v-for="(item,index) in quan.gao">
@@ -47,43 +47,6 @@
 						<div class="name fl">
 							<span>{{item.name}}</span>
 							<span>消费金额：{{item.numbe}}</span>
-						</div>
-						<div class="day fr">{{item.day}}</div>
-					</div>
-				</div>
-			</div>
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show2">
-					<span :class=" isIocn2?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">中级会员</span>
-					<span class="fr">{{num2}}人</span>
-				</div>
-				<div class="data" v-if="isLi2">
-					<div class="data-li clr" v-for="(item,index) in quan.zhong">
-						<div class="img fl"><img :src="item.img" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额:{{item.numbe}}</span>
-						</div>
-
-						<div class="day fr">{{item.day}}</div>
-					</div>
-				</div>
-			</div>
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show3">
-					<span :class=" isIocn3?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">初级会员</span>
-					<span class="fr">{{num3}}人</span>
-				</div>
-				<div class="data" v-if="isLi3">
-					<div class="data-li clr" v-for="(item,index) in quan.chu">
-						<div class="img fl"><img :src="item.img" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额：{{item.numbe}} </span>
 						</div>
 						<div class="day fr">{{item.day}}</div>
 					</div>
@@ -97,7 +60,7 @@
 					<span :class="isIocn?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span style="color: #2bc24b;" class="iconfont fl">&#xeb2b;</span>
 					<span class="fl">全部推荐师</span>
-					<span class="fr">{{num1+num2+num3}}人</span>
+					<span class="fr">{{distribeCount}}人</span>
 				</div>
 				<div class="data" v-if="isLi">
 					<div v-for="(item,index) in quan">
@@ -112,12 +75,12 @@
 					</div>
 				</div>
 			</div>
-			<div class="tamemate-li">
+		<div class="tamemate-li" v-for="(distribeLvitem,distribeLvindex) in distribeLvDOList" :key="distribeLvitem.id" :index="distribeLvindex">
 				<div class="tamemate-tit clr" @click="show1">
 					<span :class=" isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">高级推荐师</span>
-					<span class="fr">{{num1}}人</span>
+					<span class="fl">{{distribeLvitem.name}}</span>
+					<span class="fr">{{distribeLvitem.lvCount}}人</span>
 				</div>
 				<div class="data" v-if="isLi1">
 					<div class="data-li clr" v-for="(item,index) in quan.gao">
@@ -130,47 +93,11 @@
 					</div>
 				</div>
 			</div>
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show2">
-					<span :class=" isIocn2?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">中级推荐师</span>
-					<span class="fr">{{num2}}人</span>
-				</div>
-				<div class="data" v-if="isLi2">
-					<div class="data-li clr" v-for="(item,index) in quan.zhong">
-						<div class="img fl"><img :src="item.img" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额:{{item.numbe}}</span>
-						</div>
-
-						<div class="day fr">{{item.day}}</div>
-					</div>
-				</div>
-			</div>
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show3">
-					<span :class=" isIocn3?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">初级推荐师</span>
-					<span class="fr">{{num3}}人</span>
-				</div>
-				<div class="data" v-if="isLi3">
-					<div class="data-li clr" v-for="(item,index) in quan.chu">
-						<div class="img fl"><img :src="item.img" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额：{{item.numbe}} </span>
-						</div>
-						<div class="day fr">{{item.day}}</div>
-					</div>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>
 <script>
+	import Api from "@/api/distribe";
 	export default {
 		data() {
 			return {
@@ -186,6 +113,10 @@
 				isR: false,
 				curr: 0,
 				aaa: [],
+				distribeLvDOList:[],
+				distribeCount:0,
+				memberLvDOList:[],
+				memberCount:0,
 				switchs: [{
 						tab: "会员队友"
 					},
@@ -286,20 +217,19 @@
 			},
 
 		},
-		computed: {
-			num1() {
-				var num = this.quan.gao.length
-				return num
-			},
-			num2() {
-				var num = this.quan.zhong.length
-				return num
-			},
-			num3() {
-				var num = this.quan.chu.length
-				return num
-			}
-		}
+		async mounted(){
+			let that=this
+			let params={}
+			params.unionid='12'
+			Api.myTeamIndex(params).then(function(res){
+				if(res.code==0){
+					that.distribeLvDOList=res.data.distribeLvDOList
+					that.distribeCount=res.distribeCount
+					that.memberLvDOList=res.data.memberLvDOList
+					that.memberCount=res.memberCount
+				} 
+			})
+		},
 	};
 </script>
 <style lang="less">
