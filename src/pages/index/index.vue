@@ -10,7 +10,7 @@
 		<!-- banner图 -->
 		<div class="banner">
 			<Banner></Banner>
-		</div>
+		</div> 
 		<!-- 积分商城 -->
 		<div class="pointLogo">
 			<img src="/static/images/pointLogo.png" mode="widthFix">
