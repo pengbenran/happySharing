@@ -1,16 +1,5 @@
 <template>
-	<div class="container">
-		<navigator url="../../pages/myself-grade/main">
-			这是我的
-		</navigator>
-
-		<navigator url="../../pages/myself-data/main">
-			个人资料
-		</navigator>
-		<navigator url="../../pages/myself-team/main">
-			我的团队
-		</navigator>
-
+	<div class="container">		
 		<div class="myself">
 			<!--头像-->
 			<div class="myself-head">
@@ -72,11 +61,11 @@
 				</div>
 
 			</div>
-
 		</div>
 	</div>
 </template>
 <script>
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
@@ -103,7 +92,10 @@
 					name: "bobo",
 					id: "12345",
 					img: "/static/images/head.png"
-				}
+				},
+
+			userInfo:{},
+         
 			}
 		},
 		components: {
@@ -114,7 +106,8 @@
 
 		},
 		mounted() {
-
+			let that=this
+			that.userInfo=store.state.userInfo
 		},
 	}
 </script>
