@@ -7,7 +7,7 @@ export default {
 	getCode(code){		
 	 return API.GetCode('http://192.168.2.208:8011/api/byCode',{code:code})		
 	},
-	// 获取用户信息并且注册会员
+	// 获取用户信息并且注册会员  
 	weCatLogin(params){
 		return API.GET('/api/weChatLogin',params)
 	}
