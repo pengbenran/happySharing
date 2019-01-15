@@ -16,6 +16,7 @@
     "build": "node build/build.js wx"
   },
   "dependencies": {
+    "flyio": "^0.6.9",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
     "mpvue": "^1.0.11"

@@ -1,6 +1,6 @@
 <template>
 	<div class="container">
-		<!--<navigator url="../../pages/myself-grade/main">
+		<navigator url="../../pages/myself-grade/main">
 			这是我的
 		</navigator>
 
@@ -9,7 +9,7 @@
 		</navigator>
 		<navigator url="../../pages/myself-team/main">
 			我的团队
-		</navigator>-->
+		</navigator>
 
 		<div class="myself">
 			<!--头像-->
