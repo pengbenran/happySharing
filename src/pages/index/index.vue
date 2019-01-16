@@ -240,7 +240,7 @@
 			let that = this;
 			// that.$refs.discounts.timeouts()
 			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=Api.getGoodCat()
+//			let GoodCatRes=Api.getGoodCat()
 			for(var i in that.discount){
 				that.cutTimes(i,that.discount[i].endtime)
 			}

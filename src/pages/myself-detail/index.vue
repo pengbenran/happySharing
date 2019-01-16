@@ -25,7 +25,7 @@
 					流水信息
 				</div>
 				<div class="type" @click="btnShow">
-					类型-全部<span class="iconfont" style="color: #666666;">&#xe600;</span>
+					类型-{{type}}<span class="iconfont" style="color: #666666;">&#xe600;</span>
 				</div>
 				<div class="day">
 					2018-12-30<span class="iconfont" style="color: #666666;">&#xe600;</span>
@@ -82,6 +82,7 @@
 	export default {
 		data() {
 			return {
+				type:"全部",
 				popup: [{
 						name: "全部"
 					},
@@ -157,15 +158,15 @@
 		},
 		methods: {
 			btnShow() {
-				this.isShow = true
+				this.isShow = true;
 			},
 			btnHide() {
-				this.isShow = false
+				this.isShow = false;
 			},
 			addClass(index) {
-				this.current = index
-				this.isShow = false
-
+				this.current = index;
+				this.isShow = false;
+				this.type = this.popup[index].name
 			}
 		},
 
