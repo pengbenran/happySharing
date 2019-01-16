@@ -6,7 +6,7 @@ export default {
 	},
 	// 获取用户信息并且注册会员  
 	weCatLogin(params){
-		return API.GET('/api-member/api/login/weChatLogin',params)
+		return API.getLogin('http://192.168.2.208:8011/api/login/weChatLogin',params)
 	},
 	//获取商品分类
 	getGoodCat(){
