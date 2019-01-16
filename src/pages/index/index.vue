@@ -211,7 +211,7 @@
 			},
 			// 获取地区列表
 
-
+ 
 
 			// 获取分类列表
 		},
@@ -222,10 +222,10 @@
 			})
 			// that.$refs.discounts.timeouts()
 			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=await Api.getGoodCat()
-			GoodCatRes.goodCats.map(item=>{
-				item.img='/static/images/down_icon_a.png'
-			})
+//			let GoodCatRes=await Api.getGoodCat()
+//			GoodCatRes.goodCats.map(item=>{
+//				item.img='/static/images/down_icon_a.png'
+//			})
 			that.menuItem=GoodCatRes.goodCats
 			for(var i in that.discount){
 				that.cutTimes(i,that.discount[i].endtime)
