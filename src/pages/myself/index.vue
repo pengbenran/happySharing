@@ -74,7 +74,7 @@
 			return {
 				list: [{
 					name: "我的预约",
-					ourl: "../myself-grade/main"
+					ourl: "../myself-invite/main"
 				},
 				{
 					name: "我的团队",
@@ -82,7 +82,7 @@
 				},
 				{
 					name: "推荐邀请",
-					ourl: "../myself-team/main"
+					ourl: "../myself-make/main" 
 				},
 				{
 					name: "个人资料",
