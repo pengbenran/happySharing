@@ -28,7 +28,7 @@
 		<!-- 菜单列表 -->
 		<div class="menuItem">
 			<div class="menuItemList" v-for="(item,index) in menuItem">
-				<img :src="item.icon" mode="widthFix">
+				<img :src="item.img" mode="widthFix">
 				<span>{{item.name}}</span>
 			</div>
 		</div>
@@ -86,28 +86,7 @@
 					name: "东湖区",
 					icon: '/static/images/up_icon_a.png'
 				}],
-				menuItem: [{
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, {
-					name: '火锅',
-					icon: '/static/images/down_icon_a.png'
-				}, ],
+				menuItem: [],
 				kindItem: [{
 					tipIcon:"美食",
 					kindicon: '/static/images/label_fight_up.png',
@@ -238,12 +217,24 @@
 		},
 		async mounted(){
 			let that = this;
+			wx.showLoading({
+				title: '加载中',
+			})
 			// that.$refs.discounts.timeouts()
 			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=Api.getGoodCat()
+			let GoodCatRes=await Api.getGoodCat()
+			GoodCatRes.goodCats.map(item=>{
+				item.img='/static/images/down_icon_a.png'
+			})
+			that.menuItem=GoodCatRes.goodCats
 			for(var i in that.discount){
 				that.cutTimes(i,that.discount[i].endtime)
 			}
+			// 获取地区分类
+			// let reginRes=await Api.getRegin()
+			// 获取首页商品推荐
+			let RecommendGood=await Api.getRecommendGood(0,3)
+			console.log(RecommendGood)
 			// console.log(that.$refs.discounts);
 		    // this.$refs.discounts.get()
 		}
@@ -317,6 +308,7 @@
 			width: 100%;
 			overflow-x: auto;
 			overflow-y: hidden;
+			height: 72px;
 			// white-space: nowrap;
 			.addressItemList,
 			.menuItemList {

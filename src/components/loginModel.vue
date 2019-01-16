@@ -61,9 +61,6 @@ export default {
   userLogin(){
     return new Promise((resolve, reject) => {
       let that=this
-      wx.showLoading({
-        title: '加载中',
-      })
       wx.login({
         success: function (res) {
           if (res.code) {
@@ -72,6 +69,7 @@ export default {
                 wx.setStorageSync('Token', memberRes.token)
                 wx.setStorageSync('memberId', memberRes.memberDo.id)
                 store.commit("storeUserInfo",memberRes.memberDo)
+                store.commit("storeConfig",memberRes.config)
               }
               else {
                 let memberId="00"

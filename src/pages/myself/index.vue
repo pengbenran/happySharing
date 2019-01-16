@@ -5,7 +5,7 @@
 			<div class="myself-head">
 				<div class="img"><img :src="userInfo.face" /></div>
 				<div class="cant">
-					<span>{{userInfo.uname}}</span>
+					<span>{{userInfo.name}}</span>
 					<span>ID : {{userInfo.id}}</span>
 				</div>
 				<div class="service">
@@ -143,13 +143,16 @@
 				overflow: hidden;
 			}
 			.cant {
-				margin-right: 120px;
 				span {
 					display: block;
 					&:nth-child(1) {
 						color: #111111;
 						font-size: 18px;
 						font-weight: bold;
+						width:200px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
 					}
 					&:nth-child(2) {
 						color: #999999;

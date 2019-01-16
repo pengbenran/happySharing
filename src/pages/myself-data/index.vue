@@ -3,7 +3,7 @@
 		<div class="heads">
 			<div class="img"><img :src="memberInfo.face" /></div>
 			<div class="cant">
-				<span>{{memberInfo.uname}}</span>
+				<span>{{memberInfo.name}}</span>
 				<span>{{memberInfo.lvname}}</span>
 			</div>
 			<div class="btn" @click="updatememberInfo">
@@ -38,9 +38,14 @@
 				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="sex" :disabled="isDisabled" />
 			</div>
 			<div class="mymessage-li">
-				<span>真实姓名<i></i></span>
+				<span>微信号<i></i></span>
 				<span>:</span>
 				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.name" :disabled="isDisabled" />
+			</div>
+			<div class="mymessage-li">
+				<span>真实姓名<i></i></span>
+				<span>:</span>
+				<input class="mymessage-value" :class="isOn===true?'on':''" type="text" v-model="memberInfo.uname" :disabled="isDisabled" />
 			</div>
 			<div class="mymessage-li">
 				<span>电 话<i></i></span>
