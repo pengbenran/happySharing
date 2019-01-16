@@ -231,12 +231,12 @@
 				that.cutTimes(i,that.discount[i].endtime)
 			}
 			// 获取地区分类
-			// let reginRes=await Api.getRegin()
+			let reginRes=await Api.getRegin()
 			// 获取首页商品推荐
-			let RecommendGood=await Api.getRecommendGood(0,3)
+			let RecommendGood=await Api.getRecommendGood(1,3)
 			console.log(RecommendGood)
-			// console.log(that.$refs.discounts);
-		    // this.$refs.discounts.get()
+			console.log(that.$refs.discounts);
+		    this.$refs.discounts.get()
 		}
 
 	}
