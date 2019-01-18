@@ -18,9 +18,9 @@
     "pages/product-list/main",
     "pages/auro-list/main",
     "pages/auro/main",
-    "pages/logs/main",  
+    "pages/logs/main",    
     "pages/myself/main"  
-    ],
+    ], 
   "window": { 
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",

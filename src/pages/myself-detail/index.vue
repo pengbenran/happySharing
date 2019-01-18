@@ -166,7 +166,7 @@
 			addClass(index) {
 				this.current = index;
 				this.isShow = false;
-				this.type = this.popup[index].name
+				this.type = this.popup[index].name;
 			}
 		},
 
