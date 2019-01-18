@@ -31,11 +31,13 @@ export default {
        that.isSubmit=true
        wx.login({
         success: res => {
+
            let code=res.code   
             // 发送 res.code 到后台换取 openId, sessionKey, unionId
             if (code) { 
              wx.getUserInfo({
               success: function (res_user) {
+                console.log(res_user)
                 res_user.userInfo.code=code
                 Api.weCatLogin(res_user.userInfo).then(function(res){
                   if(res.code==0){

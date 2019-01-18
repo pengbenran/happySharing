@@ -1,31 +1,32 @@
 <template>
-	<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
-		<navigator url="../../pages/detail/main">
-		<day :d="discountList.d" :h="discountList.h" :m="discountList.m" :s="discountList.s"></day>
-		<div class="img"><img :src="discountList.img" /></div>
-		<div class="cant">
-			<div class="name-make clr">
-				<div class="name fl">{{discountList.name}}</div>
-				<div class="make fr">{{discountList.make}}</div>
+	<div class="discount" :style="{display:isflex}">
+		<div class="discount-li" :style="{width:wid,marginLeft:magleft}" v-for="(item , index) in discountList" :key="item.id" @click="jumpGoodDetail(item.id)">	
+			<!-- <day :d="discountList.d" :h="discountList.h" :m="discountList.m" :s="discountList.s"></day> -->
+			<div class="img"><img :src="item.thumbnail" /></div>
+			<div class="cant">
+				<div class="name-make clr">
+					<div class="name fl">{{item.title}}</div>
+					<div class="make fr">免预约</div>
+				</div>
+				<div class="desc">{{item.goodName}}</div>
+				<div class="original-people clr">
+					<div class="original fl">原价:{{item.showPrice}}元</div>
+					<!-- <div class="people fr">{{item.showSales}}</div> -->
+				</div>
+				<div class="Present-discounts-sell clr">
+					<div class="Present fl">￥:{{item.price}}元</div>
+					<div class="discounts fl">优惠:{{item.saveMoney}}元</div>
+					<div class="sell fr">已售:{{item.showSales}}件</div>
+				</div>
 			</div>
-			<div class="desc">{{discountList.desc}}</div>
-			<div class="original-people clr">
-				<div class="original fl">原价:{{discountList.original}}</div>
-				<div class="people fr">{{discountList.people}}</div>
-			</div>
-			<div class="Present-discounts-sell clr">
-				<div class="Present fl">￥:{{discountList.Present}}</div>
-				<div class="discounts fl">优惠:{{discountList.discounts}}</div>
-				<div class="sell fr">已售:{{discountList.sell}}</div>
-			</div>
-		</div>
-		</navigator>
-	</div> 
+		</div> 
+	</div>
+	
 </template>
 <script>
 	import day from '@/components/day'
 	export default {
-		props: ['discountList', 'wid', 'magleft'],
+		props: ['discountList', 'wid', 'magleft','isflex'],
 		data() {
 			return {
 				
@@ -34,9 +35,13 @@
 		components: {
 			day
 		},
+		// computed:{
 
+		// },
 		methods: {
-		
+		jumpGoodDetail(goodsId){
+			wx.navigateTo({url:'../detail/main?goodsId='+goodsId})
+		}
 		},
 		created() {
 			// 调用应用实例的方法获取全局数据
@@ -46,7 +51,6 @@
 
 <style scoped lang="less">
 	/*中间居中*/
-	
 	.discount-li {
 		border: 1px solid #DEDEDE; 
 		flex-shrink: 0;

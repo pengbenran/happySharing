@@ -3,10 +3,10 @@
 		<!--搜索-->
 		<Search></Search>
 		<!--轮播-->
-		<Banner :banner='bannerImg'></Banner>
+		<Banner></Banner>
 		<!--类目-->
 		<div class="cate centered">
-			<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.id,item.name)">
+			<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
 					<div class="img"><img :src="item.img" /></div>
 					<div class="name">{{item.name}}</div>
 			</div>
@@ -38,14 +38,13 @@
 		data() {
 			return {
 				displayType:'flex',
-				menuItem: [],
-				regionname:'',
-				regionId:'',
+				addressItem: [],
+				goodCatName:'',
+				goodCatId:'',
 				wid: '240px',
 				magleft: '10px',
 				catGoodRes: [],
-				catGoodRecommend: [],
-				bannerImg:[]
+				catGoodRecommend: []
 			}
 		},
 
@@ -57,39 +56,42 @@
 		},
 
 		methods: {
-			jumpAuroList(goodCatId,catname) {
+			jumpgoodCartList(regionId,regionname) {
 				let that=this
-				wx.navigateTo({url:`../auro-list/main?goodCatId=${goodCatId}&catname=${catname}&regionname=${that.regionname}&regionId=${that.regionId}`})
+				wx.navigateTo({url:`../auro-list/main?goodCatId=${that.goodCatId}&catname=${that.goodCatName}&regionname=${regionname}&regionId=${regionId}`})
 			}
 		},
 
 		async onLoad(options) {
 			console.log(options);
 			let that=this
-			that.regionname=options.regionname
-			that.regionId=options.regionId
+			that.goodCatName=options.goodCatName
+			that.goodCatId=options.goodCatId
 			wx.setNavigationBarTitle({
-				title:options.regionname,		
+				title:options.goodCatName,		
 			})
 			// 获取地区分类下的广告
-			let typeImgRes=await Api.getTypeImg(2,options.regionId)
-			that.bannerImg=typeImgRes.data.imgs
+			let typeImgRes=await Api.getTypeImg(3,options.goodCatId)
+			console.log(typeImgRes);
 			// 获取地区分类下的商品分类
-			let GoodCatRes=await kindApi.getGoodCart()
-			GoodCatRes.goodCats.map(item=>{
-				item.img='/static/images/down_icon_a.png'
-			})
-			that.menuItem=GoodCatRes.goodCats
+			let reginRes=await kindApi.getRegin()
+			// reginRes.goodCats.map(item=>{
+			// 	item.img='/static/images/down_icon_a.png'
+			// })
+			that.addressItem=reginRes
 
 			// 获取地区分类下的商品(非推荐)
 			let params={}
-			params.regionId=options.regionId
-			let regionGoodRes=await Api.getRegionGoods(1,3,params)
-			that.regionGoodRes=regionGoodRes.rows
+			params.goodCatId=options.goodCatId
+			let catGoodRes=await Api.getkindGood(1,3,params)
+			that.catGoodRes=catGoodRes.rows
+			console.log(catGoodRes);
 			//获取地区分类项的商品(推荐)
 			params.recommend=1
-			let regionGoodRecommendRes=await Api.getRegionGoods(1,3,params)
-			that.regionGoodRecommend=regionGoodRecommendRes.rows
+			let catGoodRecommendRes=await Api.getkindGood(1,3,params)
+			that.catGoodRecommend=catGoodRecommendRes.rows
+			console.log(catGoodRecommendRes);
+
 		}
 	}
 </script>
@@ -99,14 +101,15 @@
 	
 	.cate {
 		display: flex;
+		justify-content: space-between;
 		flex-wrap: wrap;
 		text-align: center;
 		.cate-li {
 			margin-top: 16px;
-			width: 70px;
+			width: 20%;
 			.img {
-				width: 25px;
-				height: 25px;
+				width: 50px;
+				height: 50px;
 				margin: 0 auto;
 				img {
 					width: 100%;

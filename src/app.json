@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/main", 
+    "pages/myself-make/main" ,
     "pages/myself-team/main",
     "pages/myself-data/main",
     "pages/myself-exchange/main",
@@ -8,7 +9,6 @@
     "pages/myself-detail/main" ,
     "pages/myself-grade/main" ,
     "pages/myself-dredge/main" , 
-    "pages/myself-make/main" ,
     "pages/myself-invite/main" ,
     "pages/order-detail/main",
     "pages/order/main",
@@ -18,6 +18,8 @@
     "pages/product-list/main",
     "pages/auro-list/main",
     "pages/auro/main",
+    "pages/goodCartList/main",
+    "pages/goodCart/main",
     "pages/logs/main",  
     "pages/myself/main"  
     ],

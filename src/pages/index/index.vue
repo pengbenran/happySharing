@@ -9,7 +9,7 @@
 		</div>
 		<!-- banner图 -->
 		<div class="banner">
-			<Banner></Banner>
+			<Banner :banner='bannerList'></Banner>
 		</div> 
 		<!-- 积分商城 -->
 		<div class="pointLogo">
@@ -17,35 +17,43 @@
 		</div>
 		<!-- 地区列表 -->
 		<div class="addressItem">
-			<div class="addressItemList" v-for="(item,index) in addressItem">
-				<navigator url="../../pages/auro/main">
-					<img :src="item.icon" mode="widthFix">
+			<div class="addressItemList" v-for="(item,index) in addressItem" :key="item.id" @click="jumpAuro(item.id,item.name)">
+				<!-- <navigator url="../../pages/auro/main"> -->
+					<img :src="item.img" mode="widthFix">
 					<span>{{item.name}}</span>
-				</navigator>
+				<!-- </navigator> -->
 			</div>
 
 		</div>
 		<!-- 菜单列表 -->
 		<div class="menuItem">
-			<div class="menuItemList" v-for="(item,index) in menuItem">
+			<div class="menuItemList" v-for="(item,index) in menuItem" :key="item.id" @click="jumpgoodCart(item.id,item.name)">
 				<img :src="item.img" mode="widthFix">
 				<span>{{item.name}}</span>
 			</div>
 		</div>
 		<!-- 头条广告 -->
 		<div class="adv">
-			<img src="/static/images/tou.png">
-			<span>这是一条公告公告</span>
+			<div class="left">
+				<img src="/static/images/tou.png">
+			</div>
+			<div class="right">
+				<swiper class="swiper"  autoplay='true' vertical='true'>
+					<swiper-item v-for="(item,index) in message" :key="item.id">
+						{{item.content}}
+					</swiper-item>
+				</swiper>
+			</div>
+			
 		</div>
 		<!-- 分类列表 -->
 		<kindTemplate :kind_item='kindItem'></kindTemplate>
 		<!--为你推荐-->
 		<div class="discount-wrap centered">
 			<div class="title">为你推荐</div>
-			<div class="discount">
-				<!-- <day ref="day" :endtime="endtime"></day>	 -->
-				<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft" ref="discounts"></discount>
-			</div>
+			
+			<!-- <day ref="day" :endtime="endtime"></day>	 -->
+			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount>
 		</div>
 		<loginModel ref="loginModel"></loginModel> 
 	</div>
@@ -59,34 +67,17 @@
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
+	import util from '@/utils/index'
 	import Api from "@/api/home";
 	// let api=new Api
 	export default {
 		data() {
 			return {
-				addressItem: [{
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}, {
-					name: "东湖区",
-					icon: '/static/images/up_icon_a.png'
-				}],
+				displayType:'block',
+				message:[],
+				addressItem: [],
 				menuItem: [],
+				bannerList:[],
 				kindItem: [{
 					tipIcon:"美食",
 					kindicon: '/static/images/label_fight_up.png',
@@ -116,62 +107,7 @@
 					kindImg: '/static/images/banner_label_d.png',
 					backGround: '#B1D0FF'
 				}],
-				discount: [{
-						goodsid: 1,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "2368",
-						dianzhan: "1188",
-						endtime:"2018-12-30 16:50:00",
-						d:0,
-						h:0,
-						m:0,
-						s:0
-					},
-					{
-						goodsid: 2,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "需预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188",
-						endtime:"2018-12-29 16:50:00",
-						d:0,
-						h:0,
-						m:0,
-						s:0
-					},
-					{
-						goodsid: 3,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188",
-						endtime:"2018-12-28 16:50:00",
-						d:0,
-						h:0,
-						m:0,
-						s:0
-					}
-
-				],
+				discount: [],
 				wid: "100%",
 				magleft: '0px'
 			}
@@ -186,6 +122,12 @@
 		},
 
 		methods: {
+			jumpAuro:function(regionId,regionname){
+				wx.navigateTo({url:`../auro/main?regionId=${regionId}&regionname=${regionname}`})
+			},
+			jumpgoodCart:function(goodCatId,goodCatName){
+				wx.navigateTo({url:`../goodCart/main?goodCatId=${goodCatId}&goodCatName=${goodCatName}`})
+			},
 			cutTimes: function(i,endtime) {
 				//获取当前时间
 				let that=this
@@ -222,21 +164,28 @@
 			})
 			// that.$refs.discounts.timeouts()
 			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=await Api.getGoodCat()
+			let GoodCatRes=await Api.getGoodCart()
 			GoodCatRes.goodCats.map(item=>{
 				item.img='/static/images/down_icon_a.png'
 			})
 			that.menuItem=GoodCatRes.goodCats
-			for(var i in that.discount){
-				that.cutTimes(i,that.discount[i].endtime)
-			}
 			// 获取地区分类
 			let reginRes=await Api.getRegin()
+			that.addressItem=reginRes
 			// 获取首页商品推荐
 			let RecommendGood=await Api.getRecommendGood(1,3)
-			console.log(RecommendGood)
-			console.log(that.$refs.discounts);
-		    this.$refs.discounts.get()
+			RecommendGood.rows.map(item=>{
+				item.thumbnail='/static/images/banner.png'
+				// console.log(util.accSub(item.showPrice,price));
+				item.saveMoney=util.accSub(item.showPrice,item.price)	
+			})
+			that.discount=RecommendGood.rows
+			// 获取首页banner和公告
+		    // this.$refs.discounts.get()
+		    let bannerAndMessageRes=await Api.getbannerAndMessage()
+		    that.bannerList=bannerAndMessageRes.data.BannerList
+		    that.message=bannerAndMessageRes.data.messageDOList
+		    console.log(bannerAndMessageRes)
 		}
 
 	}
@@ -336,16 +285,21 @@
 			margin: 5px auto;
 			padding: 0 10px;
 			box-sizing: border-box;
-			img {
+			display: flex;
+			.left img{
+				margin-top: 7px;
 				width: 50px;
 				height: 18px;
-				display: inline-block;
-				vertical-align: middle;
+				display: block;
 			}
-			span {
-				padding: 0 5px;
-				box-sizing: border-box;
-			}
+		    .right{
+		    	padding-left: 10px;
+		    	box-sizing: border-box;
+				flex-grow: 1;
+				swiper{
+					height: 33px;
+				}
+		    }
 		}
 		.centered {
 			width: 95%;

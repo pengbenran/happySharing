@@ -1,7 +1,7 @@
 <template>
 	<div>
    <swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
-    <swiper-item v-for="(item,index) in banner" :key='item' :index="index"><img :src="item.imageUrl" ></swiper-item>
+    <swiper-item v-for="(item,index) in banner" :key='item' :index="index"><img :src="item.banners" ></swiper-item>
   </swiper>
 	</div>	 
 </template>
@@ -9,16 +9,9 @@
 export default {
   data () {
     return {
-     banner:[{
-      imageUrl:'/static/images/banner.png'
-     },{
-      imageUrl:'/static/images/banner.png'
-     },{ 
-      imageUrl:'/static/images/banner.png'
-     }]
     }
   },
-
+  props: ['banner'],
   components: {
     
   },
