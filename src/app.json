@@ -21,7 +21,8 @@
     "pages/goodCartList/main",
     "pages/goodCart/main",
     "pages/logs/main",   
-    "pages/myself/main"  
+    "pages/myself/main",
+    "pages/order-submit/main" 
     ], 
   "window": { 
     "backgroundTextStyle": "light",
