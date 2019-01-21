@@ -13,7 +13,7 @@
 		</div> 
 		<!-- 积分商城 -->
 		<div class="pointLogo">
-			<img src="/static/images/pointLogo.png" mode="widthFix">
+			<img src="https://shop.guqinet.com/html/images/zhifenxiang/pointLogo.png" mode="widthFix">
 		</div>
 		<!-- 地区列表 -->
 		<div class="addressItem">
@@ -83,14 +83,14 @@
 					kindicon: '/static/images/label_fight_up.png',
 					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
 					kindintro: '66抵200',
-					kindImg: '/static/images/banner_label_a.png',
+					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_a.png',
 					backGround: '#FEB2B6'
 				}, {
 					tipIcon:"亲子",
 					kindicon: '/static/images/label_fight_up.png',
 					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
 					kindintro: '66抵200',
-					kindImg: '/static/images/banner_label_b.png',
+					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_b.png',
 					backGround: '#FFCDB2'
 				}, {
 					tipIcon:"美业",
@@ -104,7 +104,7 @@
 					kindicon: '/static/images/label_fight_up.png',
 					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
 					kindintro: '66抵200',
-					kindImg: '/static/images/banner_label_d.png',
+					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_d.png',
 					backGround: '#B1D0FF'
 				}],
 				discount: [],
@@ -153,7 +153,7 @@
 			},
 			// 获取地区列表
 
-
+ 
 
 			// 获取分类列表
 		},

@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "福利"
+  "navigationBarTitleText": "福利",
+   "navigationBarBackgroundColor": "#f8e9a8",
+  "navigationBarTextStyle": "white"
 }

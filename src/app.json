@@ -20,9 +20,9 @@
     "pages/auro/main",
     "pages/goodCartList/main",
     "pages/goodCart/main",
-    "pages/logs/main",  
+    "pages/logs/main",   
     "pages/myself/main"  
-    ],
+    ], 
   "window": { 
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",

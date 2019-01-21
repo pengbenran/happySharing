@@ -9,7 +9,15 @@
 				</div>
 				<!--进度条-->
 				<div class="progress">
-					<progress class="pro" percent="30" active backgroundColor='#fff0e5' activeColor='#ff7d28' stroke-width='12px' border-radius='12px' show-info />
+					<div class="num clr">
+						<span class="fl">0</span>
+						<span class="fr">300</span>
+					</div>
+					<progress class="pro" percent="30" active backgroundColor='#fff0e5' activeColor='#ff7d28' stroke-width='12px' border-radius='12px' show-info='font-size: 50px' />
+					<div class="rank clr">
+						<span class="fl">初级</span>
+						<span class="fr">中级</span>
+					</div>
 				</div>
 				<!--积分-->
 				<div class="integrals">
@@ -18,18 +26,16 @@
 							<span>累计积分</span>
 							<span>100</span>
 						</div>
-						<div class="integral-right"> <span class="iconfont" style="font-size: 12px;">&#xe607;</span> 去推荐</div>
 					</div>
 					<div class="integral">
 						<div class="integral-left">
 							<span>可用积分</span>
 							<span>100</span>
 						</div>
-						<div class="integral-right"> <span class="iconfont"> &#xe6da;</span> 去兑换</div>
 					</div>
 				</div>
 			</div>
-	
+
 			<!--推荐师等级-->
 			<div class="recommenderRank">
 				<div class="title">推荐师等级</div>
@@ -44,12 +50,16 @@
 						<span>尊享丰厚佣金奖励、商品购买优惠特权</span>
 					</div>
 					<div class="btn">
-						<span>了解</span>
-						<span>开通</span>
+						<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
+							<span>开通</span>
+						</navigator>
+						<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
+							<span>了解</span>
+						</navigator>
 					</div>
 				</div>
 			</div>
-		<navigator url="../../pages/myself-detail/main">
+			<navigator url="../../pages/myself-detail/main">
 				哈哈哈
 			</navigator>
 		</div>
@@ -107,16 +117,41 @@
 						}
 					}
 				}
+				/*进度条*/
+				.progress {
+					.num {
+						padding-right: 53px;
+						span {
+							font-size: 15px;
+							&:nth-child(1) {
+								color: #ff7d28;
+							}
+							&:nth-child(2) {
+								color: #666666;
+							}
+						}
+					}
+					.rank {
+						padding-right: 53px;
+						span {
+							font-size: 15px;
+							&:nth-child(1) {
+								color: #ff7d28;
+							}
+							&:nth-child(2) {
+								color: #666666;
+							}
+						}
+					}
+				}
 				/*积分*/
 				.integrals {
 					padding: 20px 0;
+					display: flex;
+					justify-content: space-between;
+					width: 233px;
+					margin: 0 auto;
 					.integral {
-						display: flex;
-						justify-content: space-around;
-						align-items: center;
-						&:nth-child(2) {
-							margin-top: 20px;
-						}
 						.integral-left {
 							span {
 								display: block;
@@ -131,10 +166,6 @@
 									font-family: "roboto";
 								}
 							}
-						}
-						.integral-right {
-							font-size: 14px;
-							color: #666666;
 						}
 					}
 				}
@@ -195,24 +226,30 @@
 				.btn {
 					display: flex;
 					justify-content: center;
-					span {
-						display: block;
+					.hear {
+						border-radius: 3px;
 						width: 60px;
 						height: 25px;
-						border: 1px solid #32a1ff;
-						font-size: 13px;
 						line-height: 25px;
+						border: 1px solid #007bf9;
 						text-align: center;
-						border-radius: 3px;
+						font-size: 14px;
 						&:nth-child(1) {
-							color: #32a1ff;
-							margin-right: 2px;
+							margin-right: 4px;
+							margin-left: 25px;
+							background: #007bf9;
+							span {
+								color: #fff;
+							}
 						}
 						&:nth-child(2) {
-							color: #fff;
-							background-color: #32a1ff;
-							margin-left: 2px;
+							span {
+								color: #007bf9;
+							}
 						}
+					}
+					.navigator-hover {
+						background-color: #e5f3ff;
 					}
 				}
 			}
