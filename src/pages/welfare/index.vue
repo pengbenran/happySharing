@@ -218,7 +218,7 @@
 				width: 90px;
 				height: 96px;
 				line-height: 90px;
-				text-align: center;
+				text-align: center; 
 			}
 			.popup {
 				display: flex;

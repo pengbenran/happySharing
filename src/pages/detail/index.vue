@@ -38,7 +38,9 @@
 				预约
 			</div>
 			<div @click="btn1(index)" class="rush active">
-				立即购买
+				<navigator url="../order-submit/main" hover-class="none">
+				   立即购买
+				</navigator>
 			</div>
 		</div>
 	</div>
