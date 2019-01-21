@@ -55,7 +55,7 @@
 			<!-- <day ref="day" :endtime="endtime"></day>	 -->
 			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount>
 		</div>
-		<loginModel ref="loginModel"></loginModel> 
+		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 	</div>
 
 </template>
@@ -78,35 +78,7 @@
 				addressItem: [],
 				menuItem: [],
 				bannerList:[],
-				kindItem: [{
-					tipIcon:"美食",
-					kindicon: '/static/images/label_fight_up.png',
-					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
-					kindintro: '66抵200',
-					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_a.png',
-					backGround: '#FEB2B6'
-				}, {
-					tipIcon:"亲子",
-					kindicon: '/static/images/label_fight_up.png',
-					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
-					kindintro: '66抵200',
-					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_b.png',
-					backGround: '#FFCDB2'
-				}, {
-					tipIcon:"美业",
-					kindicon: '/static/images/label_fight_up.png',
-					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
-					kindintro: '66抵200',
-					kindImg: '/static/images/banner_label_c.png',
-					backGround: '#FFB2F8'
-				}, {
-					tipIcon:"旅游",
-					kindicon: '/static/images/label_fight_up.png',
-					kindname: '老哥龙虾店老哥龙虾店老哥龙虾店',
-					kindintro: '66抵200',
-					kindImg: 'https://shop.guqinet.com/html/images/zhifenxiang/banner_label_d.png',
-					backGround: '#B1D0FF'
-				}],
+				kindItem: [],
 				discount: [],
 				wid: "100%",
 				magleft: '0px'
@@ -152,7 +124,36 @@
 				}	
 			},
 			// 获取地区列表
-
+			async getIndex(){
+				let that=this
+				await that.$refs.loginModel.userLogin()
+				let GoodCatRes=await Api.getGoodCart()
+				GoodCatRes.goodCats.map(item=>{
+					item.img='/static/images/down_icon_a.png'
+				})
+				that.menuItem=GoodCatRes.goodCats
+	            // 获取根分类
+	            let rootKindRes=await Api.getRootKind()
+	            console.log(rootKindRes)
+	            that.kindItem=rootKindRes.rootCats
+				// 获取地区分类
+				let reginRes=await Api.getRegin()
+				that.addressItem=reginRes
+				// 获取首页商品推荐
+				let RecommendGood=await Api.getRecommendGood(1,3)
+				RecommendGood.rows.map(item=>{
+					item.thumbnail='/static/images/banner.png'
+					// console.log(util.accSub(item.showPrice,price));
+					item.saveMoney=util.accSub(item.showPrice,item.price)	
+				})
+				that.discount=RecommendGood.rows
+				// 获取首页banner和公告
+			    // this.$refs.discounts.get()
+			    let bannerAndMessageRes=await Api.getbannerAndMessage()
+			    that.bannerList=bannerAndMessageRes.data.BannerList
+			    that.message=bannerAndMessageRes.data.messageDOList
+			    console.log(bannerAndMessageRes)
+				}
  
 
 			// 获取分类列表
@@ -163,29 +164,7 @@
 				title: '加载中',
 			})
 			// that.$refs.discounts.timeouts()
-			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=await Api.getGoodCart()
-			GoodCatRes.goodCats.map(item=>{
-				item.img='/static/images/down_icon_a.png'
-			})
-			that.menuItem=GoodCatRes.goodCats
-			// 获取地区分类
-			let reginRes=await Api.getRegin()
-			that.addressItem=reginRes
-			// 获取首页商品推荐
-			let RecommendGood=await Api.getRecommendGood(1,3)
-			RecommendGood.rows.map(item=>{
-				item.thumbnail='/static/images/banner.png'
-				// console.log(util.accSub(item.showPrice,price));
-				item.saveMoney=util.accSub(item.showPrice,item.price)	
-			})
-			that.discount=RecommendGood.rows
-			// 获取首页banner和公告
-		    // this.$refs.discounts.get()
-		    let bannerAndMessageRes=await Api.getbannerAndMessage()
-		    that.bannerList=bannerAndMessageRes.data.BannerList
-		    that.message=bannerAndMessageRes.data.messageDOList
-		    console.log(bannerAndMessageRes)
+			that.getIndex()
 		}
 
 	}

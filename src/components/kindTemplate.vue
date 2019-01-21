@@ -3,7 +3,7 @@
 		<div class="kindList" v-for="(item,index) in kind_item">
 			<navigator url="../../pages/product-list/main">
 				<div class="kindIntro">
-					<div class="tipIcon">{{item.tipIcon}}</div>
+					<div class="tipIcon">{{item.name}}</div>
 					<div class="kindname oneover">{{item.kindname}}</div>
 					<div class="kinddetail oneover">{{item.kindintro}}</div>
 				</div>

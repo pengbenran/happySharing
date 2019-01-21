@@ -38,11 +38,15 @@ export default {
              wx.getUserInfo({
               success: function (res_user) {
                 console.log(res_user)
-                res_user.userInfo.code=code
-                Api.weCatLogin(res_user.userInfo).then(function(res){
+                let params={}
+                params.code=code
+                params.iv=res_user.iv
+                params.encryptedData=res_user.encryptedData
+                Api.weCatLogin(params).then(function(res){
                   if(res.code==0){
                     that.isSubmit=false
-                    that.userLogin()
+                    // that.userLogin()
+                    that.$emit('getIndex')
                     if(wx.getStorageSync('distribeId')==null){
 
                     }
