@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import API from '@/api/myself'
+
 	export default {
 		data() {
 			return {
@@ -45,10 +47,27 @@
 		},
 
 		methods: {
+			//获取我的页面的数据
+			async getMyselfIndex(){
+				let that = this;
+				let res = await API.getMyselt();
+				console.log("查看请求数据",res)
+			}
 
 		},
 		mounted() {
+             let that = this;
+			 that.getMyselfIndex();
 
+			 //javasrcipt
+			 console.log(typeof('yayu')) //string
+			 console.log(typeof 'yaya')
+			 console.log("`````````````````````")
+			 
+
+			 //使用object.prototype.toString
+			 console.log(Object.prototype.toString.call(undefined))
+			 
 		},
 	}
 </script>

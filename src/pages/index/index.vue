@@ -23,8 +23,8 @@
 					<span>{{item.name}}</span>
 				</navigator>
 			</div>
-
 		</div>
+
 		<!-- 菜单列表 -->
 		<div class="menuItem">
 			<div class="menuItemList" v-for="(item,index) in menuItem">
@@ -32,6 +32,7 @@
 				<span>{{item.name}}</span>
 			</div>
 		</div>
+		
 		<!-- 头条广告 -->
 		<div class="adv">
 			<img src="/static/images/tou.png">
@@ -47,20 +48,16 @@
 				<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft" ref="discounts"></discount>
 			</div>
 		</div>
-		<loginModel ref="loginModel"></loginModel> 
 	</div>
 
 </template>
 
 <script>
 	import discount from '@/components/discount'
-	import loginModel from "@/components/loginModel";
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
-	import Api from "@/api/home";
-	// let api=new Api
 	export default {
 		data() {
 			return {
@@ -203,7 +200,6 @@
 			kindTemplate,
 			discount,
 			day,
-			loginModel
 		},
 
 
@@ -242,18 +238,11 @@
 						}
      				},1000)	
 				}	
-			},
-			// 获取地区列表
-
-
-
-			// 获取分类列表
+			}
 		},
-		async mounted(){
+		mounted(){
 			let that = this;
 			// that.$refs.discounts.timeouts()
-			await that.$refs.loginModel.userLogin()
-			let GoodCatRes=Api.getGoodCat()
 			for(var i in that.discount){
 				that.cutTimes(i,that.discount[i].endtime)
 			}
