@@ -2,7 +2,7 @@
 	<div>
 		<div class="myselfcash">
 			<span>可提佣金   (元)</span>
-			<span>100</span>
+			<span>{{userInfo.balance}}</span>
 			<span>我要提取  ¥  <input v-model="inp" v-on:input="changeCss(val)"  type="number" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
 			<span>提取的佣金将存入您的微信钱包当中，记得查看哦</span>
 			<div :class="{btnon:isOn}" class="btn">提现</div>
@@ -10,12 +10,13 @@
 	</div>
 </template>
 <script>
+	import store from '@/store/store'
 	export default { 
-		name: "HelloWorld",
 		data() {
 			return {
 				isOn: false,
 				inp: "",
+				userInfo:{}
 			};
 		},
 		methods: {
@@ -30,7 +31,10 @@
 				console.log(regNum)
 			},
 		},
-
+		mounted(){
+		  let that=this
+		  that.userInfo = store.state.userInfo
+		},
 		computed: {
 
 		}

@@ -36,8 +36,17 @@
 				<div class="img"><img src="/static/images/home.png" /></div>
 				<div class="text">首页</div>
 			</div>
-			<div @click="jumpSaveOrder(index)" class="rush">
-				立即购买
+			<div v-if='goodsDetail.book==1' class="rush">	
+				<picker
+				mode="multiSelector"
+				@change="bindMultiPickerChange"
+				:value="multiIndex"
+				:range="multiArray"
+				>
+				<div>
+					立即预约
+				</div>
+			</picker>
 			</div>
 		</div>
 	</div>
@@ -53,6 +62,8 @@
 				wid: "100%",
 				magleft: "0",
 				goodsDetail:{},
+				multiIndex: [0, 0, 0],
+				multiArray: [['9月25日', '9月26日'], ['8:30-9:30', '8:30-9:30', '8:30-9:30']],
 			}
 
 		},
@@ -67,6 +78,12 @@
 			
 		},
 		methods: {
+			bindMultiPickerChange(e) {
+				console.log('picker发送选择改变，携带值为', e.detail.value)
+				// this.setData({
+				// 	multiIndex: e.detail.value
+				// })
+			},
 			jumpIndex(){
 				wx.switchTab({
 					url:'../index/main'
@@ -75,34 +92,37 @@
 			jumpSaveOrder(){
 				wx.navigateTo({url:`../order-submit/main`})
 			},
-			async getGoodsInfo(goodsId){
+			async getGoodsInfo(params){
 				let that=this
-				let goodsDetailRes=await Api.getGoodDetail(goodsId)
+				let goodsDetailRes=await Api.getBookGoodDetail(params)
 				if(goodsDetailRes.code==0){
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
+					that.timeFormat(goodsDetailRes.goodBooks[0].dateTime)
 					store.commit("stateGoodDetail",that.goodsDetail)
 				}
+			},
+			timeFormat(timestamp){
+				var time = new Date(timestamp);
+				var month = time.getMonth()+1;
+    		    var date = time.getDate();
+    		    console.log(month,date);
 			}
 		},
-
 		async onLoad(options) {
 			let that=this
 			that.goodsId =options.goodsId
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
-			// if (options.scene == undefined) {
-			// 	that.goodsId =options.goodsId;
-			// }
-			// else {
-			// 	// let scene = decodeURIComponent(options.scene);
-			// 	let scene = decodeURIComponent(options.scene);
-			// 	that.goodsId=scene.split('*')[0]
-			// 	that.codeUnionid=scene.split('*')[1]
-   //  		}
-			that.getGoodsInfo(that.goodsId)
+            let userInfo = store.state.userInfo
+            let params={}
+            params.goodId=that.goodsId
+            if(userInfo.whetherDistribe!=0){
+            	params.memberLv=userInfo.whetherDistribe
+            }
+			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据
 		}
 	}

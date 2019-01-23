@@ -59,9 +59,6 @@
 					</div>
 				</div>
 			</div>
-			<navigator url="../../pages/myself-detail/main">
-				哈哈哈
-			</navigator>
 		</div>
 	</div>
 </template>

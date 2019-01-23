@@ -17,13 +17,11 @@
 			<!--会员 推荐师-->
 			<div class="member-recommended">
 				<div class="xian"></div>
-				<navigator url="../myself-grade/main" hover-class="none">
 					<div class="wrap-on">
 						<div class="wrap">
-
 							<!--会员-->
 							<div class="member">
-								<div class="top">{{userInfo.lvname}}</div>
+								<div class="top" @click="jumpUrl('../myself-grade/main')">{{userInfo.lvname}}</div>
 								<div class="bottom">
 									<div><span>{{totalPoint}}</span><span>累计积分</span></div>
 									<div><span>{{userInfo.point}}</span><span>可用积分</span></div>
@@ -31,14 +29,14 @@
 							</div>
 							<!--已开通推荐师-->
 							<div class="recommended" v-if="userInfo.whetherDistribe!=0">
-								<div class="top">{{userInfo.dlvname}}</div>
-								<div class="bottom">
+								<div class="top" @click="jumpUrl('../myself-grade/main')">{{userInfo.dlvname}}</div>
+								<div class="bottom" @click="jumpUrl('../myself-detail/main')">
 									<div><span>{{userInfo.total}}</span><span>累计佣金</span></div>
 									<div><span>{{userInfo.balance}}</span><span>可用佣金</span></div>
 								</div>
 							</div>
 							<!--未开通推荐师-->
-							<div class="recommended" v-if="userInfo.whetherDistribe==0">
+							<div class="recommended" v-if="userInfo.whetherDistribe==0&&config.WhetherRecruit=='open'">
 								<div class="top">开通推荐师</div>
 								<div class="bottom1">
 									<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
@@ -52,7 +50,6 @@
 
 					</div>
 				</div>
-				</navigator>
 			</div>
 			<!--下面列表-->
 			<div class="list">
@@ -89,7 +86,7 @@
 					ourl: "../myself-data/main"
 				},
 				],
-
+				config:{},
 				userInfo:{},
 			}
 		},
@@ -116,6 +113,7 @@
 		mounted() {
 			let that = this
 			that.userInfo = store.state.userInfo
+			that.config = store.state.config
 		},
 	}
 </script>

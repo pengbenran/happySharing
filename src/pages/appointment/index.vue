@@ -70,13 +70,12 @@
 				// that.bookList=bookGoodRes.rows
 			},
 			jumpGoodDetail(goodsId){
-				wx.navigateTo({url:'../detail/main?goodsId='+goodsId})
+				wx.navigateTo({url:'../appointmentDetail/main?goodsId='+goodsId+'&codeUnionid='})
 			},
 			async getBookGood(pageNum,pageSize,params){
 				let that=this
 				let bookRes=await Api.getBookGood(pageNum,pageSize,params)
 				bookRes.rows.map(item=>{
-					item.thumbnail='/static/images/banner.png'
 					item.saveMoney=util.accSub(item.showPrice,item.price)	
 				})
 				that.bookList=bookRes.rows
@@ -126,6 +125,7 @@
 		width: 100%;
 		overflow-x: auto;
 		overflow-y: hidden;
+		justify-content: space-around;
 		.product-list-li {
 			margin-bottom: 16px;
 			.title {

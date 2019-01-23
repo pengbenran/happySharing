@@ -5,14 +5,12 @@
 			<div class="myselfdetail">
 				<div class="myselfdetail-left">
 					<span>累计佣金（元）</span>
-					<span>300</span>
+					<span>{{userInfo.total}}</span>
 				</div>
 				<div class="myselfdetail-right">
 					<span>可提佣金（元）</span>
-					<span>100</span>
-					<navigator class="cash" url="../../pages/myself-cash/main">
-						<span>提现</span>
-					</navigator>
+					<span>{{userInfo.balance}}</span>
+					<span class="cashBtn" @click="jumpCash">提现</span>
 				</div>
 			</div>
 		</div>
@@ -79,10 +77,12 @@
 </template>
 
 <script>
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
 				type:"全部",
+				userInfo:{},
 				popup: [{
 						name: "全部"
 					},
@@ -154,11 +154,16 @@
 
 		},
 		mounted() {
+			let that=this
+			that.userInfo = store.state.userInfo
 
 		},
 		methods: {
 			btnShow() {
 				this.isShow = true;
+			},
+			jumpCash(){
+				wx.navigateTo({url:`../myself-cash/main`})
 			},
 			btnHide() {
 				this.isShow = false;
@@ -234,7 +239,7 @@
 							padding: 30px 0;
 						}
 					}
-					.cash {
+					.cashBtn {
 						width: 80px;
 						height: 33px;
 						background-color: #32a1ff;

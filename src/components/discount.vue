@@ -8,7 +8,7 @@
 					<div class="name fl">{{item.title}}</div>
 					<div class="make fr">免预约</div>
 				</div>
-				<div class="desc">{{item.goodName}}</div>
+				<!-- <div class="desc">{{item.goodName}}</div> -->
 				<div class="original-people clr">
 					<div class="original fl">原价:{{item.showPrice}}元</div>
 					<!-- <div class="people fr">{{item.showSales}}</div> -->
@@ -40,7 +40,7 @@
 		// },
 		methods: {
 		jumpGoodDetail(goodsId){
-			wx.navigateTo({url:'../detail/main?goodsId='+goodsId})
+			wx.navigateTo({url:`../detail/main?goodsId=${goodsId}&codeUnionid=`})
 		}
 		},
 		created() {

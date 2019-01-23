@@ -5,7 +5,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state:{
   	userInfo:{},
-  	config:{}
+  	config:{},
+    goodDetail:{},
+    codeUnionid:''
   },
   mutations:{
    storeUserInfo(state,userInfo){
@@ -13,6 +15,12 @@ export default new Vuex.Store({
    },
    storeConfig(state,config){
    	state.config=config
+   },
+   stateGoodDetail(state,goodDetail){
+    state.goodDetail=goodDetail
+   },
+   statecodeUnionid(state,codeUnionid){
+    state.codeUnionid=codeUnionid
    }
 }
 })

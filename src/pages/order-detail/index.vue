@@ -115,7 +115,7 @@
 
 				}],
 				codeNumber: "3053558899432156515",
-				code: "https://shop.guqinet.com/html/images/zhifenxiang/code.png",
+				code: "/static/images/code.png",
 				title: "买家不可使用",
 				state: "已取消",
 				rec: [{
