@@ -118,7 +118,7 @@
 				color: #ff7d28;
 			}
 			.num {
-				color: #999999;
+				color: #333333;
 				font-size: 12px;
 			}
 			.sell {

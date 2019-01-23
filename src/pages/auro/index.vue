@@ -66,7 +66,7 @@
 		async onLoad(options) {
 			console.log(options);
 			let that=this
-			that.regionname=options.regionname
+			that.regionname=options.regionname 
 			that.regionId=options.regionId
 			wx.setNavigationBarTitle({
 				title:options.regionname,		
@@ -90,6 +90,21 @@
 			params.recommend=1
 			let regionGoodRecommendRes=await Api.getRegionGoods(1,3,params)
 			that.regionGoodRecommend=regionGoodRecommendRes.rows
+		},
+				//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒' + item.name,
+				path: "pages/auro/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
+			}
 		}
 	}
 </script>
