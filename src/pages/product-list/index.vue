@@ -6,17 +6,17 @@
 		<Banner></Banner>
 		<!--类目-->
 		<div class="product-list centered">
-			<div @click="click(index)" v-for="(item,index) in productlist"  :class="timeindex === index? 'product-list-li-on':'product-list-li' " >
-				<div class="title">{{item.title}}</div>
-				<div class="desc">{{item.desc}}</div>
+			<div @click="kindChang(index)" v-for="(item,index) in kindItem"  :class="timeindex === index? 'product-list-li-on':'product-list-li' " >
+				<div class="title">{{item.name}}</div>
+				<div class="desc">{{item.description}}</div>
 			</div>
 		</div>
 		<!--最新最火-->
-		<div class="order">
+	<!-- 	<div class="order">
 			<div class="latest">最新</div>
 			<div class="hot">最热</div>
 			<div class="active"></div>
-		</div>
+		</div> -->
 		<!--列表-->
 		<div class="discount centered">
 			<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount> 
@@ -28,67 +28,16 @@
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	import discount from '@/components/discount'
+	import kindApi from "@/api/home";
+	import Api from '@/api/goods'
 	export default { 
 		data() {
 			return {
-				 timeindex:0, 
-				productlist: [{
-					title: "美食",
-					desc: "畅享美味",
-				}, {
-					title: "美食",
-					desc: "畅享美味",
-				}, {
-					title: "美食",
-					desc: "畅享美味" ,
-				}, {
-					title: "美食",
-					desc: "畅享美味",
-				}],
+				timeindex:0, 
+				kindItem: [],
 				wid:"100%",
 				magleft:'0px',
-				discount: [
-				{ 
-					goodsid:1,
-					img: "/static/images/banner.png",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					Present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188"
-				},
-				{
-					goodsid:2,
-					img: "/static/images/banner.png",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "需预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					Present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188"
-				},
-				{
-					goodsid:3,
-					img: "/static/images/banner.png",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					Present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188"
-				},
-
-				],
+				bookList: [],
 			}
 
 		},
@@ -99,13 +48,31 @@
 		},
 
 		methods: {
-           click(index){
-              this.timeindex=index;            
-           }
+           kindChang(index) {
+				let that=this
+				that.timeindex = index;
+				let params={}
+				params.goodCatId=that.kindItem[index].id
+				that.getBookGood(1,3,params)
+				// that.bookList=bookGoodRes.rows
+			},
+           async getBookGood(pageNum,pageSize,params){
+				let that=this
+				let bookRes=await Api.getBookGood(pageNum,pageSize,params)
+				bookRes.rows.map(item=>{
+					item.saveMoney=util.accSub(item.showPrice,item.price)	
+				})
+				that.bookList=bookRes.rows
+			}
 		},
 
-		created() {
-			
+		async mounted() {
+			let that=this
+			let rootKindRes=await kindApi.getRootKind()
+			that.kindItem=rootKindRes.rootCats
+			let params={}
+			params.goodCatId=that.kindItem[0].id
+			that.getBookGood(1,3,params)
 			// 调用应用实例的方法获取全局数据
 		}
 	}
@@ -120,9 +87,8 @@
 	}
 	
 	.product-list {
-		position: fixed;
 		display: flex;
-		justify-content: space-between;
+		justify-content: space-around;
 		text-align: center;
 		margin-top: 18px;
 		

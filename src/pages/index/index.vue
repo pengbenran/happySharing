@@ -47,13 +47,13 @@
 			
 		</div>
 		<!-- 分类列表 -->
-		<kindTemplate :kind_item='kindItem'></kindTemplate>
+		<!-- <kindTemplate :kind_item='kindItem'></kindTemplate> -->
 		<!--为你推荐-->
 		<div class="discount-wrap centered">
 			<div class="title">为你推荐</div>
 			
 			<!-- <day ref="day" :endtime="endtime"></day>	 -->
-			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount>
+			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType' v-if="discount.length!=0"></discount>
 		</div>
 		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 	</div>
@@ -142,8 +142,6 @@
 				// 获取首页商品推荐
 				let RecommendGood=await Api.getRecommendGood(1,3)
 				RecommendGood.rows.map(item=>{
-					item.thumbnail='/static/images/banner.png'
-					// console.log(util.accSub(item.showPrice,price));
 					item.saveMoney=util.accSub(item.showPrice,item.price)	
 				})
 				that.discount=RecommendGood.rows

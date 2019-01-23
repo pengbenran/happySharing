@@ -2,45 +2,44 @@
 	<div>
 		<div class="order-detail">
 			<!--产品-->
-			<div class="rec-li " v-for="(goodlist,index) in rec">
+			<div class="rec-li ">
 				<div class="rec-li-warp clr">
-					<div class="img fl"><img :src="goodlist.img" /></div>
+					<div class="img fl"><img :src="goodDetail.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit">{{goodlist.title}}</div>
-						<div class="name">{{goodlist.name}}</div>
-						<div class="present "><span>￥:{{goodlist.present}}</span> <span>原价:{{goodlist.original}}</span></div>
-						<div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
+						<div class="tit">{{goodDetail.title}}</div>
+						<div class="name">{{goodDetail.goodName}}</div>
+						<div class="present "><span>￥:{{goodDetail.price}}</span> <span>原价:{{goodDetail.showPrice}}</span></div>
 					</div>
 					<div class="rec-right fr">
-						<div class="clr">
-							<div class="make fr">{{goodlist.make}}</div>
+						<div class="clr"> 
+							<div class="make fr">{{make}}</div>
 						</div>
-						<div class="people ">{{goodlist.people}}</div>
-						<div class="sell ">已售:{{goodlist.sell}}</div>
+						<!-- <div class="people ">{{goodDetail.people}}</div> -->
+						<div class="sell ">已售:{{goodDetail.showSales}}</div>
 					</div>
 				</div>
 				<!--总价-->
-				<div class="prices" v-for="(item,index1) in detailOrder">
+				<div class="prices">
 					<div class="price1">
-						<p>数量: </p>
-						<p> {{item.quantity}}</p>
+						<p>数量:</p>
+						<p>1</p>
 					</div>
 					<div class="price2">
 						<p>商品总价: </p>
-						<p> ¥ {{present}}</p>
+						<p> ¥ {{goodDetail.price}}</p>
+					</div>
+					<div class="price2">
+						<p>会员折扣: </p>
+						<p> {{userInfo.discount}}折</p>
+					</div>
+					<div class="price2">
+						<p>折后价: </p>
+						<p>{{discountPrice}}元</p>
 					</div>
 					<div class="price3">
 						<p>推荐师优惠：</p>
-						<p v-if=false> ¥ {{rate}}</p>
-						<p> <span>(不是推荐师身份)</span> 无</p>
-					</div>
-					<div class="price4">
-						<p>应实付金额：</p>
-						<p> ¥ {{total}}</p>
-					</div>
-					<div class="price5">
-						<p>手机号码</p>
-						<p>{{item.phone}}</p>
+						<p v-if="userInfo.whetherDistribe==0"> <span>(非推荐师优惠0元)</span></p>
+						<p v-else> ¥ {{goodDetail.returnAmount}}元</p>	
 					</div>
 					<!--<div class="price6">
 						<p>预约时间</p>
@@ -48,32 +47,29 @@
 					</div>-->
 				</div>
 			</div>
-			<!--支付-->
-			
+			<!--支付-->		
 			<div class="payment">
-				<div class="payment-weixin">
-					<div class="inp">
-						<span><input type="checkbox"  value="微信支付" checked/></span><span>微信支付</span>
-					</div>
-				</div>
 				<div class="payment-commission">
 					<div class="inp">
 						<span><input type="checkbox"  value="佣金抵扣" /></span><span>佣金抵扣</span>
 					</div>
-					<div>还有100可用佣金</div>
+					<div>还有{{userInfo.balance}}可用佣金</div>
 				</div>
 			</div>			
 		</div>
 		<!--提交订单-->
-		<div class="submit">
-			<span>¥ {{total}}</span>
+		<button class="submit" :disbaled='isSubmit' @click='save'>
+			<span>¥ {{totalPay}}</span>
 			<span>提交订单</span>
-		</div>
+		</button>
 	</div>
 </template>
 
 <script>
 	import goodslist from '@/components/goodslist'
+	import store from '@/store/store'
+	import util from '@/utils/index'
+	import Api from '@/api/order'
 	export default {
 		components: {
 			goodslist
@@ -81,61 +77,131 @@
 
 		data() {
 			return {
-
-				detailOrder: [{
-					reservations: "小明",
-					quantity: 1,
-					phone: 15932325588,
-					integral: 30,
-					days: "2018-12-07  11:34:38",
-					remarks: "这是我要说的一段备注信息，我也不知道说什么",
-
-				}],
-				codeNumber: "3053558899432156515",
-				code: "https://shop.guqinet.com/html/images/zhifenxiang/code.png",
-				title: "买家不可使用",
-				state: "已取消",
-				rec: [{
-					recId: 1,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: 223,
-					present: 16.99,
-					rate: 6.98,
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188"
-				}, ]
+				isSubmit:false,
+				goodDetail:{},
+				orderForm:{num:1},
+				userInfo:{},
+				order:{}
+			
 			}
 		},
 		computed: {
-			present() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					return present;
-				};
+			make(){
+				return this.goodDetail.book==2?'免预约':'需预约'
 			},
-			rate() {
-				for(var i in this.rec) {
-					var rate = this.rec[i].rate.toFixed(2);
-					return rate;
-
-				};
+			discountPrice(){
+				let that=this
+				return Number(that.goodDetail.price*that.userInfo.discount/10).toFixed(2)
 			},
-			total() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					var rate = this.rec[i].rate.toFixed(2);
-					var total = (present - rate).toFixed(2);
-					return total;
-				};
+			totalPay(){
+				let that=this
+				if(that.userInfo.whetherDistribe!=0){
+					return util.accSub(that.discountPrice,that.goodDetail.returnAmount)
+				}else{
+					return util.accSub(that.discountPrice,0)
+				}
+				
 			}
-
 		},
+		methods:{
+				async save(){
+				let that=this
+				wx.showLoading({
+					title: '请稍等',
+				})
+				let params={}
+				if(!that.isSubmit){
+					that.isSubmit=true
+					if(store.state.codeUnionid!=''){
+						params.payStatus=2
+						params.paymentId=store.state.codeUnionid
+					}
+					else{
+						params.payStatus=1
+					}		
+					params.unionId=that.userInfo.unionid
+					params.paymentType=1
+					params.goodsAmount=that.goodDetail.price
+					params.orderAmount=that.totalPay
+					// params.gainedpoint=that.goodDetail.buyIntegral
+					params.gainedpoint=10
+					params.discount=that.userInfo.discount
+					params.needPayMoney=that.totalPay
+					params.balance=that.userInfo.balance
+					// params.recommend=that.goodDetail.returnAmount
+					params.recommend=2
+					params.goodsId=that.goodDetail.id
+					params.thumbnail=that.goodDetail.thumbnail
+					params.goodName=that.goodDetail.goodName
+					params.price=that.goodDetail.price
+					let saveRes=await Api.orderSave(params)
+					if(saveRes.code==0){
+						wx.hideLoading()
+						that.order=saveRes.orderDO
+						console.log(that.order);
+						that.weixinPay()
+					}	
+				}
+				
+			},
+			weixinPay(){
+				console.log('111');
+				let params={}
+				let that=this
+				params.sn = that.order.sn
+				params.openid=that.userInfo.xopenid
+	            // params.total_fee = that.order.needPayMoney*100
+	            params.total_fee=1
+	            Api.prepay(params).then(function(parRes){
+	            	wx.requestPayment({
+	            		timeStamp: parRes.timeStamp,
+	            		nonceStr: parRes.nonceStr,
+	            		package: parRes.package,
+	            		signType: parRes.signType, 
+	            		paySign: parRes.paySign,
+	            		success: function (res) {
+	            			wx.showToast({
+	            				title: '支付成功',
+	            				icon: 'success',
+	            				duration: 2000
+	            			})
+	            			that.payOrder()
+	            		},
+	            		fail: function (res) {
+		                        // fail
+		                        wx.showToast({
+		                        	title: '支付失败',
+		                        	icon: 'success',
+		                        	duration: 2000
+		                        })
+		                    },
+		                    complete: function (complete) {
+		                        // complete   
+		                        that.isSubmit=false
+		                    }
+		                })
+	            })
+	        },
+	        async payOrder(){
+	        	// 订单支付成功之后修改订单状态
+	        	let QRparams={}
+	        	let that=this
+	            QRparams.orderId=that.order.orderId
+	            QRparams.page='pages/xxxx/main'
+	        	let getQRCode=await Api.getQRCode(QRparams)
+	        	console.log(getQRCode);
+	        	let statuParam={}
+	        	statuParam.orderId=that.order.orderId
+	        	statuParam.orderCode=getQRCode.msg
+	        	let payOrder=await Api.payOrder(statuParam)
+	        	console.log(payOrder);
+	        }
+		},
+		mounted(){
+			let that=this
+			that.goodDetail = store.state.goodDetail
+			that.userInfo = store.state.userInfo
+		}
 	}
 </script>
 
@@ -158,7 +224,6 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
 	font-size: 16px;
 }
 	.order-detail {
-		padding-bottom: 164px;
 		.rec-li {
 			.rec-li-warp {
 				padding: 20px 12px;

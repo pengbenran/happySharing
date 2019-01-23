@@ -20,6 +20,10 @@ export default {
 	getBookGood(pageNum,pageSize,params){
 		return API.GET(`/api-good/api/good/book/${pageNum}/${pageSize}`,params)
 	},
+	// 获取预约商品数据详细
+	getBookGoodDetail(params){
+		return API.GET(`/api-good/api/goodBook/good`,params)
+	},
 	// 获取分类下的banner图
 	getTypeImg(type,sort){
 		return API.GET(`/api-base/index/TypeImg/${type}/${sort}`)
