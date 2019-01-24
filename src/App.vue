@@ -40,6 +40,15 @@ export default {
   font-family: 'iconfont';
   vertical-align: middle; 
 }
+
+
+.fontHidden{
+  white-space:normal;overflow: hidden;display: -webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+
+.fontHidden1{
+  white-space:normal;overflow: hidden;display: -webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;
+}
 .oneover{
   overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
 }

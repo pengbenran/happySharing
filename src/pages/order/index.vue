@@ -53,9 +53,13 @@
 </template>
 
 <script>
+import API_ORDER from '@/api/order'
+import Store from '@/store/store'
+import Lib from '@/utils/lib'
 	export default {
 		data() {
 			return {
+				unionid:'',
 				nav: [{
 						name: "全部",
 						isSelect:true
@@ -117,6 +121,15 @@
 		},
 
 		methods: {
+			async onload(){
+				let that = this;
+				let data = {unionId:Store.state.userInfo.unionid}
+				// console.log()
+				let res = await API_ORDER.getOrderList(data).catch(err => {
+                     Lib.showToast('失败','loading')
+				})
+				console.log(res,"查看请求参数")
+			},
 			change(index) {
 				let that=this
 				that.nav.map(item=>{
@@ -130,8 +143,14 @@
 				
 			}
 		},
+		onLoad(){
+			this.unionid = Store.state.userInfo.unionid
+			console.log(Store.state.userInfo,"asdasda")
+            this.onload();
+		},
 
 		created() { // 调用应用实例的方法获取全局数据
+		
 		}
 	}
 </script>

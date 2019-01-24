@@ -81,7 +81,8 @@
 				goodDetail:{},
 				orderForm:{num:1},
 				userInfo:{},
-				order:{}
+				order:{},
+				orderType:''
 			
 			}
 		},
@@ -118,18 +119,21 @@
 					}
 					else{
 						params.payStatus=1
-					}		
+					}
+					params.orderType=that.orderType	
+					if(that.orderType==2){
+						params.beginTime=store.state.appointment.beginTime
+						params.endTime=store.state.appointment.endTime
+					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalPay
-					// params.gainedpoint=that.goodDetail.buyIntegral
-					params.gainedpoint=10
+					params.gainedpoint=that.goodDetail.buyIntegral
 					params.discount=that.userInfo.discount
 					params.needPayMoney=that.totalPay
 					params.balance=that.userInfo.balance
-					// params.recommend=that.goodDetail.returnAmount
-					params.recommend=2
+					params.recommend=that.goodDetail.returnAmount
 					params.goodsId=that.goodDetail.id
 					params.thumbnail=that.goodDetail.thumbnail
 					params.goodName=that.goodDetail.goodName
@@ -201,6 +205,11 @@
 			let that=this
 			that.goodDetail = store.state.goodDetail
 			that.userInfo = store.state.userInfo
+		},
+		onLoad(options){
+			// 1为普通订单2为预约订单
+			this.orderType=options.orderType
+			console.log(options);
 		}
 	}
 </script>

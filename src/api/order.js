@@ -13,5 +13,10 @@ export default {
  },
  getQRCode:params=>{
  	return API.GET('/api-member/api/login/getQRCode', params)
+ },
+
+ getOrderList:params => {
+	 return API.GET('/api-order/api/order/orderStatus',params)
  }
+
 }      

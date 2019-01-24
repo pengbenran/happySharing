@@ -73,7 +73,7 @@
 				})
 			},
 			jumpSaveOrder(){
-				wx.navigateTo({url:`../order-submit/main`})
+				wx.navigateTo({url:`../order-submit/main?orderType=1`})
 			},
 			async getGoodsInfo(goodsId){
 				let that=this
@@ -82,6 +82,7 @@
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
+
 					store.commit("stateGoodDetail",that.goodsDetail)
 				}
 			}

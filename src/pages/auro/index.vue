@@ -21,8 +21,17 @@
 		<!--超赞推荐-->
 		<div class="rec-wrap centered">
 			<div class="title ">超值优惠</div>
-			<div class="image"><img src="/static/images/rec-banner.png" /></div>
+			<div class="image  zanWarpimg">
+		       <swiper indicator-dots='true' autoplay='true'>
+					<swiper-item v-for="(item,index) in recommendimgs" :key="index">
+					<image :src="item" class="slide-image" mode='aspectFit'  />
+					</swiper-item>
+				</swiper>
+			</div>
+			<!--image end-->
+
 			<goodslist :catGoodRecommend='catGoodRecommend'></goodslist>
+			<!--goodslist end-->
 		</div>
 	</div>
 </template>
@@ -45,7 +54,8 @@
 				magleft: '10px',
 				catGoodRes: [],
 				catGoodRecommend: [],
-				bannerImg:[]
+				bannerImg:[],
+				recommendimgs:[]
 			}
 		},
 
@@ -74,22 +84,31 @@
 			// 获取地区分类下的广告
 			let typeImgRes=await Api.getTypeImg(2,options.regionId)
 			that.bannerImg=typeImgRes.data.imgs
+			that.recommendimgs = typeImgRes.data.recommendimgs
+
+			//#endregion
+			console.log("查看地区分类的广告",typeImgRes)
+
 			// 获取地区分类下的商品分类
 			let GoodCatRes=await kindApi.getGoodCart()
 			GoodCatRes.goodCats.map(item=>{
 				item.img='/static/images/down_icon_a.png'
 			})
 			that.menuItem=GoodCatRes.goodCats
-
+			 console.log("商品分类",that.menuItem)
+			 
 			// 获取地区分类下的商品(非推荐)
 			let params={}
 			params.regionId=options.regionId
 			let regionGoodRes=await Api.getRegionGoods(1,3,params)
 			that.regionGoodRes=regionGoodRes.rows
+			 console.log("非推荐",that.regionGoodRes)
+
 			//获取地区分类项的商品(推荐)
 			params.recommend=1
 			let regionGoodRecommendRes=await Api.getRegionGoods(1,3,params)
 			that.regionGoodRecommend=regionGoodRecommendRes.rows
+<<<<<<< HEAD
 		},
 				//		  用户点击右上角分享
 		onShareAppMessage: function(res) {
@@ -105,11 +124,17 @@
 					// 转发失败
 				},			
 			}
+=======
+				 console.log("推荐",that.regionGoodRecommend)
+>>>>>>> eef02a4e13b9ea3ed2519b16afe15ecbb71fa1c9
 		}
 	}
 </script>
 
 <style scoped lang="less">
+
+.zanWarpimg,.zanWarpimg swiper{height: 155rpx;}
+.zanWarpimg image{height: 100%;width: 100%;}
 	/*类目*/
 	
 	.cate {
@@ -161,9 +186,9 @@
 		}
 		.image {
 			width: 100%;
-			padding-bottom: 16px;
+			padding-bottom: 7px;
 			height: 96px;
-			margin-top: 18px;
+			margin-top: 10px;
 			border-bottom: 1px solid #dedede;
 			img {
 				width: 100%;
