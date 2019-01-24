@@ -36,19 +36,23 @@
 				<div class="img"><img src="/static/images/home.png" /></div>
 				<div class="text">首页</div>
 			</div>
-			<div v-if='goodsDetail.book==1' class="rush">	
-				<picker
+			<div v-if='goodsDetail.book==1' class="rush"  @click="showPicker">	
+				立即预约
+			<!-- 	<picker
 				mode="multiSelector"
 				@change="bindMultiPickerChange"
+				@columnchange="bindMultiPickerColumnChange"
 				:value="multiIndex"
-				:range="multiArray"
+				:range="dataArray"
 				>
 				<div>
 					立即预约
 				</div>
-			</picker>
+			</picker> -->
+
 			</div>
 		</div>
+		<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 	</div>
 </template>
 
@@ -56,19 +60,30 @@
 	import Api from '@/api/goods'
 	import util from '@/utils/index'
 	import store from '@/store/store'
+	import mpvuePicker from '@/components/mpvuePick'
 	export default {
 		data() {
 			return {
 				wid: "100%",
 				magleft: "0",
 				goodsDetail:{},
-				multiIndex: [0, 0, 0],
-				multiArray: [['9月25日', '9月26日'], ['8:30-9:30', '8:30-9:30', '8:30-9:30']],
+				multiIndex: [0,0],
+				multiArray:[],
+				dataArray: [],
+				allBulletin: [],
+				mode: 'selector',
+			    deepLength: 0, // 几级联动
+			    pickerValueDefault: [], // 初始化值
+			    pickerValueArray: [], // picker 数组值
+			    pickerText: '',
+			    mulLinkageTwoPicker: [],
+			    pickerValueDefault: [0,0],
+			    goodBooks:[]
 			}
 
 		},
 		components: {
-
+			mpvuePicker
 		},
 		computed:{
 			discounts(){
@@ -78,11 +93,30 @@
 			
 		},
 		methods: {
+			showPicker() {
+				this.pickerValueArray = this.mulLinkageTwoPicker;
+				this.mode = 'multiLinkageSelector';
+				this.deepLength = 2;
+				this.pickerValueDefault = [1, 0];
+				this.$refs.mpvuePicker.show();
+				console.log(this);
+			},
 			bindMultiPickerChange(e) {
-				console.log('picker发送选择改变，携带值为', e.detail.value)
+				console.log('picker发送选择改变，携带值为', e.mp.detail.value)
 				// this.setData({
 				// 	multiIndex: e.detail.value
 				// })
+			},
+			bindMultiPickerColumnChange(e){
+				let that=this
+				if(e.mp.detail.column==0){
+					let index=e.mp.detail.value
+					// that.dataArray[1]=['扁性动物', '线形动物', '环节动物', '软体动物', '节肢动物']
+					that.multiIndex[e.mp.detail.column]=e.mp.detail.value
+					that.multiIndex[1]=0
+					that.dataArray[1]=that.multiArray[index]
+					console.log(that.dataArray);
+				}
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -99,7 +133,28 @@
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
-					that.timeFormat(goodsDetailRes.goodBooks[0].dateTime)
+					that.goodBooks=goodsDetailRes.goodBooks
+					let dateArr=[]
+					for(var i in goodsDetailRes.goodBooks){
+						let dateArr={}
+						dateArr.label=that.timeFormat(goodsDetailRes.goodBooks[i].dateTime)
+						dateArr.value=i
+						dateArr.children=[]
+						let str=goodsDetailRes.goodBooks[i].detail
+						let resArry=JSON.parse(str)
+						for(let j in resArry){
+							let multiArr={}
+							let resdataArry=resArry[j].split('/')
+							console.log(resdataArry);
+							if(resdataArry[2]>0){
+								multiArr.label=resdataArry[1]
+								multiArr.value=resdataArry[0]
+								dateArr.children.push(multiArr)
+							}	
+						}
+						console.log(dateArr);
+						that.mulLinkageTwoPicker.push(dateArr)
+					}
 					store.commit("stateGoodDetail",that.goodsDetail)
 				}
 			},
@@ -107,12 +162,34 @@
 				var time = new Date(timestamp);
 				var month = time.getMonth()+1;
     		    var date = time.getDate();
-    		    console.log(month,date);
-			}
+    		    return `${month}月${date}日`
+    		}, 
+    		onConfirm(e) {
+    			let that=this
+    			console.log(e);
+    			let goodBooksItem=that.goodBooks[e.index[0]]
+    			let dateTime=goodBooksItem.dateTime
+    			let endtime=e.label.split('-')[2]
+    			let begintime=e.label.split('-')[1]
+    			let endtimehour=endtime.split(':')[0]
+    			let endtimemintution=endtime.split(':')[1]
+    			let begintimehour=begintime.split(':')[0]
+    			let begintimemintution=begintime.split(':')[1]
+    			let begintimetap=begintimehour*60*60*1000+begintimemintution*60*1000+dateTime*1
+    			let endtimetap=endtimehour*60*60*1000+endtimemintution*60*1000+dateTime*1
+    		    let appointmentParam={}
+    		    appointmentParam.beginTime=begintimetap
+    		    appointmentParam.endTime=endtimetap
+    		    store.commit("stateappointment",appointmentParam)
+    		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
+
+    		}
 		},
 		async onLoad(options) {
 			let that=this
 			that.goodsId =options.goodsId
+			that.multiArray=[]
+			that.dataArray=[]
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
@@ -130,9 +207,6 @@
 
 <style lang="less">
 	/*底部*/
-	.swiper{
-		height: 190px;
-	}
 	.nav {
 		position: fixed;
 		bottom: 0px;
