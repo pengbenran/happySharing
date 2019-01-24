@@ -4,7 +4,7 @@
 		<div class="top">		
 				<span>南昌</span>
 				<span class="iconfont">&#xe60c;</span>
-			    <span><Search></Search></span> 
+			    <span @click="jumpsearch"><Search></Search></span> 
 			    <span>+</span>
 		</div>
 		<!-- banner图 -->
@@ -23,8 +23,8 @@
 					<span>{{item.name}}</span>
 				<!-- </navigator> -->
 			</div>
-
 		</div>
+
 		<!-- 菜单列表 -->
 		<div class="menuItem">
 			<div class="menuItemList" v-for="(item,index) in menuItem" :key="item.id" @click="jumpgoodCart(item.id,item.name)">
@@ -32,6 +32,7 @@
 				<span>{{item.name}}</span>
 			</div>
 		</div>
+		
 		<!-- 头条广告 -->
 		<div class="adv">
 			<div class="left">
@@ -56,20 +57,22 @@
 			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType' v-if="discount.length!=0"></discount>
 		</div>
 		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
+
 	</div>
 
 </template>
 
 <script>
 	import discount from '@/components/discount'
-	import loginModel from "@/components/loginModel";
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
+import loginModel from "@/components/loginModel";
 	import util from '@/utils/index'
 	import Api from "@/api/home";
 	// let api=new Api
+
 	export default {
 		data() {
 			return {
@@ -92,6 +95,11 @@
 			day,
 			loginModel
 		},
+
+  methods: {
+   
+  },
+
 
 		methods: {
 			jumpAuro:function(regionId,regionname){
@@ -125,8 +133,10 @@
 			},
 			// 获取地区列表
 			async getIndex(){
+				console.log("as当阿囧当as看还")
 				let that=this
 				await that.$refs.loginModel.userLogin()
+				console.log("as当阿囧当as看还123")
 				let GoodCatRes=await Api.getGoodCart()
 				GoodCatRes.goodCats.map(item=>{
 					item.img='/static/images/down_icon_a.png'
@@ -151,18 +161,25 @@
 			    that.bannerList=bannerAndMessageRes.data.BannerList
 			    that.message=bannerAndMessageRes.data.messageDOList
 			    console.log(bannerAndMessageRes)
-				}
+				},
+
+			jumpsearch(){
+				wx.navigateTo({
+			     	url: '../search/main'
+				})
+			}
  
 
-			// 获取分类列表
+
 		},
-		async mounted(){
+		mounted(){
 			let that = this;
 			wx.showLoading({
 				title: '加载中',
 			})
-			// that.$refs.discounts.timeouts()
+
 			that.getIndex()
+
 		}
 
 	}

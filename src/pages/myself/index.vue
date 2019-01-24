@@ -65,7 +65,10 @@
 	</div>
 </template>
 <script>
+import API from '@/api/myself'
+
 	import store from '@/store/store'
+
 	export default {
 		data() {
 			return {
