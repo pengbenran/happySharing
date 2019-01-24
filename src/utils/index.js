@@ -15,6 +15,39 @@ export function formatTime (date) {
 
   return `${t1} ${t2}`
 }
+export function accSub(arg1, arg2) { 
+    var r1, r2, m, n; 
+    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 } 
+    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 } 
+    m = Math.pow(10, Math.max(r1, r2)); 
+    n = (r1 >= r2) ? r1 : r2; 
+    return ((arg1 * m - arg2 * m) / m).toFixed(n); 
+  }
+   //缓存图片
+  function locaImg(v){
+    return new Promise(function (resolve, reject) { 
+      wx.getImageInfo({   //  小程序获取图片信息API
+        src: v,
+        success: function (res) {
+          // locaArr.push(res.path)
+          resolve(res.path) 
+        }
+      })
+    })
+  }
+  async function getlocaImg(arr){
+      let locaArr=[];    
+      for(var i=0;i<arr.length;i++){
+        locaArr.push(await locaImg(arr[i]))
+      }   
+      return locaArr
+  }
+
+  export function getImageInfo(arrimg){    //  图片缓存本地的方法
+    return new Promise(function (resolve, reject) { 
+      resolve(getlocaImg(arrimg))
+    })
+  }
 // export function cutTimes(i,discount) {
 //         //获取当前时间
 //         // console.log(discount)
@@ -46,4 +79,6 @@ export function formatTime (date) {
 export default {
   formatNumber,
   formatTime,
+  accSub,
+  getImageInfo
 }

@@ -5,8 +5,22 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state:{
   	userInfo:{},
+  	config:{},
+    goodDetail:{},
+    codeUnionid:''
   },
   mutations:{
    storeUserInfo(state,userInfo){
    	state.userInfo=userInfo
    },
+   storeConfig(state,config){
+   	state.config=config
+   },
+   stateGoodDetail(state,goodDetail){
+    state.goodDetail=goodDetail
+   },
+   statecodeUnionid(state,codeUnionid){
+    state.codeUnionid=codeUnionid
+   }
+}
+})

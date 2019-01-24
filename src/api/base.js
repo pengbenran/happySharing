@@ -5,7 +5,7 @@ fly.interceptors.request.use((request) => {
     let that=this
     if (wx.getStorageSync('Token')) {//检查本地缓存是否有token存在没有则重新获取
         request.headers = {//设置请求头
-            "content-type": "application/json",
+            "content-type": "application/x-www-form-urlencoded",
             "Authorization": wx.getStorageSync('Token')
         }
         return request;
@@ -59,7 +59,7 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
-let base='http://192.168.2.208:8011'
+let base='http://192.168.2.111:8002'
 // let base='http://192.168.2.131:8011'
 // let base='http://192.168.2.208:8002'
 // export default {
@@ -68,8 +68,13 @@ let base='http://192.168.2.208:8011'
 export const GetCode=(url, params)=>{
    return fly.get(`${url}`,params).then(res => res.data)  
 }
+export const getLogin=(url,params)=>{
+  return fly.get(`${url}`,params).then(res => res.data)
+}
 export const POST = (url, params) => {
-  return fly.post(`${base}${url}`, params).then(res => res.data)
+  return fly.post(`${base}${url}`, params,{headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }}).then(res => res.data)
 }
 
 export const GET = (url, params) => {

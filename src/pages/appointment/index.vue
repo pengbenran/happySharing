@@ -4,35 +4,35 @@
 		<Search></Search>
 		<!--类目-->
 		<div class="product-list centered">
-			<div @click="click(index)" v-for="(item,index) in productlist" :class="timeindex === index? 'product-list-li-on':'product-list-li' ">
-				<div class="title">{{item.title}}</div>
-				<div class="desc">{{item.desc}}</div>
+			<div @click="kindChang(index)" v-for="(item,index) in goodCart" :class="timeindex === index? 'product-list-li-on':'product-list-li' ">
+				<div class="title">{{item.name}}</div>
+				<div class="desc">{{item.description}}</div>
 			</div>
 		</div>
 		<!--最新最火-->
-		<div class="order">
+		<!-- <div class="order">
 			<div class="latest">最新</div>
 			<div class="hot">最热</div>
 			<div class="active"></div>
-		</div> 
+		</div>  -->
 		<!--列表-->
 		<div class="discount-wrap">
-			<div class="discount-li centered" v-for="(discountList,index) in discount">
-				<div class="img"><img :src="discountList.img" /></div>
+			<div class="discount-li centered" v-for="(discountList,index) in bookList" @click="jumpGoodDetail(discountList.id)">
+				<div class="img"><img :src="discountList.thumbnail" /></div>
 				<div class="cant">
 					<div class="name-make clr">
-						<div class="name fl">{{discountList.name}}</div>
-						<div class="make fr">{{discountList.make}}</div>
+						<div class="name fl">{{discountList.title}}</div>
+						<div class="make fr">需预约</div>
 					</div>
-					<div class="desc">{{discountList.desc}}</div>
+					<div class="desc">{{discountList.goodName}}</div>
 					<div class="original-people clr">
-						<div class="original fl">原价:{{discountList.original}}</div>
-						<div class="people fr">{{discountList.people}}</div>
+						<div class="original fl">原价:{{discountList.showPrice}}</div>
+						<!-- <div class="people fr">{{discountList.people}}</div> -->
 					</div>
 					<div class="Present-discounts-sell clr">
-						<div class="Present fl">￥:{{discountList.Present}}</div>
-						<div class="discounts fl">优惠:{{discountList.discounts}}</div>
-						<div class="sell fr">已售:{{discountList.sell}}</div>
+						<div class="Present fl">￥:{{discountList.price}}</div>
+						<div class="discounts fl">优惠:{{discountList.saveMoney}}元</div>
+						<div class="sell fr">已售:{{discountList.showSales}}</div>
 					</div>
 				</div>
 			</div>
@@ -42,66 +42,17 @@
 
 <script>
 	import Search from '@/components/search'
+	import Api from '@/api/goods'
+	import apiKind from '@/api/home'
+	import util from '@/utils/index'
 	export default {
 		data() {
 			return {
 				timeindex: 0,
-				productlist: [{
-					title: "美食",
-					desc: "畅享美味",
-				}, {
-					title: "美食",
-					desc: "畅享美味",
-				}, {
-					title: "美食",
-					desc: "畅享美味",
-				}, {
-					title: "美食",
-					desc: "畅享美味",
-				}],
+				goodCart: [],
 				wid: "100%",
 				magleft: '0px',
-				discount: [{
-						goodsid: 1,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "2368",
-						dianzhan: "1188"
-					},
-					{
-						goodsid: 2,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "需预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188"
-					},
-					{
-						goodsid: 3,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188"
-					},
-
-				],
+				bookList:[],
 			}
 
 		},
@@ -110,13 +61,34 @@
 		},
 
 		methods: {
-			click(index) {
-				this.timeindex = index;
+			kindChang(index) {
+				let that=this
+				that.timeindex = index;
+				let params={}
+				params.goodCatId=that.goodCart[index].id
+				that.getBookGood(1,3,params)
+				// that.bookList=bookGoodRes.rows
+			},
+			jumpGoodDetail(goodsId){
+				wx.navigateTo({url:'../appointmentDetail/main?goodsId='+goodsId+'&codeUnionid='})
+			},
+			async getBookGood(pageNum,pageSize,params){
+				let that=this
+				let bookRes=await Api.getBookGood(pageNum,pageSize,params)
+				bookRes.rows.map(item=>{
+					item.saveMoney=util.accSub(item.showPrice,item.price)	
+				})
+				that.bookList=bookRes.rows
 			}
 		},
 
-		created() {
-
+		async mounted() {
+			let that=this
+			let goodCartRes=await apiKind.getGoodCart()
+			that.goodCart=goodCartRes.goodCats
+			let params={}
+			params.goodCatId=that.goodCart[0].id
+			that.getBookGood(1,3,params)
 			// 调用应用实例的方法获取全局数据
 		}
 	}
@@ -133,10 +105,12 @@
 	
 	.product-list {
 		display: flex;
-		justify-content: space-between;
 		text-align: center;
 		margin-top: 18px;
-		margin-top: ;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+		justify-content: space-around;
 		.product-list-li {
 			margin-bottom: 16px;
 			.title {

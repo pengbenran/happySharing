@@ -1,24 +1,26 @@
 <template>
 	<div style="width: 100%;">
-		<div class="discount-li" :style="{width:wid,marginLeft:magleft}" v-for="(item,index) in discount">
-			<div class="img"><img :src="item.img" /></div>
+		<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
+			<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
+				<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
+			</swiper>
 			<div class="cant centered">
 				<div class="address-make clr">
-					<div class="address fl">消费地址 ： {{address}}</div>
-					<div class="make fr">{{item.make}}</div>
+					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
+					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
 				</div>
-				<div class="desc">{{item.desc}}</div>
+				<div class="desc">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
-					<div class="Present fl">￥:{{item.Present}}</div>
-					<div class="discounts fl">优惠:{{item.discounts}}</div>
-					<div class="people fr">{{item.people}}</div>
+					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
+					<div class="discounts fl">优惠:{{discounts}}元</div>
+					<!-- <div class="people fr">{{item.people}}</div> -->
 				</div>
 				<div class="original-sell clr">
-					<div class="original fl">原价:{{item.original}}</div>
-					<div class="sell fr">已售:{{item.sell}}</div>
+					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
+					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
 				</div>
 				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{item.phone}}</div>
+					<div class="phone-txt fl">商家热线 ：{{goodsDetail.phone}}</div>
 					<div class="phone-img fr iconfont">&#xe613;</div>
 				</div>
 			</div>
@@ -27,74 +29,80 @@
 		<div class="product-detail centered">
 			<span>商品详情</span>
 		</div>
-
+	</picker>
 		<!--底下导航-->
 		<div class="nav">
-			<div class="index">
-				<navigator url="/pages/index/main">
-					<div class="img"><img src="/static/images/home.png" /></div>
-					<div class="text">首页</div>
-				</navigator>
+			<div class="index" @click="jumpIndex">
+				<div class="img"><img src="/static/images/home.png" /></div>
+				<div class="text">首页</div>
 			</div>
-			<div @click="btn(index)" class="make" :class="{ active: isActive }">
-				{{make}}
-			</div>
-			<div @click="btn1(index)" class="rush" :class="{ active: isActive1 }">
-				{{rush}}
+			<div @click="jumpSaveOrder(index)" class="rush">
+				立即购买
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+	import Api from '@/api/goods'
+	import util from '@/utils/index'
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
-				isActive: true,
-				isActive1: false,
-				make: "预约日期",
-				rush: "立即购买",
 				wid: "100%",
 				magleft: "0",
-				address: "高新区艾溪湖东大道云中城99号",
-				discount: [{
-					goodsid: 1,
-					img: "/static/images/banner.png",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					Present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188",
-					phone: "199 7908 0830",
-				}, ],
+				goodsDetail:{},
 			}
 
 		},
 		components: {
 
 		},
-
-		methods: {
-			btn() {
-				var that = this
-				that.isActive = true
-				this.isActive1 = false
-
+		computed:{
+			discounts(){
+				let that=this
+				return util.accSub(that.goodsDetail.showPrice,that.goodsDetail.price) 
 			},
-			btn1() {
-				var that = this
-				that.isActive1 = true
-				this.isActive = false
+			
+		},
+		methods: {
+			jumpIndex(){
+				wx.switchTab({
+					url:'../index/main'
+				})
+			},
+			jumpSaveOrder(){
+				wx.navigateTo({url:`../order-submit/main`})
+			},
+			async getGoodsInfo(goodsId){
+				let that=this
+				let goodsDetailRes=await Api.getGoodDetail(goodsId)
+				if(goodsDetailRes.code==0){
+					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
+					goodsDetailRes.good.goodbanner.pop()
+					that.goodsDetail=goodsDetailRes.good
+					store.commit("stateGoodDetail",that.goodsDetail)
+				}
 			}
-
 		},
 
-		created() {
-
+		async onLoad(options) {
+			let that=this
+			that.goodsId =options.goodsId
+            if(options.codeUnionid!=''){
+            	store.commit("statecodeUnionid",options.codeUnionid)
+            }
+			// if (options.scene == undefined) {
+			// 	that.goodsId =options.goodsId;
+			// }
+			// else {
+			// 	// let scene = decodeURIComponent(options.scene);
+			// 	let scene = decodeURIComponent(options.scene);
+			// 	that.goodsId=scene.split('*')[0]
+			// 	that.codeUnionid=scene.split('*')[1]
+   //  		}
+			that.getGoodsInfo(that.goodsId)
 			// 调用应用实例的方法获取全局数据
 		}
 	}
@@ -102,7 +110,9 @@
 
 <style lang="less">
 	/*底部*/
-	
+	.swiper{
+		height: 190px;
+	}
 	.nav {
 		position: fixed;
 		bottom: 0px;
@@ -124,15 +134,10 @@
 				margin-top: 7px;
 			}
 		}
-		.make,
 		.rush {
-			width: 42%;
-			border-left: 1px solid #dedede;
-			color: #666666;
+			width: 84%;
 			line-height: 55px;
 			text-align: center;
-		}
-		.active {
 			background-color: #ff7d28;
 			color: #fff;
 		}
@@ -236,4 +241,5 @@
 			font-weight: bold;
 		}
 	}
+
 </style>

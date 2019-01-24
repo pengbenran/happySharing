@@ -1,23 +1,26 @@
 <template>
- <div class="rec-li clr">
-  <div class="img fl"><img :src="goodlist.img" /></div>
-  <div class="rec-center fl">
-    <div class="tit">{{goodlist.title}}</div>
-    <div class="name">{{goodlist.name}}</div>
-    <div class="present ">￥:{{goodlist.present}}</div>
-    <div class="original ">原价:{{goodlist.original}}</div>
-    <div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
+  <div>
+    <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id">
+      <div class="img fl"><img :src="item.img" /></div>
+      <div class="rec-center fl">
+        <div class="tit">{{item.title}}</div>
+        <div class="name">{{item.goodName}}</div>
+        <div class="present ">￥:{{item.price}}</div>
+        <div class="original ">原价:{{item.showPrice}}元</div>
+        <!-- <div v-if="item.isshow" class="dianzhan">点赞:{{item.dianzhan}}</div> -->
+      </div>
+      <div class="rec-right fr">
+        <div class="clr"><div class="make fr">免预约</div></div>
+        <!-- <div class="people ">{{item.people}}</div> -->
+        <div class="sell ">已售:{{item.showSales}}</div>
+      </div>
+    </div>
   </div>
-  <div class="rec-right fr">
-    <div class="clr"><div class="make fr">{{goodlist.make}}</div></div>
-    <div class="people ">{{goodlist.people}}</div>
-    <div class="sell ">已售:{{goodlist.sell}}</div>
-  </div>
-</div>
+ 
 </template>
 <script> 
   export default {
-    props: ['goodlist'],
+    props: ['catGoodRecommend'],
     data () {
       return {
          

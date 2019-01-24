@@ -4,18 +4,20 @@
     <div class='loginmodel'>
       <div class='title'>需要您的授权</div>
       <div class='modeltip'>为了提供更好的服务请在稍后的提示框中点击允许</div>
-      <button class='modelbtn' open-type="getUserInfo" @click="getUserInfo" @getuserinfo="bindGetUserInfo">我知道了</button> 
+      <button class='modelbtn' open-type="getUserInfo"  @getuserinfo="getUserInfo" :disable="isSubmit">我知道了</button> 
     </div> 
   </div>
 </template>
 
 <script>
 import Api from "@/api/home";
+import store from '@/store/store'
 export default {
   props: [],
   data () {
     return {
        isMember:false,
+       isSubmit:false
     }
     },
     mounted(){
@@ -24,18 +26,27 @@ export default {
     methods: {
     getUserInfo(){   
       var that = this 
+      that.isMember=false
       if(that.memberId=="00"){
+       that.isSubmit=true
        wx.login({
         success: res => {
+
+           let code=res.code   
             // 发送 res.code 到后台换取 openId, sessionKey, unionId
-            if (res.code) {         
+            if (code) { 
              wx.getUserInfo({
               success: function (res_user) {
-                res_user.userInfo.code=res.code
-                Api.weCatLogin(res_user).then(function(res){
-                  if(res.data.code==0){
-                    that.isMember=false
-                    that.userLogin()
+                console.log(res_user)
+                let params={}
+                params.code=code
+                params.iv=res_user.iv
+                params.encryptedData=res_user.encryptedData
+                Api.weCatLogin(params).then(function(res){
+                  if(res.code==0){
+                    that.isSubmit=false
+                    // that.userLogin()
+                    that.$emit('getIndex')
                     if(wx.getStorageSync('distribeId')==null){
 
                     }
@@ -56,17 +67,15 @@ export default {
   userLogin(){
     return new Promise((resolve, reject) => {
       let that=this
-      wx.showLoading({
-        title: '加载中',
-      })
       wx.login({
         success: function (res) {
           if (res.code) {
             Api.getCode(res.code).then(function(memberRes){
-              if(memberRes.memberDo != null){
+              if(memberRes.code!=500){
                 wx.setStorageSync('Token', memberRes.token)
-                wx.setStorageSync('memberId', memberInfoRes.memberDo.memberId)
-                store.commit("storeUserInfo",memberInfoRes.memberDo)
+                wx.setStorageSync('memberId', memberRes.memberDo.id)
+                store.commit("storeUserInfo",memberRes.memberDo)
+                store.commit("storeConfig",memberRes.config)
               }
               else {
                 let memberId="00"

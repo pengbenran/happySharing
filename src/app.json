@@ -1,24 +1,31 @@
 {
   "pages": [
     "pages/index/main", 
+    "pages/order-submit/main",
+    "pages/myself-make/main" ,
     "pages/myself-team/main",
     "pages/myself-data/main",
     "pages/myself-exchange/main",
     "pages/myself-cash/main",
     "pages/myself-detail/main" ,
     "pages/myself-grade/main" ,
+    "pages/myself-dredge/main" , 
+    "pages/myself-invite/main" ,
     "pages/order-detail/main",
     "pages/order/main",
     "pages/welfare/main",
     "pages/appointment/main",
     "pages/detail/main",
+    "pages/appointmentDetail/main",
     "pages/product-list/main",
     "pages/auro-list/main",
     "pages/auro/main",
-    	
-    "pages/logs/main",  
-    "pages/myself/main"  
-    ],
+    "pages/goodCartList/main",
+    "pages/goodCart/main",
+    "pages/logs/main",   
+    "pages/myself/main",
+    "pages/search/main"
+    ], 
   "window": { 
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",

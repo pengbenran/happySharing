@@ -1,9 +1,17 @@
 <script>
+// import store from './store/store'
 export default {
   created () {
     // 调用API从本地缓存中获取数据
     const logs = wx.getStorageSync('logs') || []
     logs.unshift(Date.now())
+     //在页面加载时读取sessionStorage里的状态信息
+    // if ( wx.getStorageSync("store") ) {
+    //     this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
+    // } 
+    // //在页面刷新时将vuex里的信息保存到sessionStorage里
+    // wx.setStorageSync("store",JSON.stringify(this.$store.state))
+  
   }
 }
 </script>
@@ -20,17 +28,26 @@ export default {
 }
 @font-face {
   font-family: 'iconfont';  /* project id 977244 */
-  src: url('//at.alicdn.com/t/font_977244_bkfv45bepv8.eot');
-  src: url('//at.alicdn.com/t/font_977244_bkfv45bepv8.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.woff2') format('woff2'),
-  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.woff') format('woff'),
-  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_977244_bkfv45bepv8.svg#iconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_977244_xzlc69q3h5.eot');
+  src: url('//at.alicdn.com/t/font_977244_xzlc69q3h5.eot?#iefix') format('embedded-opentype'),
+  url('//at.alicdn.com/t/font_977244_xzlc69q3h5.woff2') format('woff2'),
+  url('//at.alicdn.com/t/font_977244_xzlc69q3h5.woff') format('woff'),
+  url('//at.alicdn.com/t/font_977244_xzlc69q3h5.ttf') format('truetype'),
+  url('//at.alicdn.com/t/font_977244_xzlc69q3h5.svg#iconfont') format('svg');
 }
 
 .iconfont{
   font-family: 'iconfont';
   vertical-align: middle; 
+}
+
+
+.fontHidden{
+  white-space:normal;overflow: hidden;display: -webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+}
+
+.fontHidden1{
+  white-space:normal;overflow: hidden;display: -webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;
 }
 .oneover{
   overflow: hidden;white-space: nowrap;text-overflow: ellipsis;

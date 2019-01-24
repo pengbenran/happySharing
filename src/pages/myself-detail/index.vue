@@ -5,14 +5,12 @@
 			<div class="myselfdetail">
 				<div class="myselfdetail-left">
 					<span>累计佣金（元）</span>
-					<span>300</span>
+					<span>{{userInfo.total}}</span>
 				</div>
 				<div class="myselfdetail-right">
 					<span>可提佣金（元）</span>
-					<span>100</span>
-					<navigator class="cash" url="../../pages/myself-cash/main">
-						<span>提现</span>
-					</navigator>
+					<span>{{userInfo.balance}}</span>
+					<span class="cashBtn" @click="jumpCash">提现</span>
 				</div>
 			</div>
 		</div>
@@ -25,7 +23,7 @@
 					流水信息
 				</div>
 				<div class="type" @click="btnShow">
-					类型-全部<span class="iconfont" style="color: #666666;">&#xe600;</span>
+					类型-{{type}}<span class="iconfont" style="color: #666666;">&#xe600;</span>
 				</div>
 				<div class="day">
 					2018-12-30<span class="iconfont" style="color: #666666;">&#xe600;</span>
@@ -79,9 +77,12 @@
 </template>
 
 <script>
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
+				type:"全部",
+				userInfo:{},
 				popup: [{
 						name: "全部"
 					},
@@ -153,19 +154,24 @@
 
 		},
 		mounted() {
+			let that=this
+			that.userInfo = store.state.userInfo
 
 		},
 		methods: {
 			btnShow() {
-				this.isShow = true
+				this.isShow = true;
+			},
+			jumpCash(){
+				wx.navigateTo({url:`../myself-cash/main`})
 			},
 			btnHide() {
-				this.isShow = false
+				this.isShow = false;
 			},
 			addClass(index) {
-				this.current = index
-				this.isShow = false
-
+				this.current = index;
+				this.isShow = false;
+				this.type = this.popup[index].name;
 			}
 		},
 
@@ -233,7 +239,7 @@
 							padding: 30px 0;
 						}
 					}
-					.cash {
+					.cashBtn {
 						width: 80px;
 						height: 33px;
 						background-color: #32a1ff;

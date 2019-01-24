@@ -3,30 +3,35 @@
 		<!--搜索-->
 		<Search></Search>
 		<!--轮播-->
-		<Banner></Banner>
+		<Banner :banner='bannerImg'></Banner>
 		<!--类目-->
 		<div class="cate centered">
-			<div v-for="(item , index) in cate" :key="item.cateid" class="cate-li">
-				<navigator url="../../pages/auro-list/main">
-					<div class="img"><img :src="item.image" /></div>
+			<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.id,item.name)">
+					<div class="img"><img :src="item.img" /></div>
 					<div class="name">{{item.name}}</div>
-				</navigator>
 			</div>
 		</div>
 		<!--超值优惠-->
 		<div class="discount-wrap centered">
-			<div class="title">超值优惠</div>
-			<scroll-view scroll-x style="width: 100%;">
-				<div class="discount">
-					<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount>
-				</div>
+			<div class="title">超赞推荐</div>
+			<scroll-view scroll-x style="width: 100%;">	
+			   <discount :discountList="catGoodRes"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
 			</scroll-view>
 		</div>
 		<!--超赞推荐-->
 		<div class="rec-wrap centered">
-			<div class="title ">超赞推荐</div>
-			<div class="image"><img src="/static/images/rec-banner.png" /></div>
-			<goodslist v-for="(item , index) in rec" :goodlist="item" :key="item.recId"></goodslist>
+			<div class="title ">超值优惠</div>
+			<div class="image  zanWarpimg">
+		       <swiper indicator-dots='true' autoplay='true'>
+					<swiper-item v-for="(item,index) in recommendimgs" :key="index">
+					<image :src="item" class="slide-image" mode='aspectFit'  />
+					</swiper-item>
+				</swiper>
+			</div>
+			<!--image end-->
+
+			<goodslist :catGoodRecommend='catGoodRecommend'></goodslist>
+			<!--goodslist end-->
 		</div>
 	</div>
 </template>
@@ -36,149 +41,21 @@
 	import Banner from '@/components/banner'
 	import discount from '@/components/discount'
 	import goodslist from '@/components/goodslist'
+	import Api from '@/api/goods'
+	import kindApi from '@/api/home'
 	export default {
 		data() {
 			return {
-				cate: [{
-						cateid: 1,
-						name: "火锅",
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid: 2,
-						name: "火锅",
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid: 3,
-						name: "火锅",
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid: 4,
-						name: "火锅",
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid: 5,
-						name: "火锅",
-						image: "/static/images/down_icon_h.png"
-					},
-					{
-						cateid: 6,
-						name: "火锅",
-						image: "/static/images/down_icon_ff.png"
-					},
-					{
-						cateid: 7,
-						name: "火锅",
-						image: "/static/images/down_icon_ff.png"
-					},
-					{
-						cateid: 8,
-						name: "火锅",
-						image: "/static/images/down_icon_ff.png"
-					},
-					{
-						cateid: 9,
-						name: "火锅",
-						image: "/static/images/down_icon_ff.png"
-					},
-					{
-						cateid: 10,
-						name: "火锅",
-						image: "/static/images/down_icon_ff.png"
-					},
-				],
+				displayType:'flex',
+				menuItem: [],
+				regionname:'',
+				regionId:'',
 				wid: '240px',
 				magleft: '10px',
-				discount: [{
-						goodsid: 1,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "2368",
-						dianzhan: "1188",
-						
-					},
-					{
-						goodsid: 2,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "需预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188",
-					
-					},
-					{
-						goodsid: 3,
-						img: "/static/images/banner.png",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						make: "免预约",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						Present: "16.9",
-						discounts: "83",
-						people: "2人",
-						sell: "200",
-						dianzhan: "1188",
-					
-					},
-
-				],
-				rec: [{
-					recId: 1,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188",
-					isshow:true,
-				}, {
-					recId: 2,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "需预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188",
-					isshow:true,
-				}, {
-					recId: 3,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					people: "2人",
-					sell: "200",
-					dianzhan: "1188",
-				    isshow:true,
-				}, ]
+				catGoodRes: [],
+				catGoodRecommend: [],
+				bannerImg:[],
+				recommendimgs:[]
 			}
 		},
 
@@ -190,25 +67,60 @@
 		},
 
 		methods: {
-			jump(index) {
-				console.log(111);
-				console.log(index)
+			jumpAuroList(goodCatId,catname) {
+				let that=this
+				wx.navigateTo({url:`../auro-list/main?goodCatId=${goodCatId}&catname=${catname}&regionname=${that.regionname}&regionId=${that.regionId}`})
 			}
 		},
 
-		created() {
-			// 调用应用实例的方法获取全局数据
+		async onLoad(options) {
+			console.log(options);
+			let that=this
+			that.regionname=options.regionname
+			that.regionId=options.regionId
+			wx.setNavigationBarTitle({
+				title:options.regionname,		
+			})
+			// 获取地区分类下的广告
+			let typeImgRes=await Api.getTypeImg(2,options.regionId)
+			that.bannerImg=typeImgRes.data.imgs
+			that.recommendimgs = typeImgRes.data.recommendimgs
 
+			//#endregion
+			console.log("查看地区分类的广告",typeImgRes)
+
+			// 获取地区分类下的商品分类
+			let GoodCatRes=await kindApi.getGoodCart()
+			GoodCatRes.goodCats.map(item=>{
+				item.img='/static/images/down_icon_a.png'
+			})
+			that.menuItem=GoodCatRes.goodCats
+			 console.log("商品分类",that.menuItem)
+			 
+			// 获取地区分类下的商品(非推荐)
+			let params={}
+			params.regionId=options.regionId
+			let regionGoodRes=await Api.getRegionGoods(1,3,params)
+			that.regionGoodRes=regionGoodRes.rows
+			 console.log("非推荐",that.regionGoodRes)
+
+			//获取地区分类项的商品(推荐)
+			params.recommend=1
+			let regionGoodRecommendRes=await Api.getRegionGoods(1,3,params)
+			that.regionGoodRecommend=regionGoodRecommendRes.rows
+				 console.log("推荐",that.regionGoodRecommend)
 		}
 	}
 </script>
 
 <style scoped lang="less">
+
+.zanWarpimg,.zanWarpimg swiper{height: 155rpx;}
+.zanWarpimg image{height: 100%;width: 100%;}
 	/*类目*/
 	
 	.cate {
 		display: flex;
-		justify-content: space-between;
 		flex-wrap: wrap;
 		text-align: center;
 		.cate-li {
@@ -256,9 +168,9 @@
 		}
 		.image {
 			width: 100%;
-			padding-bottom: 16px;
+			padding-bottom: 7px;
 			height: 96px;
-			margin-top: 18px;
+			margin-top: 10px;
 			border-bottom: 1px solid #dedede;
 			img {
 				width: 100%;
