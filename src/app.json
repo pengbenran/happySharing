@@ -1,5 +1,6 @@
 {
   "pages": [
+   
     "pages/index/main", 
     "pages/order-submit/main",
     "pages/myself-make/main" ,
@@ -11,6 +12,7 @@
     "pages/myself-grade/main" ,
     "pages/myself-dredge/main" , 
     "pages/myself-invite/main" ,
+     "pages/order-cancel/main",
     "pages/order-detail/main",
     "pages/order/main",
     "pages/welfare/main",
