@@ -6,41 +6,84 @@
 		<div class="discount-wrap centered">
 			<div class="discount">
 				<discount :discountList="discount" :isflex='displayType' :wid="wid" :magleft="magleft"></discount>
-			</div>	
-		</div>	
+				<nomoreTip v-if="!hasMore"></nomoreTip>
+			</div>
+		</div>
 	</div>
 </template>
 
-<script> 
+<script>
 	import Search from '@/components/search'
 	import discount from '@/components/discount'
 	import Api from '@/api/goods'
+	import nomoreTip from "@/components/nomoreTip"
 	export default {
 		data() {
 			return {
-				displayType:'block',
-				wid:'100%',
-				magleft:'0',
-				discount: []
+				hasMore: true,
+				nowPage: 1,
+				displayType: 'block',
+				wid: '100%',
+				magleft: '0',
+				discount: [],
+				goodCatId:'',
+				regionId:'',
 			}
 		},
 
 		components: {
 			Search,
-			discount
+			discount,
+			nomoreTip
 		},
 
 		methods: {
-       
+			async getRegionGood(pageNum, pageSize) {
+				let that = this
+				if(that.hasMore) {
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params = {};					
+					params.regionId=that.regionId;
+					params.goodCatId=that.goodCatId;
+//				    console.log(params.regionId) 
+					let discount = await Api.getRegionKindGoods(pageNum,pageSize,params)
+					wx.hideLoading();
+					if(discount.rows.length < pageSize) { 
+						that.hasMore = false
+					}
+					that.discount = that.discount.concat(discount.rows)
+					console.log(that.discount)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				} 
+			}
+		},
+
+		onReachBottom: function() {			
+			let that = this;
+			that.nowPage += 1
+			that.getRegionGood(that.nowPage,3)
 		},
 
 		async onLoad(options) {
+			let that = this		
+			that.discount=[]
+			that.nowPage=1;
+			that.hasMore=true 
 			wx.setNavigationBarTitle({
-				title:options.regionname+options.catname,		
+				title: options.regionname + options.catname,
 			})
-			// 获取地区分类下的商品分类下的商品
-			let RegionKindGoodsRes=	await Api.getRegionKindGoods(1,3,options)
-			that.discount=RegionKindGoodsRes.rows
+			// 获取地区分类下的商品分类下的商品  
+			that.regionId = options.regionId
+			that.goodCatId = options.goodCatId	
+			that.getRegionGood(1,3)
 		}
 	}
 </script>
@@ -51,9 +94,8 @@
 		.title {
 			font-size: 18px;
 			color: #111111;
-			margin-bottom: 18px; 
+			margin-bottom: 18px;
 			font-weight: bold;
 		}
-	
 	}
 </style>
