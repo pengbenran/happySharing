@@ -130,7 +130,22 @@
 			await that.getBookGood(1,3,that.goodCatId)
 			that.bookItem=that.bookList[0]
 			// 调用应用实例的方法获取全局数据
-		}
+		},
+		//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒 - 预约',
+				path: "pages/appointment/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
+			}
+		} 
 	}
 </script>
 
@@ -242,6 +257,7 @@
 			bottom: -139px;left: 50%;margin-left: -165px; background-color: #ffffff;
 			padding: 0 10px;border: 1px solid #cccccc;
 			width: 331px;height: 168px;
+			border-radius: 6px;
 			.name-make {
 				margin: 20px 0;
 				.name {

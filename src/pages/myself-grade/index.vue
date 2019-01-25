@@ -228,20 +228,20 @@
 						width: 60px;
 						height: 25px;
 						line-height: 25px;
-						border: 1px solid #007bf9;
+						border: 1px solid #32a1ff;
 						text-align: center;
 						font-size: 14px;
 						&:nth-child(1) {
 							margin-right: 4px;
 							margin-left: 25px;
-							background: #007bf9;
+							background: #32a1ff;
 							span {
 								color: #fff;
 							}
 						}
 						&:nth-child(2) {
 							span {
-								color: #007bf9;
+								color: #32a1ff;
 							}
 						}
 					}

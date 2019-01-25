@@ -1,10 +1,19 @@
 <template>
 	<div>
 		<!--头部-->
-		<div class="teams">
+		<!--<div class="teams">
 			<div class="img"><img src="/static/images/head.png" /></div>
 			<div class="inp"><span class="iconfont">&#xe60b;</span><span>查找队友</span></div>
 			<div class="jia">＋</div>
+		</div>-->
+		<!--头像-->
+		<div class="myself-head">
+			<div class="img"><img :src="userInfo.face" /></div>
+			<div class="cant">
+				<span>{{userInfo.name}}</span>
+				<span>ID : {{userInfo.id}}</span>
+			</div>
+
 		</div>
 		<!--切换-->
 		<div class="switchs">
@@ -15,81 +24,80 @@
 		<!--会员队友-->
 		<div class="tamemate" v-if="isO">
 			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show">
+				<div class="tamemate-tit clr" @click="showTotal">
 					<span :class=" isIocn?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xeb2b;</span>
 					<span class="fl">全部会员</span>
 					<span class="fr">{{memberCount}}人</span>
 				</div>
-				<div class="data" v-if="isLi">
-					<div v-for="(item,index) in quan">
-						<div class="data-li clr" v-for="(item1,index1) in item">
-							<div class="img fl"><img :src="item1.img" /></div>
-							<div class="name fl">
-								<span>{{item1.name}}</span>
-								<span>消费金额： {{item1.numbe}}</span>
-							</div>
-							<div class="day fr">{{item1.day}}</div>
+				<div class="data" v-if="isTotal">
+					<div class="data-li clr" v-for="(item1,index) in totaList">
+						<div class="img fl"><img :src="item1.face" /></div>
+						<div class="name fl">
+							<span>{{item1.name}}</span>
+							<span>消费金额： {{item1.consumeAmount}}</span>
 						</div>
+						<div class="day fr">{{item1.time}}</div>
 					</div>
 				</div>
 			</div>
+
 			<div class="tamemate-li" v-for="(memberLvitem,memberLvindex) in memberLvDOList" :key="memberLvitem.id" :index="memberLvindex">
-				<div class="tamemate-tit clr" @click="show1">
-					<span :class=" isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
+				<div class="tamemate-tit clr" @click="showList(memberLvindex)">
+					<span :class="memberLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
 					<span class="fl">{{memberLvitem.name}}</span>
 					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
-				<div class="data" v-if="isLi1">
-					<div class="data-li clr" v-for="(item,index) in quan.gao">
-						<div class="img fl"><img :src="item.img" /></div>
+				<div class="data">
+					<div class="data-li clr" v-for="(item,index) in memberLvDOListLi" v-if="memberLvitem.isSelect">
+						<div class="img fl"><img :src="item.face" /></div>
 						<div class="name fl">
 							<span>{{item.name}}</span>
-							<span>消费金额：{{item.numbe}}</span>
+							<span>消费金额：{{item.consumeAmount}}</span>
 						</div>
-						<div class="day fr">{{item.day}}</div>
+						<div class="day fr">{{item.time}}</div>
 					</div>
 				</div>
 			</div>
+
 		</div>
+
 		<!--推荐师队友-->
 		<div class="tamemate" v-if="isR">
 			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="show">
-					<span :class="isIocn?'icon':''" class="iconfont fl">&#xe65c;</span>
+				<div class="tamemate-tit clr" @click="showTotal1">
+					<span :class="isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span style="color: #2bc24b;" class="iconfont fl">&#xeb2b;</span>
 					<span class="fl">全部推荐师</span>
 					<span class="fr">{{distribeCount}}人</span>
 				</div>
-				<div class="data" v-if="isLi">
-					<div v-for="(item,index) in quan">
-						<div class="data-li clr" v-for="(item1,index1) in item">
-							<div class="img fl"><img :src="item1.img" /></div>
-							<div class="name fl">
-								<span>{{item1.name}}</span>
-								<span>消费金额： {{item1.numbe}}</span>
-							</div>
-							<div class="day fr">{{item1.day}}</div>
+				<div class="data" v-if="isTotal1">
+					<div class="data-li clr" v-for="(item1,index) in totaList1">
+						<div class="img fl"><img :src="item1.face" /></div>
+						<div class="name fl">
+							<span>{{item1.name}}</span>
+							<span>消费金额： {{item1.consumeAmount}}</span>
 						</div>
+						<div class="day fr">{{item1.time}}</div>
 					</div>
 				</div>
 			</div>
-		<div class="tamemate-li" v-for="(distribeLvitem,distribeLvindex) in distribeLvDOList" :key="distribeLvitem.id" :index="distribeLvindex">
-				<div class="tamemate-tit clr" @click="show1">
-					<span :class=" isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
+			<div class="tamemate-li" v-for="(distribeLvitem,distribeLvindex) in distribeLvDOList" :key="distribeLvitem.id" :index="distribeLvindex">
+				<div class="tamemate-tit clr" @click="showList1(distribeLvindex)">
+					<span :class=" distribeLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
 					<span class="fl">{{distribeLvitem.name}}</span>
 					<span class="fr">{{distribeLvitem.lvCount}}人</span>
 				</div>
-				<div class="data" v-if="isLi1">
-					<div class="data-li clr" v-for="(item,index) in quan.gao">
-						<div class="img fl"><img :src="item.img" /></div>
+				<div class="data">
+					<div class="data-li clr" v-for="(item,index) in distribeLvDOListLi" v-if="distribeLvitem.isSelect">
+						<div class="img fl"><img :src="item.face" /></div>
 						<div class="name fl">
 							<span>{{item.name}}</span>
-							<span>消费金额：{{item.numbe}}</span>
+							<span>消费金额：{{item.consumeAmount}}</span>
 						</div>
-						<div class="day fr">{{item.day}}</div>
+						<div class="day fr">{{item.time}}</div>
 					</div>
 				</div>
 			</div>
@@ -98,92 +106,36 @@
 </template>
 <script>
 	import Api from "@/api/distribe";
+	import store from '@/store/store'
 	export default {
 		data() {
 			return {
+				isTotal: false,
 				isIocn: false,
+				isTotal1: false,
 				isIocn1: false,
-				isIocn2: false,
-				isIocn3: false,
-				isLi: false,
-				isLi1: false,
-				isLi2: false,
-				isLi3: false,
 				isO: true,
 				isR: false,
+				diss: 0,
 				curr: 0,
 				aaa: [],
-				distribeLvDOList:[],
-				distribeCount:0,
-				memberLvDOList:[],
-				memberCount:0,
+				distribeLvDOList: [],
+				distribeCount: 0,
+				distribeLvDOListLi: [],
+				memberCount: 0,
+				memberLvDOList: [],
+				memberLvDOListLi: [],
+				totaList: [],
+				totaList1: [],
+				config: {},
+				userInfo: {},
 				switchs: [{
 						tab: "会员队友"
 					},
 					{
 						tab: "推荐师队友"
 					}
-				],
-				quan: {
-					gao: [{
-							img: "/static/images/head.png",
-							name: "aaaaa",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-						{
-							img: "/static/images/head.png",
-							name: "bbbbb",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-						{
-							img: "/static/images/head.png",
-							name: "ccccc",
-							numbe: "3000",
-							day: "12月15-2018"
-						}
-					],
-					zhong: [{
-							img: "/static/images/head.png",
-							name: "ddddd",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-						{
-							img: "/static/images/head.png",
-							name: "eeeeee",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-						{
-							img: "/static/images/head.png",
-							name: "fffff",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-					],
-					chu: [{
-							img: "/static/images/head.png",
-							name: "gggggg",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-						{
-							img: "/static/images/head.png",
-							name: "hhhhhh",
-							numbe: "3000",
-							day: "12月15-2018"
-
-						},
-						{
-							img: "/static/images/head.png",
-							name: "iiiiii",
-							numbe: "3000",
-							day: "12月15-2018"
-						},
-					],
-				}
+				]
 			};
 		},
 		methods: {
@@ -198,80 +150,153 @@
 					this.isR = true;
 				}
 			},
-			//点击显示
-			show(index) {
-				this.isLi = !this.isLi
+			//			点击显示 会员队友
+			showTotal(index) {
+				this.isTotal = !this.isTotal
 				this.isIocn = !this.isIocn
+				let that = this
+				let params = {}
+				//		        params.lvId=this.memberLvDOList[memberLvindex].lvId
+				params.whetherDistribe = 0
+				params.tjUnionid = that.userInfo.unionid
+				params.query = {
+					page: 0,
+					limit: 4
+				}
+				Api.myTeamList(params).then(function(res) {
+					that.userInfo = store.state.userInfo
+					that.config = store.state.config
+					that.totaList = res.rows
+				})
 			},
-			show1() {
-				this.isLi1 = !this.isLi1
+			showList(memberLvindex) {
+				let that = this;
+				that.memberLvDOList[memberLvindex].isSelect = !that.memberLvDOList[memberLvindex].isSelect
+				this.diss = memberLvindex;
+				let params = {};
+				params.lvId = this.memberLvDOList[memberLvindex].lvId;
+				params.tjUnionid = that.userInfo.unionid;
+				params.whetherDistribe = 0
+				params.query = {
+					page: 0,
+					limit: 4
+				};
+				Api.myTeamList(params).then(function(res) {
+					that.userInfo = store.state.userInfo;
+					that.config = store.state.config;
+					that.memberLvDOListLi = res.rows;
+					//			     console.log(res)
+				})
+
+			},
+
+			//			点击显示 推荐师队友
+			showTotal1(index) {
+				this.isTotal1 = !this.isTotal1
 				this.isIocn1 = !this.isIocn1
+				let that = this
+				let params = {}
+				//            params.whetherDistribe=this.distribeLvDOList[distribeLvindex].id;
+				params.column30 = 1
+				params.tjUnionid = that.userInfo.unionid
+				params.query = {
+					page: 0,
+					limit: 4
+				}
+				Api.myTeamList(params).then(function(res) {
+					//			    console.log(res)
+					that.userInfo = store.state.userInfo
+					that.config = store.state.config
+					that.totaList1 = res.rows
+				})
 			},
-			show2() {
-				this.isLi2 = !this.isLi2
-				this.isIocn2 = !this.isIocn2
-			},
-			show3() {
-				this.isLi3 = !this.isLi3
-				this.isIocn3 = !this.isIocn3
+			showList1(distribeLvindex) {
+				let that = this;
+				that.distribeLvDOList[distribeLvindex].isSelect = !that.distribeLvDOList[distribeLvindex].isSelect
+				this.diss = distribeLvindex;
+				let params = {};
+				params.whetherDistribe = !0
+				params.whetherDistribe = this.distribeLvDOList[distribeLvindex].id;
+				params.tjUnionid = that.userInfo.unionid;
+				params.query = {
+					page: 0,
+					limit: 4
+				};
+				Api.myTeamList(params).then(function(res) {
+					that.userInfo = store.state.userInfo;
+					that.config = store.state.config;
+					that.distribeLvDOListLi = res.rows;
+				})
+
 			},
 
 		},
-		async mounted(){
-			let that=this
-			let params={}
-			params.unionid='12'
-			Api.myTeamIndex(params).then(function(res){
-				if(res.code==0){
-					that.distribeLvDOList=res.data.distribeLvDOList
-					that.distribeCount=res.distribeCount
-					that.memberLvDOList=res.data.memberLvDOList
-					that.memberCount=res.memberCount
-				} 
+		async mounted() {
+			let that = this
+			let params = {}
+			that.userInfo = store.state.userInfo
+			params.unionid = that.userInfo.unionid
+			Api.myTeamIndex(params).then(function(res) {
+				if(res.code == 0) {
+					res.data.distribeLvDOList.map(item => {
+						item.isSelect = false
+						return item
+					})
+					that.distribeLvDOList = res.data.distribeLvDOList
+					that.distribeCount = res.data.distribeCount
+					that.memberLvDOList = res.data.memberLvDOList
+					that.memberCount = res.data.memberCount
+				}
 			})
+
 		},
+
 	};
 </script>
 <style lang="less">
 	/*头部*/
 	
-	.teams {
+	.myself-head {
 		background-color: #32a1ff;
 		display: flex;
 		box-sizing: border-box;
 		align-items: center;
 		padding: 23px 0 23px 12px;
 		.img {
-			width: 44px;
-			height: 44px;
-			overflow: hidden;
+			width: 58px;
+			height: 58px;
 			border-radius: 50%;
-			img {
-				display: block;
-			}
+			overflow: hidden;
 		}
-		.inp {
-			width: 250px;
-			height: 33px;
-			text-align: center;
-			line-height: 33px;
-			background-color: #0088ff;
-			border-radius: 3px;
-			color: #FFFFFF;
-			font-size: 12px;
+		.cant {
 			margin-left: 12px;
 			span {
-				color: #fefefe;
+				display: block;
 				&:nth-child(1) {
-					font-size: 20px;
+					color: #fff;
+					font-size: 18px;
+					width: 200px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+				&:nth-child(2) {
+					color: #fff;
+					font-size: 13px;
 				}
 			}
 		}
-		.jia {
-			font-size: 22px;
-			color: #FFFFFF;
-			margin-left: 19px;
-			margin-bottom: 1px;
+		.service {
+			span {
+				display: block;
+				text-align: center;
+				margin-top: 2px;
+				&:nth-child(1) {}
+				&:nth-child(2) {
+					font-size: 12px;
+					color: #999999;
+				}
+			}
 		}
 	}
 	/*切换*/
@@ -377,11 +402,9 @@
 			.data {
 				padding: 0px 20px 0px 12px;
 				box-sizing: border-box;
-							
-				.data-li{
+				.data-li {
 					padding: 12px 0;
 					border-bottom: 1px solid #DEDEDE;
-					
 					.img {
 						width: 44px;
 						height: 44px;
@@ -392,11 +415,11 @@
 						margin-left: 11px;
 						span {
 							display: block;
-							&:nth-child(1){
+							&:nth-child(1) {
 								color: #111111;
 								font-size: 16px;
 							}
-							&:nth-child(2){
+							&:nth-child(2) {
 								color: #999999;
 								font-size: 12px;
 							}
@@ -405,8 +428,7 @@
 					.day {
 						color: #999999;
 						font-size: 11px;
-						line-height: 44px
-						;
+						line-height: 44px;
 					}
 				}
 			}

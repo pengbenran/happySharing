@@ -140,6 +140,21 @@
 				item.saveMoney=util.accSub(item.showPrice,item.price)	
 			})
 			that.regionGoodRecommend=regionGoodRecommendRes.rows
+		},
+				//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒' + item.name,
+				path: "pages/auro/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
+			}
 		}
 	}
 </script>
