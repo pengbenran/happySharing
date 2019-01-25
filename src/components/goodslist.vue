@@ -5,7 +5,7 @@
       <div class="rec-center fl">
         <div class="tit">{{item.title}}</div>
         <div class="name">{{item.goodName}}</div>
-        <div class="present ">￥:{{item.price}}</div>
+        <div class="present ">￥{{item.price}}</div>
         <div class="original ">原价:{{item.showPrice}}元</div>
         <!-- <div v-if="item.isshow" class="dianzhan">点赞:{{item.dianzhan}}</div> -->
       </div>

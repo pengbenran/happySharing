@@ -39,7 +39,10 @@
 				title:options.regionname+options.catname,		
 			})
 			// 获取地区分类下的商品分类下的商品
-			let RegionKindGoodsRes=	await Api.getRegionKindGoods(1,3,options)
+			let params={}
+			params.goodCatId=options.goodCatId
+			params.regionId=options.regionId
+			let RegionKindGoodsRes=	await Api.getRegionKindGoods(1,3,params)
 			that.discount=RegionKindGoodsRes.rows
 		}
 	}

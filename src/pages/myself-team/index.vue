@@ -31,7 +31,7 @@
 					<span class="fr">{{memberCount}}人</span>
 				</div>
 				<div class="data" v-if="isTotal">
-					<div class="data-li clr" v-for="(item1,index) in totaList">
+					<div class="data-li clr" v-for="(item1,index) in memberTotaList">
 						<div class="img fl"><img :src="item1.face" /></div>
 						<div class="name fl">
 							<span>{{item1.name}}</span>
@@ -50,7 +50,7 @@
 					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
 				<div class="data">
-					<div class="data-li clr" v-for="(item,index) in memberLvDOListLi" v-if="memberLvitem.isSelect">
+					<div class="data-li clr" v-for="(item,index) in memberLvitem.list" v-if="memberLvitem.isSelect">
 						<div class="img fl"><img :src="item.face" /></div>
 						<div class="name fl">
 							<span>{{item.name}}</span>
@@ -73,7 +73,7 @@
 					<span class="fr">{{distribeCount}}人</span>
 				</div>
 				<div class="data" v-if="isTotal1">
-					<div class="data-li clr" v-for="(item1,index) in totaList1">
+					<div class="data-li clr" v-for="(item1,index) in DistribeTotalList">
 						<div class="img fl"><img :src="item1.face" /></div>
 						<div class="name fl">
 							<span>{{item1.name}}</span>
@@ -91,7 +91,7 @@
 					<span class="fr">{{distribeLvitem.lvCount}}人</span>
 				</div>
 				<div class="data">
-					<div class="data-li clr" v-for="(item,index) in distribeLvDOListLi" v-if="distribeLvitem.isSelect">
+					<div class="data-li clr" v-for="(item,index) in distribeLvitem.list" v-if="distribeLvitem.isSelect">
 						<div class="img fl"><img :src="item.face" /></div>
 						<div class="name fl">
 							<span>{{item.name}}</span>
@@ -116,17 +116,14 @@
 				isIocn1: false,
 				isO: true,
 				isR: false,
-				diss: 0,
 				curr: 0,
 				aaa: [],
 				distribeLvDOList: [],
 				distribeCount: 0,
-				distribeLvDOListLi: [],
 				memberCount: 0,
 				memberLvDOList: [],
-				memberLvDOListLi: [],
-				totaList: [],
-				totaList1: [],
+				memberTotaList: [],
+				DistribeTotalList: [],
 				config: {},
 				userInfo: {},
 				switchs: [{
@@ -140,94 +137,90 @@
 		},
 		methods: {
 			tab(index) {
-				this.curr = index
+				let that=this
+				that.curr = index
 				if(index == 0) {
-					this.isO = true;
-					this.isR = false;
+					that.isO = true;
+					that.isR = false;
 				}
 				if(index == 1) {
-					this.isO = false;
-					this.isR = true;
+					that.isO = false;
+					that.isR = true;
+					that.getDistribe()
 				}
 			},
-			//			点击显示 会员队友
-			showTotal(index) {
-				this.isTotal = !this.isTotal
-				this.isIocn = !this.isIocn
+			async getmemberList(){
 				let that = this
 				let params = {}
-				//		        params.lvId=this.memberLvDOList[memberLvindex].lvId
 				params.whetherDistribe = 0
 				params.tjUnionid = that.userInfo.unionid
-				params.query = {
-					page: 0,
-					limit: 4
-				}
-				Api.myTeamList(params).then(function(res) {
-					that.userInfo = store.state.userInfo
-					that.config = store.state.config
-					that.totaList = res.rows
+				let myTeamRes=await Api.myTeamList(params)
+				that.memberLvDOList.map((item)=>{
+					let lvId=item.lvId
+					let list=myTeamRes.rows.filter(item=>{
+						if(item.lvId==lvId){
+							return item
+						} 
+					})
+					item.list=list
+					return item
 				})
+				that.memberTotaList = myTeamRes.rows
+			},
+			async getDistribe(){
+				let that = this
+				let params = {}
+				params.column30 = 1
+				params.tjUnionid = that.userInfo.unionid
+				let distribeRes=await Api.myTeamList(params)
+				that.distribeLvDOList.map((item)=>{
+					let id=item.id
+					let list=distribeRes.rows.filter(item=>{
+						if(item.whetherDistribe==id){
+							return item
+						} 
+					})
+					item.list=list
+					return item
+				})
+				that.DistribeTotalList = distribeRes.rows
+			},
+			//点击显示 会员队友
+			showTotal(index) {
+				let that=this
+				that.isTotal = !that.isTotal
+				that.isIocn = !that.isIocn	
+				that.memberLvDOList.map(item=>{
+					item.isSelect=false
+				})		
 			},
 			showList(memberLvindex) {
 				let that = this;
-				that.memberLvDOList[memberLvindex].isSelect = !that.memberLvDOList[memberLvindex].isSelect
-				this.diss = memberLvindex;
-				let params = {};
-				params.lvId = this.memberLvDOList[memberLvindex].lvId;
-				params.tjUnionid = that.userInfo.unionid;
-				params.whetherDistribe = 0
-				params.query = {
-					page: 0,
-					limit: 4
-				};
-				Api.myTeamList(params).then(function(res) {
-					that.userInfo = store.state.userInfo;
-					that.config = store.state.config;
-					that.memberLvDOListLi = res.rows;
-					//			     console.log(res)
+				that.isTotal = false
+				that.isIocn = false	
+				that.memberLvDOList.map(item=>{
+					item.isSelect=false
 				})
-
+				that.memberLvDOList[memberLvindex].isSelect=true		
 			},
 
 			//			点击显示 推荐师队友
 			showTotal1(index) {
-				this.isTotal1 = !this.isTotal1
-				this.isIocn1 = !this.isIocn1
-				let that = this
-				let params = {}
-				//            params.whetherDistribe=this.distribeLvDOList[distribeLvindex].id;
-				params.column30 = 1
-				params.tjUnionid = that.userInfo.unionid
-				params.query = {
-					page: 0,
-					limit: 4
-				}
-				Api.myTeamList(params).then(function(res) {
-					//			    console.log(res)
-					that.userInfo = store.state.userInfo
-					that.config = store.state.config
-					that.totaList1 = res.rows
+				let that=this
+				that.isTotal1 = !that.isTotal1
+				that.isIocn1 = !that.isIocn1
+				that.distribeLvDOList.map(item=>{
+					item.isSelect=false
 				})
 			},
 			showList1(distribeLvindex) {
 				let that = this;
-				that.distribeLvDOList[distribeLvindex].isSelect = !that.distribeLvDOList[distribeLvindex].isSelect
-				this.diss = distribeLvindex;
-				let params = {};
-				params.whetherDistribe = !0
-				params.whetherDistribe = this.distribeLvDOList[distribeLvindex].id;
-				params.tjUnionid = that.userInfo.unionid;
-				params.query = {
-					page: 0,
-					limit: 4
-				};
-				Api.myTeamList(params).then(function(res) {
-					that.userInfo = store.state.userInfo;
-					that.config = store.state.config;
-					that.distribeLvDOListLi = res.rows;
+				that.isTotal1 = false
+				that.isIocn1 = false	
+				that.distribeLvDOList.map(item=>{
+					item.isSelect=false
 				})
-
+				that.distribeLvDOList[distribeLvindex].isSelect=true
 			},
 
 		},
@@ -236,26 +229,24 @@
 			let params = {}
 			that.userInfo = store.state.userInfo
 			params.unionid = that.userInfo.unionid
-			Api.myTeamIndex(params).then(function(res) {
-				if(res.code == 0) {
-					res.data.distribeLvDOList.map(item => {
-						item.isSelect = false
-						return item
-					})
-					that.distribeLvDOList = res.data.distribeLvDOList
-					that.distribeCount = res.data.distribeCount
-					that.memberLvDOList = res.data.memberLvDOList
-					that.memberCount = res.data.memberCount
-				}
-			})
-
+			let memberRes=await Api.myTeamIndex(params)
+			if(memberRes.code==0){
+				memberRes.data.distribeLvDOList.map(item => {
+					item.isSelect = false
+					return item
+				})
+				that.distribeLvDOList = memberRes.data.distribeLvDOList
+				that.distribeCount = memberRes.data.distribeCount
+				that.memberLvDOList = memberRes.data.memberLvDOList
+				that.memberCount = memberRes.data.memberCount
+			}
+			that.getmemberList()
 		},
 
 	};
 </script>
 <style lang="less">
 	/*头部*/
-	
 	.myself-head {
 		background-color: #32a1ff;
 		display: flex;

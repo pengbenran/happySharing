@@ -13,5 +13,15 @@ export default {
  //提交申请
  submitApply:params=>{
  	return API.POST('/api-member/api/distribe/submitApply',{params:params})
+ },
+ //提现
+ withdrawal:params=>{
+ 	return API.POST('/api-member/api/distribe/withdrawal',params)
+ },
+ getCommissionList:params=>{
+	return API.GET('/api-member/distribe/commission/list',params)
+ },
+getWithdrawList:params=>{
+	return API.GET('/api-member/distribe/withdraw/list',params)
  }
 }

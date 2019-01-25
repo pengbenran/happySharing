@@ -1,13 +1,12 @@
 {
   "pages": [
-   
     "pages/index/main", 
+    "pages/myself-cash/main",
     "pages/order-submit/main",
     "pages/myself-make/main" ,
     "pages/myself-team/main",
     "pages/myself-data/main",
-    "pages/myself-exchange/main",
-    "pages/myself-cash/main",
+    "pages/myself-exchange/main",  
     "pages/myself-detail/main" ,
     "pages/myself-grade/main" ,
     "pages/myself-dredge/main" , 
@@ -49,12 +48,6 @@
         "iconPath": "/static/images/appointment.png",
         "selectedIconPath": "/static/images/appointmentselect.png",
         "text": "预约"
-      },
-      {
-        "pagePath": "pages/welfare/main",
-        "iconPath": "/static/images/welfare.png",
-        "selectedIconPath": "/static/images/welfareselect.png",
-        "text": "福利"
       },
       {
         "pagePath": "pages/order/main",

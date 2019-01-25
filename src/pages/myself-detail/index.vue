@@ -26,41 +26,43 @@
 					类型-{{type}}<span class="iconfont" style="color: #666666;">&#xe600;</span>
 				</div>
 				<div class="day">
-					2018-12-30<span class="iconfont" style="color: #666666;">&#xe600;</span>
+					<!-- 2018-12-30<span class="iconfont" style="color: #666666;">&#xe600;</span> -->
 				</div>
 			</div>
 
 			<!--流水列表 -->
-			<div class="flowbill-list">
-				<div v-for="(item,index) in bill" class="flowbill-list-li clr">
-					<div class="img fl"> <img :src="item.img" /></div>
-					<div class="name fl">
-						<span>{{item.name}} - {{item.record}}</span>
-						<span>{{item.day}}</span>
+			<div class="flowbill-list" v-if="current==0">
+				<div v-for="(item,index) in commissionList" class="flowbill-list-li" >
+					<div class="top">
+						<div class="img"> <img :src="item.face" /></div>
+						<div class="name">
+							<span class="oneover">{{item.name}} - {{item.stauname}}</span>
+							<span class="oneover">购买商品-{{item.goodName}}</span>
+							<span>{{item.time}}</span>
+						</div>
+						<div class="num">
+							<p>商品返佣<span>+{{item.commission}}</span></p> 
+							<p>上下线佣金<span>+{{item.rankMoney}}</span></p>
+						</div>
 					</div>
-					<div class="num fr">+{{num}}</div>
 					<div class="xian"></div>
 				</div>
-				<!--收入-->
-				<div class="bills clr">
-					<div class="img fl"> <img :src="bills.img" /></div>
-					<div class="name fl">
-						<span class="day">{{bills.day}}</span>
-						<div><span> 支出¥{{expenditure}}</span> <span>收入{{bills.income}}</span></div>
+				<nomoreTip v-if="!hasMore[0]"></nomoreTip>
+			</div>
+			<div class="flowbill-list" v-else>
+				<div v-for="(item,index) in withdeawList" class="flowbill-list-li" >
+					<div class="top">
+						<div class="img"> <img :src="item.face" /></div>
+						<div class="name">
+							<span>{{item.name}} - {{item.stauname}}</span>
+							<span></span>
+							<span>{{item.time}}</span>
+						</div>
+						<div class="num">-{{item.withdraw}}</div>
 					</div>
-					<div class="num fr"><span>总计 : </span>{{tofiex}}</div>
 					<div class="xian"></div>
 				</div>
-				<!--提现-->
-				<div class="cash clr">
-					<div class="img fl"> <img :src="bills.cashimg" /></div>				
-					<div class="name fl">
-						<span>提现到微信钱包</span>
-						<span>{{bills.day}}{{bills.time}}</span>
-					</div>					
-					<div class="num fr">-{{expenditure}}</div>	
-					<div class="xian"></div>					
-				</div>
+				<nomoreTip v-if="!hasMore[1]"></nomoreTip>
 			</div>
 		</div>
 		<!--弹窗-->
@@ -78,85 +80,37 @@
 
 <script>
 	import store from '@/store/store'
+	import Api from '@/api/distribe'
+	import nomoreTip from "@/components/nomoreTip"
 	export default {
 		data() {
 			return {
-				type:"全部",
+				type:'',
 				userInfo:{},
 				popup: [{
-						name: "全部"
-					},
-					{
-						name: "邀请"
-					},
-					{
-						name: "提现"
-					},
-					{
-						name: "会员消费"
-					},
-					{
-						name: "银牌消费"
-					},
-					{
-						name: "金牌消费"
-					},
-					{
-						name: "推荐师消费"
-					},
-					{
-						name: "钻石消费"
-					},
-					{
-						name: "股东消费"
-					},
+					name: "返佣详情",
+				},
+				{
+					name: "提现详情"
+				},	
 				],
+				commissionList:[],
+				withdeawList:[],
 				isShow: false,
 				current: 0,
-				bills: {
-					cashimg: "/static/images/flowbill2.png",
-					img: "/static/images/flowbill1.png",
-					day: "2018年12月30日",
-					expenditure: 10.00,
-					income: 20.99,
-					time: "12:30",						
-				},
-				bill: [{
-						img: "/static/images/head.png",
-						name: "小明同学",
-						record: "被成功邀请",
-						recordo: "购买消费",
-						day: "12月30日21:31",
-						num: 20.00
-					},
-					{
-						img: "/static/images/head.png",
-						name: "小明同学",
-						record: "被成功邀请",
-						recordo: "购买消费",
-						day: "12月30日21:31",
-						num: 20.99
-					},
-					{
-						img: "/static/images/head.png",
-						name: "小明同学",
-						record: "被成功邀请",
-						recordo: "购买消费",
-						day: "12月30日21:31",
-						num: 20.99
-					},
-				],
-
+				nowPage:[0,0],
+				hasMore:[true,true]
 			}
 		},
 
 		components: {
-
+			nomoreTip
 		},
 		mounted() {
 			let that=this
 			that.userInfo = store.state.userInfo
-
+			this.type = this.popup[0].name;
+			that.getCommissionList(0,6,that.userInfo.unionid)
 		},
 		methods: {
 			btnShow() {
@@ -168,270 +122,297 @@
 			btnHide() {
 				this.isShow = false;
 			},
+			// 获取返佣列表
+			async getCommissionList(pagesNum,pageSize,unionid){
+				let that=this
+				if(that.hasMore[0]){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params={}
+					params.offset=pagesNum*pageSize
+					params.limit=pageSize
+					// params.tjUnionid=unionid
+					params.tjUnionid=unionid
+					let commissionRes=await Api.getCommissionList(params)
+					wx.hideLoading();
+					commissionRes.rows.map(item=>{
+						item.stauname=item.status==1?'已红包返佣':item.status==2?'返佣失败':'返佣已加余额'
+						return item
+					})
+					if(commissionRes.rows.length<pageSize){
+						that.hasMore[0]=false
+					}
+					that.commissionList=that.commissionList.concat(commissionRes.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+				
+
+			},
+			async getWithdrawList(pagesNum,pageSize,unionid){
+				let that=this
+				if(that.hasMore[1]){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params={}
+					params.offset=pagesNum*pageSize
+					params.limit=pageSize
+					params.unionid=unionid
+					let withdeawRes=await Api.getWithdrawList(params)
+					wx.hideLoading();
+					withdeawRes.rows.map(item=>{
+						item.stauname=item.status==1?'提现成功':'提现失败'
+						return item
+					})
+					if(withdeawRes.rows.length<pageSize){
+						that.hasMore[1]=false
+					}
+					that.withdeawList=that.withdeawList.concat(withdeawRes.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+			},
+			// 获取提现列表
 			addClass(index) {
-				this.current = index;
-				this.isShow = false;
-				this.type = this.popup[index].name;
+				let that=this
+				that.current = index;
+				that.isShow = false;
+				that.type = that.popup[index].name;
+				if(that.withdeawList.length==0){
+					that.getWithdrawList(0,6,that.userInfo.unionid)
+				}
+
 			}
 		},
-
-		computed: {
-			expenditure() {
-				return this.bills.expenditure.toFixed(2);
-			},
-			income() {
-				return this.bills.income.toFixed(2);
-			},
-			tofiex() {
-				return(this.bills.income - this.bills.expenditure).toFixed(2);
-			},
-			num() {
-				for(var i in this.bill) {
-					var num = this.bill[i].num.toFixed(2);
-					return num;
-				}
+		onReachBottom:function(){
+			let that = this;		
+			if(that.type=="返佣详情"){
+				that.nowPage[0]+=1
+				that.getCommissionList(that.nowPage[0],6,that.userInfo.unionid)	
 			}
+			else{
+				that.nowPage[1]+=1
+				that.getWithdrawList(that.nowPage[1],6,that.userInfo.unionid)
+			}
+			
+		},
+		computed: {
+			// expenditure() {
+			// 	return this.bills.expenditure.toFixed(2);
+			// },
+			// income() {
+			// 	return this.bills.income.toFixed(2);
+			// },
+			// tofiex() {
+			// 	return(this.bills.income - this.bills.expenditure).toFixed(2);
+			// },
+			// num() {
+			// 	for(var i in this.bill) {
+			// 		var num = this.bill[i].num.toFixed(2);
+			// 		return num;
+			// 	}
+			// }
 		},
 	}
 </script>
 
 <style scoped lang="less">
-	.container {
-		width: 100%;
-		background-color: #f9f9f9;
-		/*佣金*/
-		.myselfdetails {
-			background-color: #fff;
-			.myselfdetail {
-				display: flex;
-				justify-content: space-between;
-				width: 283px;
+.container {
+	width: 100%;
+	background-color: #f9f9f9;
+}
+.myselfdetails {
+	background-color: #fff;
+	.myselfdetail {
+		display: flex;
+		justify-content: space-between;
+		width: 283px;
+		margin: 0 auto;
+		padding: 20px 0;
+		.myselfdetail-left {
+			text-align: center;
+			span {
+				display: block;
+				&:nth-child(1) {
+					color: #111111;
+					font-size: 15px;
+				}
+				&:nth-child(2) {
+					color: #111111;
+					font-size: 33px;
+					font-family: "roboto";
+					padding: 30px 0;
+				}
+			}
+		}
+		.myselfdetail-right {
+			text-align: center;
+			span {
+				display: block;
+				&:nth-child(1) {
+					color: #111111;
+					font-size: 15px;
+				}
+				&:nth-child(2) {
+					color: #32a1ff;
+					font-size: 33px;
+					font-family: "roboto";
+					padding: 30px 0;
+				}
+			}
+			.cashBtn {
+				width: 80px;
+				height: 33px;
+				background-color: #32a1ff;
+				color: #fff;
+				font-size: 14px;
+				line-height: 33px;
+				border-radius: 3px;
 				margin: 0 auto;
-				padding: 20px 0;
-				.myselfdetail-left {
-					text-align: center;
-					span {
-						display: block;
-						&:nth-child(1) {
-							color: #111111;
-							font-size: 15px;
-						}
-						&:nth-child(2) {
-							color: #111111;
-							font-size: 33px;
-							font-family: "roboto";
-							padding: 30px 0;
-						}
-					}
-				}
-				.myselfdetail-right {
-					text-align: center;
-					span {
-						display: block;
-						&:nth-child(1) {
-							color: #111111;
-							font-size: 15px;
-						}
-						&:nth-child(2) {
-							color: #32a1ff;
-							font-size: 33px;
-							font-family: "roboto";
-							padding: 30px 0;
-						}
-					}
-					.cashBtn {
-						width: 80px;
-						height: 33px;
-						background-color: #32a1ff;
-						color: #fff;
-						font-size: 14px;
-						line-height: 33px;
-						border-radius: 3px;
-						margin: 0 auto;
-						text-align: center;
-						span {
-							color: #fff;
-						}
-					}
-				}
-			}
-		}
-		.flowbill {
-			margin-top: 8px;
-			background-color: #fff;
-			width: 100%;
-			padding: 0 12px;
-			box-sizing: border-box;
-			/*流水信息栏*/
-			.flowbill-cate {
-				margin-bottom: 10px;
-				width: 100%;
-				height: 60px;
-				line-height: 60px;
-				display: flex;
-				justify-content: space-between;
-				.tit {
-					color: 111111;
-					font-size: 18px;
-					font-weight: bold;
-				}
-				.type {
-					color: #666666;
-					font-size: 14px;
-				}
-				.day {
-					font-size: 14px;
-					color: #111111;
-				}
-			}
-			/*	<!--流水列表 -->*/
-			.flowbill-list {
-				.flowbill-list-li,
-				.cash {
-					position: relative;
-					padding: 20px 0;
-					&:nth-child(1) {
-						padding: 0 0 20px 0;
-					}
-					.img {
-						width: 44px;
-						height: 44px;
-						vertical-align: middle;
-						border-radius: 50%;
-					}
-					.name {
-						margin-left: 12px;
-						margin-top: 4px;
-						span {
-							display: block;
-							&:nth-child(1) {
-								font-size: 14px;
-								color: #111111;
-							}
-							&:nth-child(2) {
-								font-size: 12px;
-								color: #999999;
-								margin-top: 2px;
-							}
-						}
-					}
-					.num {
-						font-size: 18px;
-						font-family: "roboto";
-						line-height: 30px;
-						
-					}
-					.xian {
-						height: 1px;
-						background-color: #DEDEDE;
-						width: 297px;
-						position: absolute;
-						right: 0;
-						bottom: 0;
-					}
-				}
-				/*收入*/
-				.bills {
-					position: relative;
-					padding: 20px 0;
-					&:nth-child(1) {
-						padding: 0 0 20px 0;
-					}
-					.img {
-						width: 44px;
-						height: 44px;
-						vertical-align: middle;
-						border-radius: 50%;
-					}
-					.name {
-						margin-left: 12px;
-						margin-top: 4px;
-						.day {
-							display: block;
-							font-size: 14px;
-							color: #111111;
-							font-weight: bold;
-						 }
-						 
-						 div{
-						 	margin-top: 2px;
-						 	display: flex;
-						 	span{
-						 		display:block;
-						 		font-size: 12px;
-								color: #999999;
-								margin-left: 12px;
-								&:nth-child(1){
-									margin-left: 0;
-								}
-						 	}
-						 }
-					}
-					.num {
-						font-size: 18px;
-						font-family: "roboto";
-						line-height: 30px;
-						span{
-							font-weight: bold;
-							font-size: 15px;
-							color: #111111;
-						}
-					}
-					.xian {
-						height: 1px;
-						background-color: #DEDEDE;
-						width: 297px;
-						position: absolute;
-						right: 0;
-						bottom: 0;
-					}
-				}
-			}
-		}
-		.popup {
-			position: fixed;
-			bottom: 0;
-			width: 100%;
-			background-color: #f9f9f9;
-			.popup-wp {
-				padding: 20px 12px;
-				.popup-header {
-					padding-bottom: 20px;
-					border-bottom: 1px solid #DEDEDE;
-					font-size: 14px;
-					color: #111111;
-					text-align: center;
-				}
-				.popup-cant {
-					display: flex;
-					justify-content: space-between;
-					flex-wrap: wrap;
-					padding: 10px 8px 20px 8px;
-					span {
-						display: block;
-						color: #666666;
-						font-size: 14px;
-						text-align: center;
-						width: 105px;
-						height: 66px;
-						line-height: 66px;
-						background-color: #fff;
-						border-radius: 5px;
-						margin-top: 10px;
-					}
-					.on {
-						color: #fff;
-						background-color: #32A1FF;
-					}
-				}
-				.popup-footer {
-					padding-top: 20px;
-					border-top: 1px solid #DEDEDE;
-					text-align: center;
-					font-size: 14px;
-					color: #111111;
+				text-align: center;
+				span {
+					color: #fff;
 				}
 			}
 		}
 	}
+}
+.flowbill{
+	margin-top:8px;
+	background: #fff;
+	width: 100%;
+	padding: 0 12px;
+	box-sizing: border-box;
+	.flowbill-cate{
+		margin-bottom: 10px;
+		width: 100%;
+		height: 60px;
+		line-height: 60px;
+		display: flex;
+		justify-content: space-between;
+		.tit {
+			color: 111111;
+			font-size: 18px;
+			font-weight: bold;
+		}.type {color: #666666;font-size: 14px;}
+		.day {font-size: 14px;color: #111111;}
+	}
+}
+.flowbill-list {
+	.flowbill-list-li{
+		.top{
+			display: flex;
+			justify-content: space-around;
+			.img{
+				width: 44px;
+				height: 44px;
+				vertical-align: middle;
+				border-radius: 50%;
+				overflow: hidden;
+			}
+			.name{
+				margin-left: 12px;
+				flex-grow: 1;
+				margin-top: 4px;
+				span {
+					max-width: 200px;
+					display: block;
+					&:nth-child(1) {
+						font-size: 14px;
+						color: #111111;
+						height: 20px;
+						line-height:20px;
+					}
+					&:nth-child(2) {
+						font-size: 12px;
+						color: #999999;
+						margin-top: 2px;
+					}
+					&:nth-child(3) {
+						font-size: 12px;
+						color: #999999;
+						margin-top: 2px;
+						height: 20px;
+						line-height:20px;
+					}
+				}
+			}
+			.num{
+				p{
+					font-size: 14px;
+					font-family: "roboto";
+					line-height: 25px;
+					span{
+						color:red;
+						font-size: 18px;
+					}
+				}
+			
+			}
+
+		}
+		.xian {
+			height: 1px;
+			background-color: #DEDEDE;
+			width: 297px;
+		}
+	}
+}
+.popup {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: #f9f9f9;
+	.popup-wp {
+		padding: 20px 12px;
+		.popup-header {
+			padding-bottom: 20px;
+			border-bottom: 1px solid #DEDEDE;
+			font-size: 14px;
+			color: #111111;
+			text-align: center;
+		}
+		.popup-cant {
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			padding: 10px 8px 20px 8px;
+			span {
+				display: block;
+				color: #666666;
+				font-size: 14px;
+				text-align: center;
+				width: 105px;
+				height: 66px;
+				line-height: 66px;
+				background-color: #fff;
+				border-radius: 5px;
+				margin-top: 10px;
+			}
+			.on {
+				color: #fff;
+				background-color: #32A1FF;
+			}
+		}
+		.popup-footer {
+			padding-top: 20px;
+			border-top: 1px solid #DEDEDE;
+			text-align: center;
+			font-size: 14px;
+			color: #111111;
+		}
+	}
+}
 </style>

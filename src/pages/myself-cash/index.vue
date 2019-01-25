@@ -3,40 +3,79 @@
 		<div class="myselfcash">
 			<span>可提佣金   (元)</span>
 			<span>{{userInfo.balance}}</span>
-			<span>我要提取  ¥  <input v-model="inp" v-on:input="changeCss(val)"  type="number" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
-			<span>提取的佣金将存入您的微信钱包当中，记得查看哦</span>
-			<div :class="{btnon:isOn}" class="btn">提现</div>
+			<span>我要提取  ¥  <input v-model="inp" :input="changeCss()"  type="number" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
+			<span>提取的佣金将会以红包的形式发送到公众号，记得查看哦</span>
+			<span class="tip">{{tip}}</span>
+			<button :class="{btnon:isOn}" :disbaled='isSubmit' class="btn" @click="submit">提现</button>
 		</div>
 	</div>
 </template>
 <script>
 	import store from '@/store/store'
+	import Api from '@/api/distribe'
+	import util from '@/utils/index'
 	export default { 
 		data() {
 			return {
 				isOn: false,
 				inp: "",
+				tip:'',
+				isSubmit:false,
 				userInfo:{}
 			};
 		},
 		methods: {
 			changeCss() {
-				if(this.inp == "") {
-					this.isOn = false
-				} else {
-					this.isOn = true
+				let that=this
+				if(that.inp==''){
+					that.isOn=false
 				}
-				//判断用户输入的是否为数字
-				var regNum = new RegExp('[0-9]', 'g');
-				console.log(regNum)
+				else if(that.inp>that.userInfo.balance){
+					that.isOn=false
+					that.tip="余额不足"
+				}
+				else if(that.inp<1||that.inp>200){
+					that.isOn=false
+					that.tip="红包提现范围为1~200元之间"
+				}
+				else{
+					that.isOn=true
+					that.tip=""
+				}
+
+				//判断用户输入的是否为数字s
 			},
+			async submit(){
+				let that=this
+				if(!that.isSubmit&&that.isOn){
+					wx.showLoading({
+						title: '请稍等',
+					})
+					that.isSubmit=true
+					that.isOn=false
+					let params={}
+					params.unionid=that.userInfo.unionid;
+					params.money=that.inp;
+					let widthdrawRes=await Api.withdrawal(params)
+					if(widthdrawRes.code==0){
+						wx.hideLoading()
+						wx.showToast({
+							title:'提现成功',
+							duration:1500
+						})
+						that.userInfo.balance=util.accSub(that.userInfo.balance,that.inp)
+						store.commit("storeUserInfo",that.userInfo)
+						wx.navigateTo({ url:'../myself-detail/main'});
+					}
+					
+				}
+				
+			}
+
 		},
 		mounted(){
 		  let that=this
 		  that.userInfo = store.state.userInfo
-		},
-		computed: {
-
 		}
 	};
 </script>
@@ -78,6 +117,11 @@
 				font-size: 12px;
 				color: #999999;
 			}
+		}
+		.tip{
+			color:red;
+			height: 40px;
+			line-height:40px;
 		}
 		.btn {
 			width: 80px;

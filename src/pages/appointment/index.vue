@@ -59,6 +59,7 @@
 				nowPage:1,
 				bookItem:[],
 				hasMore:[],
+				nowPage:[]
 			}
 
 		},
@@ -115,8 +116,8 @@
 		},
 		onReachBottom:function(){
 			let that = this;
-			that.nowPage+=1
-			that.getBookGood(that.nowPage,3,that.goodCatId)
+			that.nowPage[that.timeindex]+=1
+			that.getBookGood(that.nowPage[that.timeindex],3,that.goodCatId)
 		},
 		async mounted() {
 			let that=this
@@ -126,6 +127,7 @@
 			for(var i in that.goodCart){
 				that.hasMore[i]=true
 				that.bookList[i]=[]
+				that.nowPage[i]=1
 			}
 			await that.getBookGood(1,3,that.goodCatId)
 			that.bookItem=that.bookList[0]

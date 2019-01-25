@@ -21,7 +21,7 @@
 						<div class="wrap">
 							<!--会员-->
 							<div class="member">
-								<div class="top" @click="jumpUrl('../myself-grade/main')">{{userInfo.lvname}}</div>
+								<div class="top">{{userInfo.lvname}}</div>
 								<div class="bottom">
 									<div><span>{{totalPoint}}</span><span>累计积分</span></div>
 									<div><span>{{userInfo.point}}</span><span>可用积分</span></div>
@@ -29,7 +29,7 @@
 							</div>
 							<!--已开通推荐师-->
 							<div class="recommended" v-if="userInfo.whetherDistribe!=0">
-								<div class="top" @click="jumpUrl('../myself-grade/main')">{{userInfo.dlvname}}</div>
+								<div class="top">{{userInfo.dlvname}}</div>
 								<div class="bottom" @click="jumpUrl('../myself-detail/main')">
 									<div><span>{{userInfo.total}}</span><span>累计佣金</span></div>
 									<div><span>{{userInfo.balance}}</span><span>可用佣金</span></div>
@@ -80,10 +80,10 @@ import API from '@/api/myself'
 					name: "我的团队",
 					ourl: "../myself-team/main"
 				},
-				{
-					name: "推荐邀请",
-					ourl: "../myself-make/main" 
-				},
+				// {
+				// 	name: "推荐邀请",
+				// 	ourl: "../myself-make/main" 
+				// },
 				{
 					name: "个人资料",
 					ourl: "../myself-data/main"
@@ -107,6 +107,18 @@ import API from '@/api/myself'
 				let that=this
 				if(url=='../myself-data/main'){
 					 wx.navigateTo({ url: '../myself-data/main?memberId='+that.userInfo.id});
+				}
+				else if(url=='../myself-team/main'||url=='../myself-make/main'){
+					if(that.userInfo.whetherDistribe==0){
+						wx.showToast({
+							title:'该功能仅对推荐师开放',
+							icon:"none",
+							duration:1500
+						})
+					}
+					else{
+						wx.navigateTo({ url:url});
+					}
 				}
 				else{
  				wx.navigateTo({ url:url});
