@@ -69,7 +69,7 @@
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
-    import loginModel from "@/components/loginModel";
+    import loginModel from "@/components/loginModel"; 
     import nomoreTip from "@/components/nomoreTip"
 	import util from '@/utils/index'
 	import Api from "@/api/home";

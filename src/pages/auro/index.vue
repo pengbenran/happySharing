@@ -88,7 +88,7 @@
 					let regionGoodRes=await Api.getRegionGoods(pageNum,pageSize,params)
 					wx.hideLoading();
 					if(regionGoodRes.rows.length<pageSize){
-						that.hasMore=false
+						that.hasMore=false 
 					}
 					that.regionGoodRes=that.regionGoodRes.concat(regionGoodRes.rows)
 				}
@@ -98,13 +98,14 @@
 						icon:"none",
 						duration:1500
 					})
-				}
+				} 
 			}
 		},
 		onReachBottom:function(){
 			let that = this;
 			that.nowPage+=1
 			that.getRegionGood(that.nowPage,6,that.regionId)
+			console.log(that.nowPage)
 		},
 		async onLoad(options) {
 			let that=this
