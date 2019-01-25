@@ -8,7 +8,7 @@
 			<div class="cant">
 				<div class="weixin">
 					<span>微 信 号:</span>
-					<span> <input @click="togg" class="inp" type="text" placeholder="请输入微信号" v-model='distribeInfo.name'/></span>
+					<span> <input @click="togg" class="inp" type="text" placeholder="请输入微信号" v-model='distribeInfo.wechatId'/></span>
 				</div>
 				<div class="weixin">
 					<span>手 机 号:</span>
@@ -22,8 +22,10 @@
 			<button class="btn" :disabled='isSubmit' @click='distribeApply'>提交审核</button>
 			</div>	
 		</div>
-		<div v-else>
-			已经提交申请,
+		<div v-else class="audit">
+			<span>正在为您审核，耐心等待噢~</span>
+			<span><img :src="auditimg"></span> 
+			<span>朕知道了</span>
 		</div>
 	</div>
 </template>
@@ -33,6 +35,7 @@
 	export default {
 		data() {
 			return {
+				auditimg:'/static/images/audit.png',
 				isSubmit:false,
 				memberId:'',
 				isApply:false,
@@ -48,7 +51,7 @@
 			async distribeApply(){
 				console.log(111111);
 				let that=this
-				if(that.distribeInfo.name==''){
+				if(that.distribeInfo.wechatId==''){
 					wx.showToast({
 						title: '微信号不能为空',
 						icon: 'none',
@@ -173,6 +176,35 @@
 				border: 0;
 				outline: none;
 				margin:  64px auto 0 auto;
+			}
+		}
+	}
+		.audit{
+		width: 100%;
+		span{
+			display: block;
+			text-align:center; 
+			&:nth-child(1){
+				color: #111111;
+				font-size:16px;
+				padding-top: 63px;
+				padding-bottom: 22px;
+			}
+				&:nth-child(2){
+				width: 116px;
+				height: 116px;
+				margin:  0 auto; 
+				img{width: 100%;height: 100%;}
+			}
+			&:nth-child(3){
+				color: #fff;
+			    font-size:16px;
+			    width: 290px;
+			    height: 49px;
+			    line-height: 49px;
+			    background-color: #32a1ff;
+			    margin: 0 auto;
+			    margin-top: 66px;
 			}
 		}
 	}

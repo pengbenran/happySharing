@@ -1,6 +1,6 @@
 <template>
-	<div>
-		<div class="seach"><span class="iconfont">&#xe60b;</span>搜索商品</div>
+	<div class="content">
+		<div class="seach"  @click="jumpsearch"><span class="iconfont">&#xe60b;</span>搜索商品</div>
 	</div>	 
 </template>
 <script>
@@ -16,7 +16,11 @@ export default {
   },
 
   methods: {
-   
+  	jumpsearch(){
+  		wx.navigateTo({
+  			url: '../search/main'
+  		})
+  	}
   },
 
   created () {
@@ -26,6 +30,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+.content{
+	width:100vw;
+	height: 43px;
+}
 .seach{
 	width: 250px;
 	height:33px;
@@ -35,6 +43,7 @@ export default {
 	color: #9A9A9A;
 	font-size: 12px;
 	text-align: center;
+	margin: 5px auto;
 }
 
 </style>

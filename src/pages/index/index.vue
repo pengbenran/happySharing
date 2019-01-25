@@ -1,12 +1,13 @@
 <template>
 	<div class="container">
 		<!-- 顶部导航 -->
-		<div class="top">		
-				<span>南昌</span>
-				<span class="iconfont">&#xe60c;</span>
-			    <span @click="jumpsearch"><Search></Search></span> 
-			    <span>+</span>
-		</div>
+		<Search></Search>
+		<!-- <div class="top">		 -->
+				<!-- <span>南昌</span>
+				<span class="iconfont">&#xe60c;</span> -->
+			    <!-- <span></span>  -->
+			    <!-- <span>+</span> -->
+		<!-- </div> -->
 		<!-- banner图 -->
 		<div class="banner">
 			<Banner :banner='bannerList'></Banner>
@@ -69,7 +70,7 @@
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
-    import loginModel from "@/components/loginModel";
+    import loginModel from "@/components/loginModel"; 
     import nomoreTip from "@/components/nomoreTip"
 	import util from '@/utils/index'
 	import Api from "@/api/home";
@@ -187,15 +188,6 @@
 			    that.message=bannerAndMessageRes.data.messageDOList
 			    console.log(bannerAndMessageRes)
 				},
-
-			jumpsearch(){
-				wx.navigateTo({
-			     	url: '../search/main'
-				})
-			}
- 
-
-
 		},
 		onReachBottom:function(){
 			let that = this;
