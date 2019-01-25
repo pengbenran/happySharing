@@ -18,9 +18,11 @@
 			<div class="active"></div>
 		</div> -->
 		<!--列表-->
-		<div class="discount centered">
-			<discount :discountList="item" v-for="(item , index) in discount" :key="item.goodsid" :wid="wid" :magleft="magleft"></discount> 
-		</div>		
+		<div class="centered">
+			<discount :discountList="goodCatList" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount> 
+			<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
+		</div>
+			
 	</div>
 </template>
 
@@ -28,51 +30,93 @@
 	import Search from '@/components/search'
 	import Banner from '@/components/banner'
 	import discount from '@/components/discount'
-	import kindApi from "@/api/home";
+	import kindApi from "@/api/home"
+	import util from '@/utils/index'
 	import Api from '@/api/goods'
+	import nomoreTip from "@/components/nomoreTip"
 	export default { 
 		data() {
 			return {
 				timeindex:0, 
+				displayType:'block',
 				kindItem: [],
 				wid:"100%",
 				magleft:'0px',
-				bookList: [],
+				bookList:[],
+				nowPage:1,
+				hasMore:[],
+				goodCatList:[]
 			}
 
 		},
 		components: {
 			Search,
 			Banner,
-			discount
+			discount,
+			nomoreTip
 		},
 
 		methods: {
            kindChang(index) {
 				let that=this
 				that.timeindex = index;
-				let params={}
-				params.goodCatId=that.kindItem[index].id
-				that.getBookGood(1,3,params)
+				that.goodCatId=that.kindItem[index].id
+				if(that.bookList[that.timeindex].length==0){
+					that.getKindGood(1,3,that.goodCatId)
+				}		
+				else{
+					that.goodCatList=that.bookList[that.timeindex]
+				}	
 				// that.bookList=bookGoodRes.rows
 			},
-           async getBookGood(pageNum,pageSize,params){
+           async getKindGood(pageNum,pageSize,goodCatId){
 				let that=this
-				let bookRes=await Api.getBookGood(pageNum,pageSize,params)
-				bookRes.rows.map(item=>{
-					item.saveMoney=util.accSub(item.showPrice,item.price)	
-				})
-				that.bookList=bookRes.rows
+				if(that.hasMore[that.timeindex]){
+					let params={}
+					wx.showLoading({
+						title: '加载中',
+					})
+					params.goodCatId=goodCatId
+					let goodKindRes=await Api.getkindGood(pageNum,pageSize,params)
+					goodKindRes.rows.map(item=>{
+						item.saveMoney=util.accSub(item.showPrice,item.price)	
+					})
+					wx.hideLoading();
+
+					if(goodKindRes.rows.length<pageSize){
+						that.hasMore[that.timeindex]=false
+					}
+					
+					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(goodKindRes.rows)
+
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+				that.goodCatList=that.bookList[that.timeindex]	
 			}
 		},
-
-		async mounted() {
+		onReachBottom:function(){
+			let that = this;
+			that.nowPage+=1
+			that.getKindGood(that.nowPage,3,that.goodCatId)
+		},
+		async onLoad(options) {
 			let that=this
-			let rootKindRes=await kindApi.getRootKind()
-			that.kindItem=rootKindRes.rootCats
 			let params={}
-			params.goodCatId=that.kindItem[0].id
-			that.getBookGood(1,3,params)
+			params.parentId=options.parentId
+			let childKindRes=await Api.getChild(params)
+			that.kindItem=childKindRes.goodCats
+			for(var i in that.kindItem){
+				that.hasMore[i]=true
+				that.bookList[i]=[]
+			}
+			that.goodCatId=that.kindItem[0].id
+			that.getKindGood(that.nowPage,3,that.goodCatId)
 			// 调用应用实例的方法获取全局数据
 		}
 	}

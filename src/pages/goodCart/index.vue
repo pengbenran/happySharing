@@ -15,14 +15,15 @@
 		<div class="discount-wrap centered">
 			<div class="title">超赞推荐</div>
 			<scroll-view scroll-x style="width: 100%;">	
-			   <discount :discountList="catGoodRes"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
+			   <discount :discountList="catGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
 			</scroll-view>
 		</div>
 		<!--超赞推荐-->
 		<div class="rec-wrap centered">
 			<div class="title ">超值优惠</div>
-			<div class="image"><img src="/static/images/rec-banner.png" /></div>
-			<goodslist :catGoodRecommend='catGoodRecommend'></goodslist>
+			<!-- <div class="image"><img src="/static/images/rec-banner.png" /></div> -->
+			<goodslist :catGoodRecommend='catGoodRes'></goodslist>
+			<nomoreTip v-if="!hasMore"></nomoreTip>
 		</div>
 	</div>
 </template>
@@ -32,8 +33,10 @@
 	import Banner from '@/components/banner'
 	import discount from '@/components/discount'
 	import goodslist from '@/components/goodslist'
+	import nomoreTip from "@/components/nomoreTip"
 	import Api from '@/api/goods'
 	import kindApi from '@/api/home'
+	import util from '@/utils/index'
 	export default {
 		data() {
 			return {
@@ -44,7 +47,9 @@
 				wid: '240px',
 				magleft: '10px',
 				catGoodRes: [],
-				catGoodRecommend: []
+				catGoodRecommend:[],
+				nowPage:1,
+				hasMore:true
 			}
 		},
 
@@ -52,19 +57,55 @@
 			Search,
 			Banner,
 			discount,
-			goodslist
+			goodslist,
+			nomoreTip
 		},
 
 		methods: {
 			jumpgoodCartList(regionId,regionname) {
 				let that=this
 				wx.navigateTo({url:`../auro-list/main?goodCatId=${that.goodCatId}&catname=${that.goodCatName}&regionname=${regionname}&regionId=${regionId}`})
+			},
+			async getKindGoods(pageNum,pageSize,goodCatId){
+				// 获取地区分类下的商品(非推荐)
+				let that=this
+				if(that.hasMore){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params={}
+					params.goodCatId=goodCatId
+					let catGoodRes=await Api.getkindGood(pageNum,pageSize,params)
+					
+					wx.hideLoading();
+					if(catGoodRes.rows.length<pageSize){
+						that.hasMore=false
+					}
+					that.catGoodRes=that.catGoodRes.concat(catGoodRes.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+				
 			}
-		},
 
+		},
+		onReachBottom:function(){
+			let that = this;
+			that.nowPage+=1
+			that.getKindGoods(that.nowPage,3,that.goodCatId)
+		},
 		async onLoad(options) {
 			console.log(options);
 			let that=this
+			that.catGoodRes=[]
+			that.catGoodRecommend=[]
+			that.nowPage=1
+			that.hasMore=true
 			that.goodCatName=options.goodCatName
 			that.goodCatId=options.goodCatId
 			wx.setNavigationBarTitle({
@@ -75,22 +116,18 @@
 			console.log(typeImgRes);
 			// 获取地区分类下的商品分类
 			let reginRes=await kindApi.getRegin()
-			// reginRes.goodCats.map(item=>{
-			// 	item.img='/static/images/down_icon_a.png'
-			// })
 			that.addressItem=reginRes
 
-			// 获取地区分类下的商品(非推荐)
+			that.getKindGoods(1,3,that.goodCatId)
 			let params={}
-			params.goodCatId=options.goodCatId
-			let catGoodRes=await Api.getkindGood(1,3,params)
-			that.catGoodRes=catGoodRes.rows
-			console.log(catGoodRes);
+			params.goodCatId=that.goodCatId
 			//获取地区分类项的商品(推荐)
 			params.recommend=1
-			let catGoodRecommendRes=await Api.getkindGood(1,3,params)
+			let catGoodRecommendRes=await Api.getkindGood(1,6,params)
+			catGoodRecommendRes.rows.map(item=>{
+						item.saveMoney=util.accSub(item.showPrice,item.price)	
+			})
 			that.catGoodRecommend=catGoodRecommendRes.rows
-			console.log(catGoodRecommendRes);
 
 		}
 	}
@@ -126,7 +163,7 @@
 	/*超值优惠*/
 	
 	.discount-wrap {
-		padding: 24px 0 40px 0;
+		padding: 24px 0 10px 0;
 		.title {
 			font-size: 18px;
 			color: #111111;

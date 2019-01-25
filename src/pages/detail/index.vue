@@ -29,17 +29,28 @@
 		<div class="product-detail centered">
 			<span>商品详情</span>
 		</div>
-	</picker>
 		<!--底下导航-->
 		<div class="nav">
 			<div class="index" @click="jumpIndex">
 				<div class="img"><img src="/static/images/home.png" /></div>
 				<div class="text">首页</div>
 			</div>
+			<div class="index" @click="share">
+				<div class="img"><span class="iconfont">&#xe62a;</span></div>
+				<div class="text">分享</div>
+			</div>
 			<div @click="jumpSaveOrder(index)" class="rush">
 				立即购买
 			</div>
 		</div>
+		<div class="paintImg" v-show="paintOk">
+			<div class="bcg"></div>
+			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
+				<img :src="shareImage">
+			</div>
+			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
+		</div>
+		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
 	</div>
 </template>
 
@@ -47,17 +58,22 @@
 	import Api from '@/api/goods'
 	import util from '@/utils/index'
 	import store from '@/store/store'
+	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
 			return {
 				wid: "100%",
 				magleft: "0",
+				paintOk:false,
 				goodsDetail:{},
+				painting:{},
+				shareImage:'',
+				Width:''
 			}
 
 		},
 		components: {
-
+			canvasdrawer
 		},
 		computed:{
 			discounts(){
@@ -67,6 +83,46 @@
 			
 		},
 		methods: {
+			//点击生成海报
+		   async eventDraw(){
+		   	let that = this;
+		   	wx.showLoading({
+		   		title:'推广码绘制中'
+		   	})	
+		   	let ImgArr = []
+		   	ImgArr[0]=that.goodsDetail.posterImg
+		   	that.painting={
+		   		width: that.Width,
+		   		height: that.Width,
+		   		clear: true,
+		   		views: [
+		   		{
+		   			type: 'image',
+		   			url: ImgArr[0],
+		   			top: 0,
+		   			left: 0,
+		   			width: that.Width,
+		   			height: that.Width
+		   		},
+		   		]
+		   	}
+		   	this.$refs.canvas.readyPigment()
+		   },
+		   eventGetImage(event) {
+		   	wx.hideLoading()
+		   	console.log('我绘制完了');
+		   	console.log(event);
+		   	const { tempFilePath, errMsg } = event
+		   	if (errMsg === 'canvasdrawer:ok') {
+		   		this.paintOk=true
+		   		this.shareImage=tempFilePath
+
+		   		// wx.previewImage({
+		     //        current: this.shareImage, // 当前显示图片的http链接
+		     //        urls: [this.shareImage] // 需要预览的图片http链接列表
+		     //    })
+		    }
+			},
 			jumpIndex(){
 				wx.switchTab({
 					url:'../index/main'
@@ -75,16 +131,25 @@
 			jumpSaveOrder(){
 				wx.navigateTo({url:`../order-submit/main?orderType=1`})
 			},
-			async getGoodsInfo(goodsId){
+			share(){
 				let that=this
-				let goodsDetailRes=await Api.getGoodDetail(goodsId)
-				if(goodsDetailRes.code==0){
-					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
-					goodsDetailRes.good.goodbanner.pop()
-					that.goodsDetail=goodsDetailRes.good
-
-					store.commit("stateGoodDetail",that.goodsDetail)
-				}
+				that.getErCode()
+			},
+			async getErCode(){
+				let that=this
+				let params={}
+				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
+				let QrcodeRes=await Api.GetQrcode(params)
+				console.log(QrcodeRes);
+				that.eventDraw()
+			},
+			async getGoodsInfo(params){
+				let that=this
+				let goodsDetailRes=await Api.getGoodDetail(params)
+				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
+				goodsDetailRes.goodbanner.pop()
+				that.goodsDetail=goodsDetailRes
+				store.commit("stateGoodDetail",that.goodsDetail)
 			}
 		},
 
@@ -94,16 +159,14 @@
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
-			// if (options.scene == undefined) {
-			// 	that.goodsId =options.goodsId;
-			// }
-			// else {
-			// 	// let scene = decodeURIComponent(options.scene);
-			// 	let scene = decodeURIComponent(options.scene);
-			// 	that.goodsId=scene.split('*')[0]
-			// 	that.codeUnionid=scene.split('*')[1]
-   //  		}
-			that.getGoodsInfo(that.goodsId)
+            that.Width=wx.getSystemInfoSync().windowWidth
+            let userInfo = store.state.userInfo
+            let params={}
+            params.goodId=that.goodsId
+			if(userInfo.whetherDistribe!=0){
+            	params.memberLv=userInfo.whetherDistribe
+            }
+			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据
 		}
 	}
@@ -114,6 +177,37 @@
 	.swiper{
 		height: 190px;
 	}
+	.saveImgBtn{
+		width:100px;
+		height: 50px;
+		text-align:center;
+		background: #ff7d28;
+		color: #fff;
+		border-radius: 25px;
+		line-height:50px;
+		position: absolute;
+		bottom: 100px;
+ 	}
+	.paintImg{
+		position: fixed;
+		top:0;
+		left: 0;
+		bottom:0;
+		right: 0;
+		z-index: 5;
+		.bcg{
+		width: 100%;
+	    height: 100%;
+    	background: rgba(0,0,0,.5);
+		}		
+		.img{
+			overflow: hidden;
+			z-index: 10;
+			position: absolute;
+			top: 80px;
+		}
+		}
+
 	.nav {
 		position: fixed;
 		bottom: 0px;
@@ -136,7 +230,7 @@
 			}
 		}
 		.rush {
-			width: 84%;
+			width: 68%;
 			line-height: 55px;
 			text-align: center;
 			background-color: #ff7d28;

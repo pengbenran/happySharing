@@ -30,7 +30,8 @@
 					</div>
 					<div class="price2">
 						<p>会员折扣: </p>
-						<p> {{userInfo.discount}}折</p>
+						<p v-if="userInfo.discount==1">不打折</p>
+						<p v-else> {{userInfo.discount*10}}折</p>
 					</div>
 					<div class="price2">
 						<p>折后价: </p>
@@ -92,7 +93,7 @@
 			},
 			discountPrice(){
 				let that=this
-				return Number(that.goodDetail.price*that.userInfo.discount/10).toFixed(2)
+				return Number(that.goodDetail.price*that.userInfo.discount).toFixed(2)
 			},
 			totalPay(){
 				let that=this
@@ -114,11 +115,11 @@
 				if(!that.isSubmit){
 					that.isSubmit=true
 					if(store.state.codeUnionid!=''){
-						params.payStatus=2
-						params.paymentId=store.state.codeUnionid
+						params.paymentId=2
+						params.codeUnionid=store.state.codeUnionid
 					}
 					else{
-						params.payStatus=1
+						params.paymentId=1
 					}
 					params.orderType=that.orderType	
 					if(that.orderType==2){
@@ -190,13 +191,14 @@
 	        	// 订单支付成功之后修改订单状态
 	        	let QRparams={}
 	        	let that=this
-	            QRparams.orderId=that.order.orderId
-	            QRparams.page='pages/xxxx/main'
-	        	let getQRCode=await Api.getQRCode(QRparams)
-	        	console.log(getQRCode);
+	         //    QRparams.orderId=that.order.orderId
+	         //    QRparams.page='pages/xxxx/main'
+	        	// let getQRCode=await Api.getQRCode(QRparams)
+	        	// console.log(getQRCode);
 	        	let statuParam={}
 	        	statuParam.orderId=that.order.orderId
-	        	statuParam.orderCode=getQRCode.msg
+	        	// statuParam.orderCode=getQRCode.msg
+	        	statuParam.orderCode='sdfsfsdfsdfds'
 	        	let payOrder=await Api.payOrder(statuParam)
 	        	console.log(payOrder);
 	        }
