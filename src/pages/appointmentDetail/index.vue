@@ -9,7 +9,7 @@
 					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
 					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
 				</div>
-				<div class="desc">{{goodsDetail.goodName}}</div>
+				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
 					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
@@ -51,7 +51,7 @@
 			</div>
 			
 		</div>
-		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+		<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>
 
 		<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 	</div>
@@ -146,6 +146,7 @@
 				console.log(QrcodeRes);
 			},
 			showPicker() {
+				 console.log("预约")
 				this.pickerValueArray = this.mulLinkageTwoPicker;
 				this.mode = 'multiLinkageSelector';
 				this.deepLength = 2;
@@ -201,7 +202,7 @@
     		}, 
     		onConfirm(e) {
     			let that=this
-    			console.log(e);
+    			console.log(e,"我的亲",that.goodBooks);
     			let goodBooksItem=that.goodBooks[e.index[0]]
     			let dateTime=goodBooksItem.dateTime
     			let endtime=e.label.split('-')[2]
@@ -214,7 +215,10 @@
     			let endtimetap=endtimehour*60*60*1000+endtimemintution*60*1000+dateTime*1
     		    let appointmentParam={}
     		    appointmentParam.beginTime=begintimetap
-    		    appointmentParam.endTime=endtimetap
+				appointmentParam.endTime=endtimetap
+				appointmentParam.index = e.index[1]
+				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
+				console.log(appointmentParam,"查看两个时间")
     		    store.commit("stateappointment",appointmentParam)
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
 

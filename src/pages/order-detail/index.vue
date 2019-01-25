@@ -11,7 +11,7 @@
 				<div class="rec-li-warp clr">
 					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit">{{OrderInfo.goodName}}</div>
+						<div class="tit fontHidden">{{OrderInfo.goodName}}</div>
 						<div class="name">{{OrderInfo.status}}</div>
 						<div class="present "><span>￥:{{OrderInfo.needPayMoney}}</span> <span>原价:{{OrderInfo.goodsAmount}}</span></div>
 						<!-- <div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div> -->
@@ -49,7 +49,7 @@
 				<div class="code-center">
 					<div class="txt-img">
 						<div class="txt">电子码</div>
-						<div class="img"><img :src="code" /></div>
+						<div class="img"><img :src="OrderInfo.orderCode" /></div>
 					</div>
 					<div class="number clr"> <span class="fl"> 订单编号：</span> <span class="fl">{{OrderInfo.orderId}}</span></div>
 				</div>

@@ -1,37 +1,48 @@
 <template>
 	<div>
 		<div class="rec-wrap centered">
-			<div class="rec-li" v-for="(goodlist , index) in rec" :key="goodlist.recId">
-				<navigator url="../order-detail/main" hover-class="none">
+			<div class="rec-li" v-for="(BookItem , index) in BookList" :key="BookItem.orderId">
 					<div class="cant clr">
-						<div class="img fl"><img :src="goodlist.img" /></div>
+						<div class="img fl"><img :src="BookItem	.thumbnail" /></div>
 						<div class="rec-center fl">
-							<div class="tit">{{goodlist.title}}</div>
-							<div class="name">{{goodlist.name}}</div>
-							<div class="present ">￥:{{goodlist.present}}</div>
-							<div class="time ">预约时间：{{goodlist.time}}</div>
+							<div class="tit fontHidden">{{BookItem.goodName}}</div>
+							<div class="name fontHidden1">{{BookItem.goodName}}</div>
+							<div class="present ">￥:{{BookItem.orderAmount}}</div>
+							<div class="time ">预约时间：{{BookItem.endTime}}</div>
 						</div>
 						<div class="rec-right fr">
-							<div class="use">{{goodlist.use}}</div>
-							<div class="num ">数量 : {{goodlist.num}}</div>
+							<div class="use">待使用</div>
+							<div class="num ">数量 : {{BookItem.goodsNum}}</div>
 						</div>
 					</div>
 					<div class="clr">
 						<div class="line fr"></div>
 					</div>
 					<div class="rec-bottom">
-						<span>{{goodlist.dele}}</span>
-						<span>{{goodlist.detail}}</span>					
+						<!-- <span>{{goodlist.dele}}</span> -->
+						<botton @click="toPage(BookItem.orderId)">订单详情</botton>					
 					</div>
-				</navigator>
 			</div>
+			
 		</div>
+		<nomoreTip v-if="!hasMore"></nomoreTip>
 	</div>
 </template>
 <script>
+import API_myself from '@/api/myself'
+import API_ORDER from '@/api/order'
+import Store from '@/store/store'
+import Index_Lib from '@/utils/index'
+import nomoreTip from "@/components/nomoreTip"
 	export default {
 		data() {
 			return {
+				BookList:[],
+				hasMore:true,
+                listQuery: {
+					page: 1,
+					limit: 3,
+				},
 				rec: [{
 					recId: 1,
 					img: "/static/images/d.png",
@@ -51,10 +62,57 @@
 				},  ]
 			};
 		},
+			components: {
+            nomoreTip
+		},
+		onReachBottom:function(){
+			let that = this;
+			// that.nowPage+=1
+			// that.getRecommendGood(that.nowPage,3)
+            that.listQuery.page += 1
+			console.log("我是底部时间")
+		    this.getGoodsBookList()
+			
+		},
 		methods: {
+			async getGoodsBookList(){
+				let that = this;
+				// let data = {memberId:wxgets}
+				wx.showLoading({title: '加载中',})
+				 let data = Object.assign({},{unionId:Store.state.userInfo.unionid,status:1},{orderType:2},that.listQuery) 
+				let res = await API_ORDER.getOrderList(data).catch(err => {
+					Lib.showToast('失败','loading')
+				})
+
+				if(res.code == 0){
+					let book = res.pageUtils.rows.map(v => {
+						v.endTime = Index_Lib.formatTime(v.endTime)
+						return v;
+					})
+					console.log(book,'预约数据')
+					that.BookList = that.BookList.concat(book)
+					Lib.showToast('成功','success')
+					if(book.length < that.listQuery.limit){
+                         that.hasMore=false
+					}
+				}else{
+					Lib.showToast('失败','loading')
+				}
+				
+				wx.hideLoading()
+			},
+
+			//跳转详情页
+			toPage(orderId){
+			wx.navigateTo({
+			      url: '../order-detail/main?orderId='+orderId
+			})
+			}
 
 		},
-		computed: {}
+		onLoad(){
+			this.getGoodsBookList();
+		}
 	};
 </script>
 <style lang="less">
@@ -135,7 +193,7 @@
 		.rec-bottom {
 			display: flex;
 			justify-content: flex-end;
-			span {
+			botton {
 				width: 80px;
 				height: 33px;
 				border: 1px solid #999999;

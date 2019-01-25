@@ -49,13 +49,14 @@
 				<div class="bottom" v-if="SelectIndex == 0">
 					<div v-if="orderItem.status == 0" class="bottomCase">
 						<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-						<botton  class="queBtn" @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+						<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
 					</div>
 					<div v-if="orderItem.status == 1">
-						<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
+						<botton   class="queBtn"  @click="useOrderDetail(orderItem.orderId)">立即使用</botton>
 					</div>
 					<div v-if="orderItem.status == 2">
 						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+						<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
 					</div>
 
 					<div v-if="orderItem.status == 3">
@@ -66,14 +67,15 @@
 
 				<div class="bottom" v-if="SelectIndex == 1">
 					<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-					<botton  class="queBtn" @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 2">
-					<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
+					<botton   class="queBtn"  @click="useOrderDetail(orderItem.orderId)">立即使用</botton>
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 3">
+					<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
 					<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
 				</div>
 
@@ -82,12 +84,14 @@
 					<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
 				</div>
 					
-			</div>
+			</div>			
 		</div>
+
 
 		
 		<!--空空如也-->
 		<div class="not" v-else><img :src="imgList.not"/></div>
+		<nomoreTip v-if="!hasMore"></nomoreTip>
 
 	</div>
 </template>
@@ -97,16 +101,19 @@ import API_ORDER from '@/api/order'
 import Store from '@/store/store'
 import Lib from '@/utils/lib'
 import Index_Lib from '@/utils/index'
+import nomoreTip from "@/components/nomoreTip"
 import Config from '@/config'
 	export default {
 		data() {
 			return {
 				unionid:'',
+				disabledBtn:false,
 				imgList:{not:Config.imgurl+'/not.png'},
 				SelectIndex:0,
+				hasMore:true,
 				listQuery: {
 					page: 1,
-					limit: 10,
+					limit: 3,
 				},
 				nav: [{
 						name: "全部",
@@ -131,14 +138,26 @@ import Config from '@/config'
 		},
 
 		components: {
-            
+            nomoreTip
 		},
-
+	   onReachBottom:function(){
+			let that = this;
+			// that.nowPage+=1
+			// that.getRecommendGood(that.nowPage,3)
+            that.listQuery.page += 1
+			console.log("我是底部时间")
+			if(that.SelectIndex == 0){
+				that.onload();
+			}else{
+                that.PayOrderList(that.SelectIndex - 1)
+			}
+			
+		},
 		methods: {
 			//获取全部订单
 			async onload(){
 				let that = this;
-				let data = {unionId:Store.state.userInfo.unionid}
+				let data = Object.assign({},{unionId:Store.state.userInfo.unionid},that.listQuery) 
 				// console.log()
 				wx.showLoading({title: '加载中',})
 				that.Get_Order(data)
@@ -148,7 +167,7 @@ import Config from '@/config'
 			async PayOrderList(status){
 					let that = this;
 					wx.showLoading({title: '加载中',})
-					let data = {unionId:Store.state.userInfo.unionid,status:status}
+					 let data = Object.assign({},{unionId:Store.state.userInfo.unionid,status:status},that.listQuery) 
 					that.Get_Order(data)
 			},
 
@@ -160,11 +179,14 @@ import Config from '@/config'
 						Lib.showToast('失败','loading')
 				})
 				if(res != undefined && res.code == 0){
-					console.log("你好史学家",res)
-					that.goodList = res.pageUtils.rows.map(v => {
+					let goodLists = res.pageUtils.rows.map(v => {
 						v.createTime = Index_Lib.formatTime(v.createTime);
 						return v;
 					});
+					if(goodLists.length < that.listQuery.limit){
+                         that.hasMore=false
+					}
+					that.goodList = that.goodList.concat(goodLists)
 					console.log(that.goodList,"商品的列表")
 				}else{
 					that.goodList = [];
@@ -175,6 +197,13 @@ import Config from '@/config'
 			change(index) {
 				let that=this;
 				that.SelectIndex = index; //确定编号
+
+				// 重置一遍分页数据
+				that.hasMore = true;
+				that.listQuery.page = 1;
+				that.listQuery.limit = 3;
+				that.goodList = [];
+
 				that.nav.map(item=>{
 					item.isSelect=false
 					return item
@@ -199,18 +228,33 @@ import Config from '@/config'
 
 			//取消订单
 			async removeOrder(orderId,index){
-				let that = this;
-				wx.showLoading({title: '加载中',})
-				let data = {orderId:orderId,status:3}
-				let res = await API_ORDER.quxiaoOrder(data).catch(err => {
-					Lib.showToast('失败','loading')
-				})
-				if(res.code == 0){
-					that.goodList.splice(index,1); //删除下标的指定数组  
-					Lib.showToast('成功','success')
-				}
-				console.log(res,"查看信息")
-				 wx.hideLoading()
+				wx.showModal({
+					title: '提示',
+					content: '是否取消订单?',
+					success(res) {
+						if (res.confirm) {
+							let that = this;
+							wx.showLoading({title: '加载中',})
+							let data = {orderId:orderId,status:3}
+							API_ORDER.quxiaoOrder(data).then(res =>{
+								if(res.code == 0){
+									that.goodList.splice(index,1); //删除下标的指定数组  
+									Lib.showToast('成功','success')
+										wx.hideLoading()
+								}
+							}).catch(err => {
+								Lib.showToast('失败','loading')
+								wx.hideLoading()
+							})
+
+							console.log(res,"查看信息")
+						} else if (res.cancel) {
+						console.log('用户点击取消')
+						}
+					}
+					})
+
+
 			},
 
 			orderDetail(orderId){
@@ -223,6 +267,7 @@ import Config from '@/config'
 			async wxPay(Ordersn,needPayMoney,orderId){
 				let that = this;
 				let params={}
+				that.disabledBtn = true;
 				params.sn = Ordersn
 				params.openid=that.userInfo.xopenid
 	            // params.total_fee = needPayMoney*100
@@ -254,7 +299,7 @@ import Config from '@/config'
 		                    },
 		                    complete: function (complete) {
 		                        // complete   
-		                        that.isSubmit=false
+		                       	that.disabledBtn = false;
 		                    }
 		            })
 			},
@@ -280,19 +325,15 @@ import Config from '@/config'
 				let that = this;
 				wx.showModal({
 				title: '提示',
-				content: '这是一个模态弹窗',
+				content: '是否删除该条订单？',
 				success(res) {
 					if (res.confirm) {
 					//   let data = {orderId:orderId}
 					  API_ORDER.deleteOrder(orderId).then(res => {
 						   console.log(res,"删除成功")
 						  Lib.showToast('删除成功','success')
-
 						that.goodList.splice(index,1); //删除下标的指定数组  
-						 
-
 					  }).catch(err => {
-						  
 						  Lib.showToast('删除失败','loading')
 					  })
 
