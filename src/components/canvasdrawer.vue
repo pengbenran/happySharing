@@ -7,8 +7,8 @@
     data () {
       return {
       	showCanvas: true,
-      	width: 375,
-      	height: 550,
+      	width: 0,
+      	height: 0,
       	index: 0,
       	imageList: [],
       	tempFileList: [],
@@ -26,6 +26,7 @@
       wx.removeStorageSync('canvasdrawer_pic_cache')
       this.cache = wx.getStorageSync('canvasdrawer_pic_cache') || {}
       this.ctx = wx.createCanvasContext('canvasdrawer', this) 
+      console.log(this.painting,"盆本人")
       this.painting=this.painting   
       this.width= this.painting.width  
       this.height= this.painting.height      

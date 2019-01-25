@@ -6,8 +6,8 @@
 				<div class="rec-li-warp clr">
 					<div class="img fl"><img :src="goodDetail.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit">{{goodDetail.title}}</div>
-						<div class="name">{{goodDetail.goodName}}</div>
+						<div class="tit fontHidden">{{goodDetail.title}}</div>
+						<div class="name fontHidden1">{{goodDetail.goodName}}</div>
 						<div class="present "><span>￥:{{goodDetail.price}}</span> <span>原价:{{goodDetail.showPrice}}</span></div>
 					</div>
 					<div class="rec-right fr">
@@ -125,20 +125,25 @@
 					if(that.orderType==2){
 						params.beginTime=store.state.appointment.beginTime
 						params.endTime=store.state.appointment.endTime
+						params.index=store.state.appointment.index
+						params.goodBookId=store.state.appointment.goodBookId
+						params.memberId = that.userInfo.id;
+						console.log("进来了吗",params)
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalPay
-					params.gainedpoint=that.goodDetail.buyIntegral
+					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral
 					params.discount=that.userInfo.discount
 					params.needPayMoney=that.totalPay
 					params.balance=that.userInfo.balance
-					params.recommend=that.goodDetail.returnAmount
+					params.recommend=that.goodDetail.returnAmount == null ? 0 : that.goodDetail.returnAmount
 					params.goodsId=that.goodDetail.id
 					params.thumbnail=that.goodDetail.thumbnail
 					params.goodName=that.goodDetail.goodName
 					params.price=that.goodDetail.price
+
 					let saveRes=await Api.orderSave(params)
 					if(saveRes.code==0){
 						wx.hideLoading()
@@ -150,7 +155,6 @@
 				
 			},
 			weixinPay(){
-				console.log('111');
 				let params={}
 				let that=this
 				params.sn = that.order.sn
