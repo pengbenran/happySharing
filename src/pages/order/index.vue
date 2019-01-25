@@ -8,47 +8,87 @@
 		</div>
 		
 		<!--列表-->
-		<div class="rec-wrap centered">
-			<div class="rec-li" v-for="(goodlist , index) in rec" :key="goodlist.recId">
+		<div class="rec-wrap centered" v-if="goodList.length != 0">
+			<div class="rec-li" v-for="(orderItem,index) in goodList" :key="orderItem.orderId">
 				<div class="top">
 					<div>
-						订单编号:{{goodlist.sn}}
+						订单编号:{{orderItem.orderId}}
 					</div>
 					<div>
-						下单时间:2019-08-32
+						下单时间:{{orderItem.createTime}}
 					</div>
 				</div>
 				<div class="center">
 					<div class="cant clr">
-						<div class="img fl"><img :src="goodlist.img" /></div>
+						<div class="img fl"><img :src="orderItem.thumbnail" /></div>
 						<div class="rec-center fl">
-							<div class="tit">{{goodlist.title}}</div>
-							<div class="name">{{goodlist.name}}</div>
-							<div class="present ">￥:{{goodlist.price}}</div>
-							<div class="time ">{{goodlist.time}}</div>
+							<div class="tit">{{orderItem.goodName}}</div>
+							<div class="name">{{orderItem.goodName}}</div>
+							<div class="present ">￥:{{orderItem.needPayMoney}}</div>
+
 						</div>
 						<div class="rec-right fr">
-							<div class="use">{{goodlist.use}}</div>
-							<div class="num ">数量 : {{goodlist.num}}</div>
+							<!-- <div class="use">{{goodlist.use}}</div> -->
+
+							<div class="num ">数量 : {{orderItem.goodsNum}}</div>
+								<span class="time ">
+								   <span v-show="orderItem.status == 0">待付款</span>
+								   <span v-show="orderItem.status == 1">待核销</span>
+								   <span v-show="orderItem.status == 2">已核销</span>
+								   <span v-show="orderItem.status == 3">已取消</span>
+								</span>
 						</div>
 					</div>
 					<div class="clr">
 						<div class="line fr"></div>
 					</div>
 					<div class="rec-bottom">
-						订单总额:{{goodlist.orderAmount}}
+						订单总额:{{orderItem.orderAmount}}
 					</div>
 				</div>
-				<div class="bottom">
-					<span>删除订单</span>
-				 	<span @click="orderDetail">订单详情</span>
+				<div class="bottom" v-if="SelectIndex == 0">
+					<div v-if="orderItem.status == 0" class="bottomCase">
+						<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
+						<botton  class="queBtn" @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+					</div>
+					<div v-if="orderItem.status == 1">
+						<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
+					</div>
+					<div v-if="orderItem.status == 2">
+						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+					</div>
+
+					<div v-if="orderItem.status == 3">
+						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+					</div>
+				</div>
+				<!--全部订单-->
+
+				<div class="bottom" v-if="SelectIndex == 1">
+					<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
+					<botton  class="queBtn" @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+				</div>
+
+				<div class="bottom" v-if="SelectIndex == 2">
+					<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
+				</div>
+
+				<div class="bottom" v-if="SelectIndex == 3">
+					<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
+				</div>
+
+				
+				<div class="bottom" v-if="SelectIndex == 4">
+					<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
 				</div>
 					
 			</div>
 		</div>
+
 		
 		<!--空空如也-->
-		<!-- <div class="not" style="display: none;"><img src="/static/images/not.png"/></div> -->
+		<div class="not" v-else><img :src="imgList.not"/></div>
+
 	</div>
 </template>
 
@@ -56,10 +96,18 @@
 import API_ORDER from '@/api/order'
 import Store from '@/store/store'
 import Lib from '@/utils/lib'
+import Index_Lib from '@/utils/index'
+import Config from '@/config'
 	export default {
 		data() {
 			return {
 				unionid:'',
+				imgList:{not:Config.imgurl+'/not.png'},
+				SelectIndex:0,
+				listQuery: {
+					page: 1,
+					limit: 10,
+				},
 				nav: [{
 						name: "全部",
 						isSelect:true
@@ -72,79 +120,194 @@ import Lib from '@/utils/lib'
 					}, {
 						name: "已使用",
 						isSelect:false
-					}],
-				rec: [{
-					sn: 1212121,
-					img: "https://oss.etuetf.cn/advImage/2346c6c9-f227-4f7c-a801-62545f687818.jpg",
-					payStatus:2,
-					status:0,
-					shipStatus:2,
-					shopName: "世茂/金塔/新力/莲塘/四店通用",
-					image: '',
-					name: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					num: 1,
-					price: "16.9",
-					orderAmount: "83",
-					num: "1"
-				}, {
-					sn: 1212121,
-					img: "https://oss.etuetf.cn/advImage/2346c6c9-f227-4f7c-a801-62545f687818.jpg",
-					payStatus:2,
-					status:0,
-					shipStatus:2,
-					shopName: "世茂/金塔/新力/莲塘/四店通用",
-					image: '',
-					name: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					num: 1,
-					price: "16.9",
-					orderAmount: "83",
-					num: "1"
-				}, {
-					sn: 1212121,
-					img: "https://oss.etuetf.cn/advImage/2346c6c9-f227-4f7c-a801-62545f687818.jpg",
-					payStatus:2,
-					status:0,
-					shipStatus:2,
-					shopName: "世茂/金塔/新力/莲塘/四店通用",
-					image: '',
-					name: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					num: 1,
-					price: "16.9",
-					orderAmount: "83",
-					num: "1"
-				}, ]
+					},{
+						name: "已取消",
+						isSelect:false
+					}
+					],
+				userInfo:{},
+				goodList:[]
 			}
 		},
 
 		components: {
-
+            
 		},
 
 		methods: {
+			//获取全部订单
 			async onload(){
 				let that = this;
 				let data = {unionId:Store.state.userInfo.unionid}
 				// console.log()
-				let res = await API_ORDER.getOrderList(data).catch(err => {
-                     Lib.showToast('失败','loading')
-				})
-				console.log(res,"查看请求参数")
+				wx.showLoading({title: '加载中',})
+				that.Get_Order(data)
 			},
+
+			//获取不同状态的订单
+			async PayOrderList(status){
+					let that = this;
+					wx.showLoading({title: '加载中',})
+					let data = {unionId:Store.state.userInfo.unionid,status:status}
+					that.Get_Order(data)
+			},
+
+			//getOrder
+			async Get_Order(data){
+				console.log(data,"请求的参数")
+			    let that= this;
+				let res = await API_ORDER.getOrderList(data).catch(err => {
+						Lib.showToast('失败','loading')
+				})
+				if(res != undefined && res.code == 0){
+					console.log("你好史学家",res)
+					that.goodList = res.pageUtils.rows.map(v => {
+						v.createTime = Index_Lib.formatTime(v.createTime);
+						return v;
+					});
+					console.log(that.goodList,"商品的列表")
+				}else{
+					that.goodList = [];
+				}
+				wx.hideLoading()
+			},
+
 			change(index) {
-				let that=this
+				let that=this;
+				that.SelectIndex = index; //确定编号
 				that.nav.map(item=>{
 					item.isSelect=false
 					return item
 				})
 				that.nav[index].isSelect=true
-				console.log(that.nav)
+				if(index == 0){ //获取全部订单
+                    that.onload();  
+				}else if(index == 1){ //获取未付款订单
+					that.PayOrderList(0)
+				}else if (index == 2) { //获取待核销的订单
+					that.PayOrderList(1)
+				}else if (index == 3) { //获取已核销的订单
+					that.PayOrderList(2)
+				}else if(index == 4){ //获取已取消的订单
+					that.PayOrderList(3)
+				}
 			},
-			orderDetail(){
-				
-			}
+
+			useOrderDetail(orderCode){
+
+			},
+
+			//取消订单
+			async removeOrder(orderId,index){
+				let that = this;
+				wx.showLoading({title: '加载中',})
+				let data = {orderId:orderId,status:3}
+				let res = await API_ORDER.quxiaoOrder(data).catch(err => {
+					Lib.showToast('失败','loading')
+				})
+				if(res.code == 0){
+					that.goodList.splice(index,1); //删除下标的指定数组  
+					Lib.showToast('成功','success')
+				}
+				console.log(res,"查看信息")
+				 wx.hideLoading()
+			},
+
+			orderDetail(orderId){
+				 wx.navigateTo({
+					url: '../order-detail/main?orderId='+orderId
+				})
+			},
+
+			//立即付款
+			async wxPay(Ordersn,needPayMoney,orderId){
+				let that = this;
+				let params={}
+				params.sn = Ordersn
+				params.openid=that.userInfo.xopenid
+	            // params.total_fee = needPayMoney*100
+	            params.total_fee=1
+				let parRes = await API_ORDER.prepay(params).catch(err => {
+					Lib.showToast('付款失败','loading')
+				})
+					wx.requestPayment({
+	            		timeStamp: parRes.timeStamp,
+	            		nonceStr: parRes.nonceStr,
+	            		package: parRes.package,
+	            		signType: parRes.signType, 
+	            		paySign: parRes.paySign,
+	            		success: function (res) {
+	            			wx.showToast({
+	            				title: '支付成功',
+	            				icon: 'success',
+	            				duration: 2000
+	            			})
+	            			that.payOrder(orderId)
+	            		},
+	            		fail: function (res) {
+		                        // fail
+		                        wx.showToast({
+		                        	title: '支付失败',
+		                        	icon: 'success',
+		                        	duration: 2000
+		                        })
+		                    },
+		                    complete: function (complete) {
+		                        // complete   
+		                        that.isSubmit=false
+		                    }
+		            })
+			},
+
+			async payOrder(OrderId){
+	        	// 订单支付成功之后修改订单状态
+	        	let QRparams={}
+	        	let that=this
+	            QRparams.orderId=OrderId
+	            QRparams.page='pages/xxxx/main'
+	        	let getQRCode=await API_ORDER.getQRCode(QRparams)
+	        	console.log(getQRCode);
+	        	let statuParam={}
+	        	statuParam.orderId=OrderId
+	        	statuParam.orderCode=getQRCode.msg
+	        	let payOrder=await API_ORDER.payOrder(statuParam)
+				console.log(payOrder);
+				 this.onload();
+			},
+			
+			//删除订单
+			deleteorder(orderId,index){
+				let that = this;
+				wx.showModal({
+				title: '提示',
+				content: '这是一个模态弹窗',
+				success(res) {
+					if (res.confirm) {
+					//   let data = {orderId:orderId}
+					  API_ORDER.deleteOrder(orderId).then(res => {
+						   console.log(res,"删除成功")
+						  Lib.showToast('删除成功','success')
+
+						that.goodList.splice(index,1); //删除下标的指定数组  
+						 
+
+					  }).catch(err => {
+						  
+						  Lib.showToast('删除失败','loading')
+					  })
+
+					} else if (res.cancel) {
+					console.log('用户点击取消')
+					}
+				}
+				})
+
+			},
+			
 		},
 		onLoad(){
 			this.unionid = Store.state.userInfo.unionid
+			this.userInfo = Store.state.userInfo
 			console.log(Store.state.userInfo,"asdasda")
             this.onload();
 		},
@@ -249,12 +412,18 @@ import Lib from '@/utils/lib'
 		}
 		.rec-right {
 			width: 60px;
-			line-height: 65px;
+			margin-top: 20px;
 			text-align: right;
 			.use {
 				line-height: 24px;
 				font-size: 12px;
 				color: #ff7d28;
+			}
+			.time span{
+				font-size: 12px;
+				padding: 0 4px;
+				color: #ff7d28;
+				border:1px solid #ff7d28;
 			}
 			.num {
 				color: #999999;
@@ -280,10 +449,15 @@ import Lib from '@/utils/lib'
 			box-sizing: border-box;
 		}
 	}
+
+	.bottom	.closeBtn{width: 80px; height: 33px;text-align: center;line-height: 33px;border-radius: 15px;border:1px solid rgb(214, 214, 214);color:rgb(0, 0, 0);margin-right: 10px;font-size: 15px;}
+	.bottomCase {width: 100%;text-align: right;
+	     botton{display:  inline-block;}
+	}
 	.bottom{
 		display: flex;
 			justify-content: flex-end;
-			span {
+			.queBtn {
 				width: 80px;
 				height: 33px;
 				border: 1px solid #999999;
@@ -292,14 +466,13 @@ import Lib from '@/utils/lib'
 				text-align: center;
 				color: #666666;
 				font-size: 14px;
-				display: block;
 				margin-right: 12px;
-				&:nth-last-child(1) {
-					margin-right: 0;
+
+
 					background-color: #ff7d28;
 					border: 1px solid #ff7d28;
 					color: #fff;
-				}
+
 			}
 	}
 	}

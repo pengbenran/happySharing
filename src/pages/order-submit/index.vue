@@ -129,11 +129,11 @@
 					params.paymentType=1
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalPay
-					params.gainedpoint=that.goodDetail.buyIntegral
+					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral
 					params.discount=that.userInfo.discount
 					params.needPayMoney=that.totalPay
 					params.balance=that.userInfo.balance
-					params.recommend=that.goodDetail.returnAmount
+					params.recommend=that.goodDetail.returnAmount == null ? 0 : that.goodDetail.returnAmount
 					params.goodsId=that.goodDetail.id
 					params.thumbnail=that.goodDetail.thumbnail
 					params.goodName=that.goodDetail.goodName
@@ -149,7 +149,6 @@
 				
 			},
 			weixinPay(){
-				console.log('111');
 				let params={}
 				let that=this
 				params.sn = that.order.sn

@@ -2,7 +2,8 @@ function formatNumber (n) {
   const str = n.toString()
   return str[1] ? str : `0${str}`
 }
-export function formatTime (date) {
+export function formatTime (dates) {
+  var date = new Date(dates);
   const year = date.getFullYear()
   const month = date.getMonth() + 1
   const day = date.getDate()

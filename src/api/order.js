@@ -15,8 +15,20 @@ export default {
  	return API.GET('/api-member/api/login/getQRCode', params)
  },
 
+
+ //获取订单
  getOrderList:params => {
 	 return API.GET('/api-order/api/order/orderStatus',params)
+ },
+
+ //取消订单
+ quxiaoOrder:params => {
+	 return API.PUT('/api-order/api/order/orderCancel',params)
+ },
+
+ deleteOrder:params => {
+	return API.DELETE(`/api-order/order/remove?orderId=`+params)
  }
+
 
 }      

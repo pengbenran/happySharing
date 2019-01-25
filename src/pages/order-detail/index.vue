@@ -3,44 +3,44 @@
 		<div class="order-detail">
 			<!--模块1-->
 			<div class="title">
-				<span>{{title}}</span>
-				<span>{{state}}</span>
+				<span></span>
+				<span>{{OrderInfo.status}}</span>
 			</div>
 			<!--模块2-->
-			<div class="rec-li " v-for="(goodlist,index) in rec">
+			<div class="rec-li " >
 				<div class="rec-li-warp clr">
-					<div class="img fl"><img :src="goodlist.img" /></div>
+					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit">{{goodlist.title}}</div>
-						<div class="name">{{goodlist.name}}</div>
-						<div class="present "><span>￥:{{goodlist.present}}</span> <span>原价:{{goodlist.original}}</span></div>
-						<div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
+						<div class="tit">{{OrderInfo.goodName}}</div>
+						<div class="name">{{OrderInfo.status}}</div>
+						<div class="present "><span>￥:{{OrderInfo.needPayMoney}}</span> <span>原价:{{OrderInfo.goodsAmount}}</span></div>
+						<!-- <div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div> -->
 					</div>
 					<div class="rec-right fr">
 						<div class="clr">
-							<div class="make fr">{{goodlist.make}}</div>
+							<div class="make fr">{{OrderInfo.status}}</div>
 						</div>
-						<div class="people ">{{goodlist.people}}</div>
-						<div class="sell ">已售:{{goodlist.sell}}</div>
+						<div class="people ">{{OrderInfo.goodsNum}}</div>
+						<!-- <div class="sell ">已售:{{goodlist.sell}}</div> -->
 					</div>
 				</div>
 				<!--总价-->
 				<div class="prices">
 					<div class="price1">
 						<span>商品总价: </span>
-						<span> ¥ {{present}}</span>
+						<span> ¥ {{OrderInfo.goodsAmount}}</span>
 					</div>
 					<div class="price2">
 						<span>推荐师：</span>
-						<span> ¥ {{rate}}</span>
+						<span> ¥ {{OrderInfo.recommend}}</span>
 					</div>
 					<div class="price3">
 						<span>订单总价：</span>
-						<span> ¥ {{total}}</span>
+						<span> ¥ {{OrderInfo.orderAmount}}</span>
 					</div>
 					<div class="price4">
 						<span>实付金额：</span>
-						<span> ¥ {{total}}</span>
+						<span> ¥ {{OrderInfo.needPayMoney}}</span>
 					</div>
 				</div>
 			</div>
@@ -51,37 +51,21 @@
 						<div class="txt">电子码</div>
 						<div class="img"><img :src="code" /></div>
 					</div>
-					<div class="number clr"> <span class="fl"> 订单编号：</span> <span class="fl">{{codeNumber}}</span></div>
+					<div class="number clr"> <span class="fl"> 订单编号：</span> <span class="fl">{{OrderInfo.orderId}}</span></div>
 				</div>
 			</div>
 
 			<!--订单详情-->
 			<div class="detail-order">
 				<div class="tit">订单详情</div>
-				<div v-for="(item,index) in detailOrder" class="detail-order-li">
-					<div>
-						<span>预定人:</span>
-						<span>{{item.reservations}}</span>
-					</div>
-					<div>
-						<span>预定数量:</span>
-						<span>{{item.quantity}}</span>
-					</div>
-					<div>
-						<span>联系电话:</span>
-						<span>{{item.phone}}</span>
-					</div>
+				<div  class="detail-order-li">
 					<div>
 						<span>积分:</span>
-						<span>{{item.integral}}</span>
+						<span>{{OrderInfo.gainedpoint}}</span>
 					</div>
 					<div>
 						<span>下单时间:</span>
-						<span>{{item.days}}</span>
-					</div>
-					<div>
-						<span>备注信息:</span>
-						<span>{{item.remarks}}</span>
+						<span>{{OrderInfo.createTime}}</span>
 					</div>
 				</div>
 			</div>
@@ -97,6 +81,8 @@
 
 <script>
 	import goodslist from '@/components/goodslist'
+	import Index_Lib from '@/utils/index'
+	import API_ord from '@/api/order'
 	export default {
 		components: {
 			goodslist
@@ -104,6 +90,8 @@
 
 		data() {
 			return {
+				orderId:'',
+				OrderInfo:{},
 				detailOrder: [{
 
 					reservations: "小明",
@@ -158,7 +146,42 @@
 				};
 			}
 
-		},	
+		},
+		methods:{
+            async getOnList(){
+				let that = this;
+				let data = {orderId:that.orderId};
+				let res = await API_ord.getOrderList(data).catch(err => {
+					Lib.showToast('失败','loading')
+				});
+				if(res.code == 0){
+					console.log(res,"商品的数据")
+					let OrderInfo = res.pageUtils.rows[0]
+						if(OrderInfo.status == 0){
+                           OrderInfo.status = '待支付'
+						}else if (OrderInfo.status == 1) {
+							OrderInfo.status = '待核销'
+						}else if (OrderInfo.status == 2) {
+							OrderInfo.status = ' 已核销'
+						}else if (OrderInfo.status == 3) {
+							OrderInfo.status = '已取消'
+						}
+					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)
+					
+					that.OrderInfo = OrderInfo
+                 
+				    console.log(OrderInfo,"查看订单详情",that.OrderInfo)
+				};
+			},
+		},
+
+		onLoad(options){
+			 let that = this;
+			 that.orderId = options.orderId;
+			 console.log(that.orderId,"订单ID")
+			  that.getOnList();
+		},
+
 	}
 </script>
 
