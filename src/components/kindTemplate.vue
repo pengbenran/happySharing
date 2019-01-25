@@ -1,13 +1,12 @@
 <template>
 	<div class="kind centered">
 		<div class="kindList" v-for="(item,index) in kind_item">		
-			<div class="kindIntro" @click="jumpKind">
+			<div class="kindIntro" @click="jumpKind(item.id)">
 				<div class="tipIcon">{{item.name}}</div>
-				<div class="kindname oneover">{{item.goodShowDTO.goodName}}</div>
-				<div class="kinddetail oneover">{{item.goodShowDTO.title}}</div>
+				<div class="kindname oneover">{{item.description}}</div>
 			</div>
 			<div class="rightImg">
-				<img :src="item.thumbnail" mode="widthFix">
+				<img :src="item.img" mode="widthFix">
 			</div>
 		</div>
 	</div>
@@ -26,8 +25,8 @@
 		},
 
 		methods: {
-			jumpKind(){
-				wx.navigateTo({url:'../product-list/main'})
+			jumpKind(parentId){
+				wx.navigateTo({url:'../product-list/main?parentId='+parentId})
 			}
 		},
 

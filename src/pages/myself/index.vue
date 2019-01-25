@@ -134,8 +134,9 @@ import API from '@/api/myself'
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			width: 295px;
-			padding: 20px 0 40px 0;
+			width: 100%;
+			padding: 20px 30px 40px 30px;
+			box-sizing: border-box;
 			margin: 0 auto;
 			.img {
 				width: 58px;

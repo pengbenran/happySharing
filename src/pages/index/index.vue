@@ -48,14 +48,15 @@
 			
 		</div>
 		<!-- 分类列表 -->
-		<!-- <kindTemplate :kind_item='kindItem'></kindTemplate> -->
+		<kindTemplate :kind_item='kindItem'></kindTemplate>
 		<!--为你推荐-->
 		<div class="discount-wrap centered">
 			<div class="title">为你推荐</div>
-			
 			<!-- <day ref="day" :endtime="endtime"></day>	 -->
-			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType' v-if="discount.length!=0"></discount>
+			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount>
+			<nomoreTip v-if="!hasMore"></nomoreTip>
 		</div>
+
 		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 
 	</div>
@@ -68,7 +69,8 @@
 	import Banner from '@/components/banner'
 	import kindTemplate from '@/components/kindTemplate'
 	import day from '@/components/day'
-import loginModel from "@/components/loginModel";
+    import loginModel from "@/components/loginModel";
+    import nomoreTip from "@/components/nomoreTip"
 	import util from '@/utils/index'
 	import Api from "@/api/home";
 	// let api=new Api
@@ -84,7 +86,9 @@ import loginModel from "@/components/loginModel";
 				kindItem: [],
 				discount: [],
 				wid: "100%",
-				magleft: '0px'
+				magleft: '0px',
+				nowPage:1,
+				hasMore:true
 			}
 		},
 		components: {
@@ -93,7 +97,8 @@ import loginModel from "@/components/loginModel";
 			kindTemplate,
 			discount,
 			day,
-			loginModel
+			loginModel,
+			nomoreTip
 		},
 
   methods: {
@@ -131,17 +136,42 @@ import loginModel from "@/components/loginModel";
      				},1000)	
 				}	
 			},
+			// 获取首页推荐商品
+			async getRecommendGood(pages,limit){
+				let that=this
+				if(that.hasMore){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let RecommendGood=await Api.getRecommendGood(pages,limit)
+					RecommendGood.rows.map(item=>{
+						item.saveMoney=util.accSub(item.showPrice,item.price)	
+					})
+					wx.hideLoading();
+					if(RecommendGood.rows.length<limit){
+						that.hasMore=false
+					}
+					that.discount=that.discount.concat(RecommendGood.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+			
+			},
+
+
+
 			// 获取地区列表
 			async getIndex(){
-				console.log("as当阿囧当as看还")
 				let that=this
 				await that.$refs.loginModel.userLogin()
-				console.log("as当阿囧当as看还123")
 				let GoodCatRes=await Api.getGoodCart()
-				GoodCatRes.goodCats.map(item=>{
-					item.img='/static/images/down_icon_a.png'
-				})
 				that.menuItem=GoodCatRes.goodCats
+				that.getRecommendGood(1,3)
 	            // 获取根分类
 	            let rootKindRes=await Api.getRootKind()
 	            console.log(rootKindRes)
@@ -149,12 +179,7 @@ import loginModel from "@/components/loginModel";
 				// 获取地区分类
 				let reginRes=await Api.getRegin()
 				that.addressItem=reginRes
-				// 获取首页商品推荐
-				let RecommendGood=await Api.getRecommendGood(1,3)
-				RecommendGood.rows.map(item=>{
-					item.saveMoney=util.accSub(item.showPrice,item.price)	
-				})
-				that.discount=RecommendGood.rows
+				
 				// 获取首页banner和公告
 			    // this.$refs.discounts.get()
 			    let bannerAndMessageRes=await Api.getbannerAndMessage()
@@ -172,6 +197,11 @@ import loginModel from "@/components/loginModel";
 
 
 		},
+		onReachBottom:function(){
+			let that = this;
+			that.nowPage+=1
+			that.getRecommendGood(that.nowPage,3)
+		},
 		mounted(){
 			let that = this;
 			wx.showLoading({
@@ -187,7 +217,6 @@ import loginModel from "@/components/loginModel";
 
 <style scoped lang="less">
 	/*隐藏滚动条*/
-	
 	 ::-webkit-scrollbar {
 		width: 0;
 		height: 0;

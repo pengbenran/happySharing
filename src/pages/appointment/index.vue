@@ -17,7 +17,7 @@
 		</div>  -->
 		<!--列表-->
 		<div class="discount-wrap">
-			<div class="discount-li centered" v-for="(discountList,index) in bookList" @click="jumpGoodDetail(discountList.id)">
+			<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.id)">
 				<div class="img"><img :src="discountList.thumbnail" /></div>
 				<div class="cant">
 					<div class="name-make clr">
@@ -36,6 +36,7 @@
 					</div>
 				</div>
 			</div>
+			<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
 		</div>
 	</div>
 </template>
@@ -45,6 +46,7 @@
 	import Api from '@/api/goods'
 	import apiKind from '@/api/home'
 	import util from '@/utils/index'
+	import nomoreTip from "@/components/nomoreTip"
 	export default {
 		data() {
 			return {
@@ -53,44 +55,97 @@
 				wid: "100%",
 				magleft: '0px',
 				bookList:[],
+				goodCatId:'',
+				nowPage:1,
+				bookItem:[],
+				hasMore:[],
 			}
 
 		},
 		components: {
 			Search,
+			nomoreTip
 		},
 
 		methods: {
 			kindChang(index) {
 				let that=this
 				that.timeindex = index;
-				let params={}
-				params.goodCatId=that.goodCart[index].id
-				that.getBookGood(1,3,params)
-				// that.bookList=bookGoodRes.rows
+				that.goodCatId=that.goodCart[index].id
+				console.log(that.bookList[that.timeindex]);
+				if(that.bookList[that.timeindex].length==0){
+					that.getBookGood(1,3,that.goodCatId)
+				}		
+				else{
+					that.bookItem=that.bookList[that.timeindex]
+				}	
 			},
 			jumpGoodDetail(goodsId){
 				wx.navigateTo({url:'../appointmentDetail/main?goodsId='+goodsId+'&codeUnionid='})
 			},
-			async getBookGood(pageNum,pageSize,params){
+			async getBookGood(pageNum,pageSize,goodCatId){
 				let that=this
-				let bookRes=await Api.getBookGood(pageNum,pageSize,params)
-				bookRes.rows.map(item=>{
-					item.saveMoney=util.accSub(item.showPrice,item.price)	
-				})
-				that.bookList=bookRes.rows
+				if(that.hasMore[that.timeindex]){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params={}
+					params.goodCatId=goodCatId
+					let bookRes=await Api.getBookGood(pageNum,pageSize,params)
+					bookRes.rows.map(item=>{
+						item.saveMoney=util.accSub(item.showPrice,item.price)	
+					})
+					wx.hideLoading();
+					if(bookRes.rows.length<pageSize){
+						that.hasMore[that.timeindex]=false
+					}
+					console.log(that.bookList);
+					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(bookRes.rows)
+					
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
+				that.bookItem=that.bookList[that.timeindex]		
 			}
 		},
-
+		onReachBottom:function(){
+			let that = this;
+			that.nowPage+=1
+			that.getBookGood(that.nowPage,3,that.goodCatId)
+		},
 		async mounted() {
 			let that=this
 			let goodCartRes=await apiKind.getGoodCart()
 			that.goodCart=goodCartRes.goodCats
-			let params={}
-			params.goodCatId=that.goodCart[0].id
-			that.getBookGood(1,3,params)
+			that.goodCatId=that.goodCart[0].id
+			for(var i in that.goodCart){
+				that.hasMore[i]=true
+				that.bookList[i]=[]
+			}
+			await that.getBookGood(1,3,that.goodCatId)
+			that.bookItem=that.bookList[0]
 			// 调用应用实例的方法获取全局数据
-		}
+		},
+		//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒 - 预约',
+				path: "pages/appointment/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
+			}
+		} 
 	}
 </script>
 
@@ -110,7 +165,6 @@
 		width: 100%;
 		overflow-x: auto;
 		overflow-y: hidden;
-		justify-content: space-around;
 		.product-list-li {
 			margin-bottom: 16px;
 			.title {
@@ -203,6 +257,7 @@
 			bottom: -139px;left: 50%;margin-left: -165px; background-color: #ffffff;
 			padding: 0 10px;border: 1px solid #cccccc;
 			width: 331px;height: 168px;
+			border-radius: 6px;
 			.name-make {
 				margin: 20px 0;
 				.name {

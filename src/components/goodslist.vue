@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id">
-      <div class="img fl"><img :src="item.img" /></div>
+      <div class="img fl"><img :src="item.thumbnail" /></div>
       <div class="rec-center fl">
         <div class="tit">{{item.title}}</div>
         <div class="name">{{item.goodName}}</div>

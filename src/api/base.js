@@ -59,7 +59,7 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
-let base='http://192.168.2.111:8002'
+   let base='http://192.168.2.111:8002'
 // let base='http://192.168.2.131:8011'
 // let base='http://192.168.2.208:8002'
 // export default {

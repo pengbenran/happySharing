@@ -15,7 +15,7 @@
 		<div class="discount-wrap centered">
 			<div class="title">超赞推荐</div>
 			<scroll-view scroll-x style="width: 100%;">	
-			   <discount :discountList="catGoodRes"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
+			   <discount :discountList="regionGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
 			</scroll-view>
 		</div>
 		<!--超赞推荐-->
@@ -30,7 +30,8 @@
 			</div>
 			<!--image end-->
 
-			<goodslist :catGoodRecommend='catGoodRecommend'></goodslist>
+			<goodslist :catGoodRecommend='regionGoodRes'></goodslist>
+			<nomoreTip v-if="!hasMore"></nomoreTip>
 			<!--goodslist end-->
 		</div>
 	</div>
@@ -42,7 +43,9 @@
 	import discount from '@/components/discount'
 	import goodslist from '@/components/goodslist'
 	import Api from '@/api/goods'
+	import nomoreTip from "@/components/nomoreTip"
 	import kindApi from '@/api/home'
+	import util from '@/utils/index'
 	export default {
 		data() {
 			return {
@@ -52,10 +55,12 @@
 				regionId:'',
 				wid: '240px',
 				magleft: '10px',
-				catGoodRes: [],
-				catGoodRecommend: [],
+				regionGoodRes: [],
+				regionGoodRecommend:[],
 				bannerImg:[],
-				recommendimgs:[]
+				recommendimgs:[],
+				nowPage:1,
+				hasMore:true
 			}
 		},
 
@@ -63,19 +68,52 @@
 			Search,
 			Banner,
 			discount,
-			goodslist
+			goodslist,
+			nomoreTip
 		},
 
 		methods: {
 			jumpAuroList(goodCatId,catname) {
 				let that=this
 				wx.navigateTo({url:`../auro-list/main?goodCatId=${goodCatId}&catname=${catname}&regionname=${that.regionname}&regionId=${that.regionId}`})
+			},
+			async getRegionGood(pageNum,pageSize,regionId){
+				let that=this
+				if(that.hasMore){
+					wx.showLoading({
+						title: '加载中',
+					})
+					let params={}
+					params.regionId=regionId
+					let regionGoodRes=await Api.getRegionGoods(pageNum,pageSize,params)
+					wx.hideLoading();
+					if(regionGoodRes.rows.length<pageSize){
+						that.hasMore=false
+					}
+					that.regionGoodRes=that.regionGoodRes.concat(regionGoodRes.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}
 			}
 		},
-
+		onReachBottom:function(){
+			let that = this;
+			that.nowPage+=1
+			that.getRegionGood(that.nowPage,6,that.regionId)
+		},
 		async onLoad(options) {
-			console.log(options);
 			let that=this
+			that.regionGoodRes=[]
+			that.regionGoodRecommend=[]
+			that.bannerImg=[]
+		    that.recommendimgs=[]
+			that.nowPage=1
+			that.hasMore=true
 			that.regionname=options.regionname
 			that.regionId=options.regionId
 			wx.setNavigationBarTitle({
@@ -85,30 +123,38 @@
 			let typeImgRes=await Api.getTypeImg(2,options.regionId)
 			that.bannerImg=typeImgRes.data.imgs
 			that.recommendimgs = typeImgRes.data.recommendimgs
-
 			//#endregion
-			console.log("查看地区分类的广告",typeImgRes)
-
 			// 获取地区分类下的商品分类
 			let GoodCatRes=await kindApi.getGoodCart()
-			GoodCatRes.goodCats.map(item=>{
-				item.img='/static/images/down_icon_a.png'
-			})
 			that.menuItem=GoodCatRes.goodCats
 			 console.log("商品分类",that.menuItem)
 			 
+			that.getRegionGood(1,3,that.regionId)
 			// 获取地区分类下的商品(非推荐)
 			let params={}
 			params.regionId=options.regionId
-			let regionGoodRes=await Api.getRegionGoods(1,3,params)
-			that.regionGoodRes=regionGoodRes.rows
-			 console.log("非推荐",that.regionGoodRes)
-
 			//获取地区分类项的商品(推荐)
 			params.recommend=1
-			let regionGoodRecommendRes=await Api.getRegionGoods(1,3,params)
+			let regionGoodRecommendRes=await Api.getRegionGoods(1,6,params)
+			regionGoodRecommendRes.rows.map(item=>{
+				item.saveMoney=util.accSub(item.showPrice,item.price)	
+			})
 			that.regionGoodRecommend=regionGoodRecommendRes.rows
-				 console.log("推荐",that.regionGoodRecommend)
+		},
+				//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒' + item.name,
+				path: "pages/auro/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
+			}
 		}
 	}
 </script>
@@ -127,8 +173,8 @@
 			margin-top: 16px;
 			width: 70px;
 			.img {
-				width: 25px;
-				height: 25px;
+				width: 40px;
+				height: 40px;
 				margin: 0 auto;
 				img {
 					width: 100%;
@@ -145,7 +191,7 @@
 	/*超值优惠*/
 	
 	.discount-wrap {
-		padding: 24px 0 40px 0;
+		padding: 24px 0 0 0;
 		.title {
 			font-size: 18px;
 			color: #111111;

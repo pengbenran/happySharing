@@ -36,22 +36,23 @@
 				<div class="img"><img src="/static/images/home.png" /></div>
 				<div class="text">首页</div>
 			</div>
+			<div class="index" @click="share">
+				<div class="img"><span class="iconfont">&#xe62a;</span></div>
+				<div class="text">分享</div>
+			</div>
 			<div v-if='goodsDetail.book==1' class="rush"  @click="showPicker">	
 				立即预约
-			<!-- 	<picker
-				mode="multiSelector"
-				@change="bindMultiPickerChange"
-				@columnchange="bindMultiPickerColumnChange"
-				:value="multiIndex"
-				:range="dataArray"
-				>
-				<div>
-					立即预约
-				</div>
-			</picker> -->
-
 			</div>
 		</div>
+		<div class="paintImg" v-show="paintOk">
+			<div class="bcg"></div>
+			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
+				<img :src="shareImage">
+			</div>
+			
+		</div>
+		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+
 		<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 	</div>
 </template>
@@ -61,6 +62,7 @@
 	import util from '@/utils/index'
 	import store from '@/store/store'
 	import mpvuePicker from '@/components/mpvuePick'
+	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
 			return {
@@ -78,12 +80,16 @@
 			    pickerText: '',
 			    mulLinkageTwoPicker: [],
 			    pickerValueDefault: [0,0],
-			    goodBooks:[]
+			    goodBooks:[],
+			    painting:{},
+				shareImage:'',
+				Width:''
 			}
 
 		},
 		components: {
-			mpvuePicker
+			mpvuePicker,
+			canvasdrawer
 		},
 		computed:{
 			discounts(){
@@ -93,6 +99,52 @@
 			
 		},
 		methods: {
+				//点击生成海报
+		   async eventDraw(){
+		   	let that = this;
+		   	wx.showLoading({
+		   		title:'推广码绘制中'
+		   	})	
+		   	let ImgArr = []
+		   	ImgArr[0]=that.goodsDetail.posterImg
+		   	that.painting={
+		   		width: that.Width,
+		   		height: that.Width,
+		   		clear: true,
+		   		views: [
+		   		{
+		   			type: 'image',
+		   			url: ImgArr[0],
+		   			top: 0,
+		   			left: 0,
+		   			width: that.Width,
+		   			height: that.Width
+		   		},
+		   		]
+		   	}
+		   	this.$refs.canvas.readyPigment()
+		   },
+		   eventGetImage(event) {
+		   	wx.hideLoading()
+		   	console.log('我绘制完了');
+		   	console.log(event);
+		   	const { tempFilePath, errMsg } = event
+		   	if (errMsg === 'canvasdrawer:ok') {
+		   		this.paintOk=true
+		   		this.shareImage=tempFilePath
+		    }
+			},
+			share(){
+				let that=this
+				that.getErCode()
+			},
+			async getErCode(){
+				let that=this
+				let params={}
+				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+2
+				let QrcodeRes=await Api.GetQrcode(params)
+				console.log(QrcodeRes);
+			},
 			showPicker() {
 				this.pickerValueArray = this.mulLinkageTwoPicker;
 				this.mode = 'multiLinkageSelector';
@@ -100,23 +152,6 @@
 				this.pickerValueDefault = [1, 0];
 				this.$refs.mpvuePicker.show();
 				console.log(this);
-			},
-			bindMultiPickerChange(e) {
-				console.log('picker发送选择改变，携带值为', e.mp.detail.value)
-				// this.setData({
-				// 	multiIndex: e.detail.value
-				// })
-			},
-			bindMultiPickerColumnChange(e){
-				let that=this
-				if(e.mp.detail.column==0){
-					let index=e.mp.detail.value
-					// that.dataArray[1]=['扁性动物', '线形动物', '环节动物', '软体动物', '节肢动物']
-					that.multiIndex[e.mp.detail.column]=e.mp.detail.value
-					that.multiIndex[1]=0
-					that.dataArray[1]=that.multiArray[index]
-					console.log(that.dataArray);
-				}
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -188,6 +223,7 @@
 		async onLoad(options) {
 			let that=this
 			that.goodsId =options.goodsId
+			that.Width=wx.getSystemInfoSync().windowWidth
 			that.multiArray=[]
 			that.dataArray=[]
             if(options.codeUnionid!=''){
@@ -207,6 +243,25 @@
 
 <style lang="less">
 	/*底部*/
+	.paintImg{
+		position: fixed;
+		top:0;
+		left: 0;
+		bottom:0;
+		right: 0;
+		z-index: 5;
+		.bcg{
+			width: 100%;
+			height: 100%;
+			background: rgba(0,0,0,.5);
+		}		
+		.img{
+			overflow: hidden;
+			z-index: 10;
+			position: absolute;
+			top: 80px;
+		}
+	}
 	.nav {
 		position: fixed;
 		bottom: 0px;
@@ -229,7 +284,7 @@
 			}
 		}
 		.rush {
-			width: 84%;
+			width: 68%;
 			line-height: 55px;
 			text-align: center;
 			background-color: #ff7d28;

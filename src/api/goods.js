@@ -1,8 +1,8 @@
 import * as API from './base'
 export default {
 	// 根据商品id获取商品详细数据
-	getGoodDetail(goodId){
-		return API.GET(`/api-good/api/good/${goodId}`)
+	getGoodDetail(params){
+		return API.GET(`/api-good/api/good/detail`,params)
 	},
 	// 获取地区分类下的推荐商品列表
 	getkindGood(pageNum,pageSize,params){
@@ -27,6 +27,14 @@ export default {
 	// 获取分类下的banner图
 	getTypeImg(type,sort){
 		return API.GET(`/api-base/index/TypeImg/${type}/${sort}`)
+	},
+	// 生成二维码
+	GetQrcode(params){
+		return API.GET(`/api-member/api/login/publicQRCode`,params)
+	},
+	// 获取根分类下的子分类
+	getChild(params){
+		return API.GET(`/api-good/api/goodCat/child`,params)
 	}
 
 }

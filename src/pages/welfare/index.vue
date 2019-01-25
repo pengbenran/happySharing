@@ -29,8 +29,28 @@
 			<!--列表-->
 			<div class="list">
 				<div class="list-wp">
+					<div class="rec-li" v-for="(goodlist , index) in rec" :key="goodlist.recId">
 
+						<div class="cant clr">
+							<div class="img fl"><img :src="goodlist.img" /></div>
+							<div class="rec-center fl">
+								<div class="tit">{{goodlist.title}}</div>
+								<div class="name">{{goodlist.name}}</div>
+								<div class="present ">{{goodlist.present}}积分</div>
+							</div>
+							<div class="rec-right fr">
+								<div class="num ">已兑 : {{goodlist.num}}</div>
+								<div class="use">
+									<navigator url="../order-detail/main" hover-class="none">
+										去兑换
+									</navigator>
+								</div>
+							</div>
+						</div>
+
+					</div>
 				</div>
+
 			</div>
 		</div>
 	</div>
@@ -41,6 +61,58 @@
 		data() {
 			return {
 				current: 0,
+				rec: [{
+						recId: 1,
+						img: "/static/images/d.png",
+						title: "西江月园林火锅",
+						name: "世茂/金塔/新力/莲塘/四店通用",
+						use: "待使用",
+						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
+						original: "223",
+						present: 200,
+						discounts: "83",
+						num: "1000",
+						sell: "2368",
+						time: "2018-12-31",
+						dele: "删除订单",
+						detail: "订单详情",
+						integral: "积分兑换",
+					},
+					{
+						recId: 2,
+						img: "/static/images/d.png",
+						title: "西江月园林火锅",
+						name: "世茂/金塔/新力/莲塘/四店通用",
+						use: "待使用",
+						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
+						original: "223",
+						present: 200,
+						discounts: "83",
+						num: "1000",
+						sell: "2368",
+						time: "2018-12-31",
+						dele: "删除订单",
+						detail: "订单详情",
+						integral: "积分兑换",
+					},
+					{
+						recId: 3,
+						img: "/static/images/d.png",
+						title: "西江月园林火锅",
+						name: "世茂/金塔/新力/莲塘/四店通用",
+						use: "待使用",
+						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
+						original: "223",
+						present: 200,
+						discounts: "83",
+						num: "1000",
+						sell: "2368",
+						time: "2018-12-31",
+						dele: "删除订单",
+						detail: "订单详情",
+						integral: "积分兑换",
+					},
+				],
 				awards: [{
 						id: 1,
 						name: 6
@@ -127,6 +199,23 @@
 					console.log(this.speed);
 					this.move();
 				}, this.speed);
+			}
+		},
+
+		
+//		  用户点击右上角分享
+		onShareAppMessage: function(res) {
+			return {
+				title: '抹哒抹哒',
+				path: "pages/welfare/main",
+				success: function(shareTickets) {
+					console.info(shareTickets + '成功');
+					// 转发成功
+				},
+				fail: function(res) {
+					console.log(res + '失败');
+					// 转发失败
+				},			
 			}
 		}
 	};
@@ -218,7 +307,7 @@
 				width: 90px;
 				height: 96px;
 				line-height: 90px;
-				text-align: center; 
+				text-align: center;
 			}
 			.popup {
 				display: flex;
@@ -264,8 +353,72 @@
 				position: relative;
 				width: 100%;
 				background-color: #ffb833;
-				height: 100px;
-				bottom: -78px;
+				bottom: -83px;
+				box-sizing: border-box;
+				padding: 0 12px;
+				/*列表*/
+				.rec-li {
+					padding: 16px 0;
+					border-bottom: 1px solid #ff6f00;
+					&:nth-last-child(1) {
+						border: 0;
+					}
+					.img {
+						width: 80px;
+						height: 80px;
+						overflow: hidden;
+						img {
+							border-radius: 5px;
+							width: 100%;
+							height: 100%;
+						}
+					}
+					.rec-center {
+						width: 180px;
+						line-height: 24px;
+						overflow: hidden;
+						padding-left: 12px;
+						box-sizing: border-box;
+						padding-top: 5px;
+						.tit {
+							font-size: 15px;
+							color: #111111;
+						}
+						.name {
+							font-size: 12px;
+							color: #333333;
+						}
+						.present {
+							color: #ff0000;
+							font-size: 17px;
+						}
+						.original {
+							text-decoration: line-through;
+							color: #999999;
+							font-size: 12px;
+						}
+					}
+					.rec-right {
+						width: 80px;
+						text-align: right;
+						padding-top: 9px;
+						.use {
+							font-size: 14px;
+							color: #fff;
+							width: 80px;
+							height: 34px;
+							border-radius: 17px;
+							background-color: #ff6f00;
+							line-height: 34px;
+							text-align: center;
+							margin-top: 26px;
+						}
+						.num {
+							color: #333333;
+							font-size: 12px;
+						}
+					}
+				}
 			}
 		}
 	}
