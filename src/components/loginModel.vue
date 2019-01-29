@@ -26,7 +26,6 @@ export default {
     methods: {
     getUserInfo(){   
       var that = this 
-      that.isMember=false
       if(that.memberId=="00"){
        that.isSubmit=true
        wx.login({
@@ -45,15 +44,16 @@ export default {
                 Api.weCatLogin(params).then(function(res){
                   if(res.code==0){
                     that.isSubmit=false
-                    // that.userLogin()
+                    that.isMember=false
+                    that.userLogin()
                     that.$emit('getIndex')
                     if(wx.getStorageSync('distribeId')==null){
 
                     }
                     else{
-                      Api.promotion(res.data.memberId,wx.getStorageSync('distribeId')).then(function(res){
+                      // Api.promotion(res.data.memberId,wx.getStorageSync('distribeId')).then(function(res){
                        
-                      })
+                      // })
                     }
                   }
                 }) 
@@ -70,6 +70,7 @@ export default {
       wx.login({
         success: function (res) {
           if (res.code) {
+            wx.showTabBar({})
             Api.getCode(res.code).then(function(memberRes){
               if(memberRes.code!=500){
                 wx.setStorageSync('Token', memberRes.token)

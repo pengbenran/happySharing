@@ -27,7 +27,7 @@
 		</div>
 		<!--商品详情-->
 		<div class="product-detail centered">
-			<span>商品详情</span>
+			<span>图文详情</span>
 		</div>
 	</picker>
 		<!--底下导航-->

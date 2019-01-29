@@ -174,24 +174,27 @@ import Config from '@/config'
 			//getOrder
 			async Get_Order(data){
 				console.log(data,"请求的参数")
-			    let that= this;
-				let res = await API_ORDER.getOrderList(data).catch(err => {
+				let that= this;
+				if(that.hasMore){
+					let res = await API_ORDER.getOrderList(data).catch(err => {
 						Lib.showToast('失败','loading')
-				})
-				if(res != undefined && res.code == 0){
-					let goodLists = res.pageUtils.rows.map(v => {
-						v.createTime = Index_Lib.formatTime(v.createTime);
-						return v;
-					});
-					if(goodLists.length < that.listQuery.limit){
-                         that.hasMore=false
+					})
+					if(res != undefined && res.code == 0){
+						let goodLists = res.pageUtils.rows.map(v => {
+							v.createTime = Index_Lib.formatTime(v.createTime);
+							return v;
+						});
+						if(goodLists.length < that.listQuery.limit){
+							that.hasMore=false
+						}
+						that.goodList = that.goodList.concat(goodLists)
+						console.log(that.goodList,"商品的列表")
+					}else{
+						that.goodList = [];
 					}
-					that.goodList = that.goodList.concat(goodLists)
-					console.log(that.goodList,"商品的列表")
-				}else{
-					that.goodList = [];
+					wx.hideLoading()
 				}
-				wx.hideLoading()
+
 			},
 
 			change(index) {
@@ -347,10 +350,14 @@ import Config from '@/config'
 			
 		},
 		onLoad(){
-			this.unionid = Store.state.userInfo.unionid
-			this.userInfo = Store.state.userInfo
-			console.log(Store.state.userInfo,"asdasda")
-            this.onload();
+			let that=this
+			that.unionid = Store.state.userInfo.unionid
+			that.userInfo = Store.state.userInfo
+			that.hasMore = true;
+			that.listQuery.page = 1;
+			that.listQuery.limit = 3;
+			that.goodList = [];
+            that.onload();
 		},
 
 		created() { // 调用应用实例的方法获取全局数据

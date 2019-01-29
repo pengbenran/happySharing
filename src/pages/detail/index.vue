@@ -178,7 +178,7 @@
 		height: 190px;
 	}
 	.saveImgBtn{
-		width:100px;
+		width:80%;
 		height: 50px;
 		text-align:center;
 		background: #ff7d28;
@@ -186,7 +186,8 @@
 		border-radius: 25px;
 		line-height:50px;
 		position: absolute;
-		bottom: 100px;
+		bottom: 80px;
+		left: 10%;
  	}
 	.paintImg{
 		position: fixed;

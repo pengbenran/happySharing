@@ -3,7 +3,7 @@
 		<!--搜索-->
 		<Search></Search>
 		<!--轮播-->
-		<Banner></Banner>
+		<Banner :banner='bannerImg'></Banner>
 		<!--类目-->
 		<div class="cate centered">
 			<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
@@ -49,7 +49,8 @@
 				catGoodRes: [],
 				catGoodRecommend:[],
 				nowPage:1,
-				hasMore:true
+				hasMore:true,
+				bannerImg:[]
 			}
 		},
 
@@ -113,7 +114,7 @@
 			})
 			// 获取地区分类下的广告
 			let typeImgRes=await Api.getTypeImg(3,options.goodCatId)
-			console.log(typeImgRes);
+			that.bannerImg=typeImgRes.data.imgs
 			// 获取地区分类下的商品分类
 			let reginRes=await kindApi.getRegin()
 			that.addressItem=reginRes

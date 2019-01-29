@@ -13,7 +13,7 @@
 			<Banner :banner='bannerList'></Banner>
 		</div> 
 		<!-- 积分商城 -->
-		<div class="pointLogo">
+		<div class="pointLogo" @click="jumpPointShop">  
 			<img src="https://shop.guqinet.com/html/images/zhifenxiang/pointLogo.png" mode="widthFix">
 		</div>
 		<!-- 地区列表 -->
@@ -114,6 +114,13 @@
 			jumpgoodCart:function(goodCatId,goodCatName){
 				wx.navigateTo({url:`../goodCart/main?goodCatId=${goodCatId}&goodCatName=${goodCatName}`})
 			},
+			jumpPointShop:function(){
+				wx.showToast({
+					title:'开发中,敬请期待',
+					icon:'none',
+					duration:1500
+				})
+			},
 			cutTimes: function(i,endtime) {
 				//获取当前时间
 				let that=this
@@ -169,24 +176,23 @@
 			// 获取地区列表
 			async getIndex(){
 				let that=this
+				wx.hideTabBar({})
 				await that.$refs.loginModel.userLogin()
 				let GoodCatRes=await Api.getGoodCart()
 				that.menuItem=GoodCatRes.goodCats
 				that.getRecommendGood(1,3)
 	            // 获取根分类
 	            let rootKindRes=await Api.getRootKind()
-	            console.log(rootKindRes)
+	    
 	            that.kindItem=rootKindRes.rootCats
 				// 获取地区分类
 				let reginRes=await Api.getRegin()
-				that.addressItem=reginRes
-				
+				that.addressItem=reginRes	
 				// 获取首页banner和公告
 			    // this.$refs.discounts.get()
 			    let bannerAndMessageRes=await Api.getbannerAndMessage()
 			    that.bannerList=bannerAndMessageRes.data.BannerList
 			    that.message=bannerAndMessageRes.data.messageDOList
-			    console.log(bannerAndMessageRes)
 				},
 		},
 		onReachBottom:function(){

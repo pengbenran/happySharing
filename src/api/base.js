@@ -3,10 +3,11 @@ var fly = new Fly;
 fly.interceptors.request.use((request) => {
     request.timeout = 30000;
     let that=this
-    if (wx.getStorageSync('Token')) {//检查本地缓存是否有token存在没有则重新获取
+    if (true) {//检查本地缓存是否有token存在没有则重新获取
         request.headers = {//设置请求头
             "content-type": "application/x-www-form-urlencoded",
-            "Authorization": wx.getStorageSync('Token')
+            // "Authorization": wx.getStorageSync('Token')
+            "Authorization":"eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU0OTI3NTAwMzE1MywiZXhwIjoxNTQ5ODIyMDA1fQ.i9Snkbj1FZp940_IShxjIjMhj6cvpSeUB0ajaQtGvcQ"
         }
         return request;
     } else {
@@ -59,7 +60,7 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
-   let base='http://192.168.2.111:8002'
+   let base='https://zhifenxiang.guqinet.com'
 // let base='http://192.168.2.131:8011'
 // let base='http://192.168.2.208:8002'
 // export default {
