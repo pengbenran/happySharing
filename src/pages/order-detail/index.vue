@@ -83,6 +83,7 @@
 	import goodslist from '@/components/goodslist'
 	import Index_Lib from '@/utils/index'
 	import API_ord from '@/api/order'
+	import Lib from '@/utils/lib'
 	export default {
 		components: {
 			goodslist
@@ -92,59 +93,10 @@
 			return {
 				orderId:'',
 				OrderInfo:{},
-				detailOrder: [{
-
-					reservations: "小明",
-					quantity: 1,
-					phone: 15932325588,
-					integral: 30,
-					days: "2018-12-07  11:34:38",
-					remarks: "这是我要说的一段备注信息，我也不知道说什么",
-
-				}],
-				codeNumber: "3053558899432156515",
-				code: "/static/images/code.png",
-				title: "买家不可使用",
-				state: "已取消",
-				rec: [{
-					recId: 1,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: 223,
-					present: 16.99,
-					rate: 6.98,
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188"
-				}, ]
 			}
 		},
 		computed: {
-			present() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					return present;
-				};
-			},
-			rate() {
-				for(var i in this.rec) {
-					var rate = this.rec[i].rate.toFixed(2);
-					return rate;
-
-				};
-			},
-			total() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					var rate = this.rec[i].rate.toFixed(2);
-					var total = (present - rate).toFixed(2);
-					return total;
-				};
-			}
+	
 
 		},
 		methods:{
@@ -155,7 +107,6 @@
 					Lib.showToast('失败','loading')
 				});
 				if(res.code == 0){
-					console.log(res,"商品的数据")
 					let OrderInfo = res.pageUtils.rows[0]
 						if(OrderInfo.status == 0){
                            OrderInfo.status = '待支付'
@@ -169,8 +120,6 @@
 					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)
 					
 					that.OrderInfo = OrderInfo
-                 
-				    console.log(OrderInfo,"查看订单详情",that.OrderInfo)
 				};
 			},
 		},

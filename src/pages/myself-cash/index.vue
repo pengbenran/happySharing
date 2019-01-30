@@ -3,7 +3,7 @@
 		<div class="myselfcash">
 			<span>可提佣金   (元)</span>
 			<span>{{userInfo.balance}}</span>
-			<span>我要提取  ¥  <input v-model="inp" :input="changeCss()"  type="number" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
+			<span>我要提取  ¥  <input v-model="inp" :input="changeCss()"  type="digit" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
 			<span>提取的佣金将会以红包的形式发送到公众号，记得查看哦</span>
 			<span class="tip">{{tip}}</span>
 			<button :class="{btnon:isOn}" :disbaled='isSubmit' class="btn" @click="submit">提现</button>

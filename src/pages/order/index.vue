@@ -51,15 +51,15 @@
 						<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
 						<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
 					</div>
-					<div v-if="orderItem.status == 1">
-						<botton   class="queBtn"  @click="useOrderDetail(orderItem.orderId)">立即使用</botton>
+					<div v-if="orderItem.status == 1" class="bottom">
+						<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
 					</div>
-					<div v-if="orderItem.status == 2">
+					<div v-if="orderItem.status == 2" class="bottom">
 						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
 						<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
 					</div>
 
-					<div v-if="orderItem.status == 3">
+					<div v-if="orderItem.status == 3" class="bottom">
 						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
 					</div>
 				</div>
@@ -71,7 +71,7 @@
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 2">
-					<botton   class="queBtn"  @click="useOrderDetail(orderItem.orderId)">立即使用</botton>
+					<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 3">
@@ -145,7 +145,6 @@ import Config from '@/config'
 			// that.nowPage+=1
 			// that.getRecommendGood(that.nowPage,3)
             that.listQuery.page += 1
-			console.log("我是底部时间")
 			if(that.SelectIndex == 0){
 				that.onload();
 			}else{
@@ -159,23 +158,22 @@ import Config from '@/config'
 				let that = this;
 				let data = Object.assign({},{unionId:Store.state.userInfo.unionid},that.listQuery) 
 				// console.log()
-				wx.showLoading({title: '加载中',})
+				
 				that.Get_Order(data)
 			},
 
 			//获取不同状态的订单
 			async PayOrderList(status){
 					let that = this;
-					wx.showLoading({title: '加载中',})
 					 let data = Object.assign({},{unionId:Store.state.userInfo.unionid,status:status},that.listQuery) 
 					that.Get_Order(data)
 			},
 
 			//getOrder
 			async Get_Order(data){
-				console.log(data,"请求的参数")
 				let that= this;
 				if(that.hasMore){
+					wx.showLoading({title: '加载中',})
 					let res = await API_ORDER.getOrderList(data).catch(err => {
 						Lib.showToast('失败','loading')
 					})
@@ -188,7 +186,6 @@ import Config from '@/config'
 							that.hasMore=false
 						}
 						that.goodList = that.goodList.concat(goodLists)
-						console.log(that.goodList,"商品的列表")
 					}else{
 						that.goodList = [];
 					}
@@ -224,11 +221,6 @@ import Config from '@/config'
 					that.PayOrderList(3)
 				}
 			},
-
-			useOrderDetail(orderCode){
-
-			},
-
 			//取消订单
 			async removeOrder(orderId,index){
 				wx.showModal({
@@ -261,6 +253,7 @@ import Config from '@/config'
 			},
 
 			orderDetail(orderId){
+				console.log(111111)
 				 wx.navigateTo({
 					url: '../order-detail/main?orderId='+orderId
 				})

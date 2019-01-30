@@ -11,17 +11,18 @@
 				</div>
 				<div class="desc">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
-					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
+					<div class="Present fl">￥{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
-					<!-- <div class="people fr">{{item.people}}</div> -->
+					<div class="people fr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				</div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
 				</div>
 				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{goodsDetail.phone}}</div>
-					<div class="phone-img fr iconfont">&#xe613;</div>
+					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+					<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
 				</div>
 			</div>
 		</div>
@@ -68,7 +69,8 @@
 				goodsDetail:{},
 				painting:{},
 				shareImage:'',
-				Width:''
+				Width:'',
+				userInfo:{}
 			}
 
 		},
@@ -83,6 +85,13 @@
 			
 		},
 		methods: {
+				// 拨打电话
+			makePhone(){
+				let that=this
+				wx.makePhoneCall({
+				  phoneNumber:that.goodsDetail.shopPhone//仅为示例，并非真实的电话号码
+				})
+			},
 			//点击生成海报
 		   async eventDraw(){
 		   	let that = this;
@@ -160,11 +169,11 @@
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
             that.Width=wx.getSystemInfoSync().windowWidth
-            let userInfo = store.state.userInfo
+            that.userInfo = store.state.userInfo
             let params={}
             params.goodId=that.goodsId
-			if(userInfo.whetherDistribe!=0){
-            	params.memberLv=userInfo.whetherDistribe
+			if(that.userInfo.whetherDistribe!=0){
+            	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据

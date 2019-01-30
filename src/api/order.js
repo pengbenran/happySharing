@@ -25,10 +25,17 @@ export default {
  quxiaoOrder:params => {
 	 return API.PUT('/api-order/api/order/orderCancel',params)
  },
-
+// 删除订单
  deleteOrder:params => {
 	return API.DELETE(`/api-order/order/remove?orderId=`+params)
- }
-
+ },
+// 判断是能否核销
+isWriteOff:params=>{
+	return API.GET('/api-order/api/order/memberCancel',params)
+},
+// 核销订单
+writeOff:params=>{
+	return API.PUT('/api-order/api/order/cancel',params)
+}
 
 }      

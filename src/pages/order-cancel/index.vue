@@ -1,154 +1,169 @@
 <template>
 	<div>
-		<div class="order-detail">
+		<div class="order-detail" v-if="isWrite">
 			<!--模块1-->
 			<div class="title">
-				<span>{{title}}</span>
-				<span>{{state}}</span>
+				<span>{{OrderInfo.status}}</span>
+				<span v-if="OrderInfo.orderType==1">下单时间:{{OrderInfo.createTime}}</span>
+				<span v-else>过期时间:{{OrderInfo.endTime}}</span>
 			</div>
 			<!--模块2-->
-			<div class="rec-li " v-for="(goodlist,index) in rec">
+			<div class="rec-li ">
 				<div class="rec-li-warp clr">
-					<div class="img fl"><img :src="goodlist.img" /></div>
+					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit">{{goodlist.title}}</div>
-						<div class="name">{{goodlist.name}}</div>
-						<div class="present "><span>￥:{{goodlist.present}}</span> <span>原价:{{goodlist.original}}</span></div>
-						<div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div>
+						<div class="tit">{{OrderInfo.goodName}}</div>
+						<div class="name"></div>
+						<div class="present "><span>￥{{OrderInfo.goodsAmount}}</span></div>
 					</div>
 					<div class="rec-right fr">
 						<div class="clr">
-							<div class="make fr">{{goodlist.make}}</div>
+							<div class="make fr" v-if='OrderInfo.orderType==1'>免预约</div>
+							<div class="make fr" v-else>需预约</div>
 						</div>
-						<div class="people ">{{goodlist.people}}</div>
-						<div class="sell ">已售:{{goodlist.sell}}</div>
+						<div class="people "></div>
+						<div class="sell "></div>
 					</div>
 				</div>
 				<!--总价-->
 				<div class="prices">
 					<div class="price1">
 						<span>商品总价: </span>
-						<span> ¥ {{present}}</span>
+						<span> ¥ {{OrderInfo.goodsAmount}}</span>
 					</div>
 					<div class="price2">
-						<span>推荐师：</span>
-						<span> ¥ {{rate}}</span>
+						<span>推荐师优惠：</span>
+						<span> ¥ {{OrderInfo.recommend}}</span>
 					</div>
 					<div class="price3">
 						<span>订单总价：</span>
-						<span> ¥ {{total}}</span>
+						<span> ¥ {{OrderInfo.orderAmount}}</span>
 					</div>
 					<div class="price4">
 						<span>实付金额：</span>
-						<span> ¥ {{total}}</span>
+						<span> ¥ {{OrderInfo.needPayMoney}}</span>
 					</div>
 				</div>
 			</div>
-
-
 			<!--订单详情-->
-			<div class="detail-order">
-				<div class="tit">订单详情</div>
-				<div v-for="(item,index) in detailOrder" class="detail-order-li">
-					<div>
-						<span>预定人:</span>
-						<span>{{item.reservations}}</span>
-					</div>
-					<div>
-						<span>预定数量:</span>
-						<span>{{item.quantity}}</span>
-					</div>
-					<div>
-						<span>联系电话:</span>
-						<span>{{item.phone}}</span>
-					</div>
-					<div>
-						<span>积分:</span>
-						<span>{{item.integral}}</span>
-					</div>
-					<div>
-						<span>下单时间:</span>
-						<span>{{item.days}}</span>
-					</div>
-					<div>
-						<span>备注信息:</span>
-						<span>{{item.remarks}}</span>
-					</div>
-				</div>
-			</div>
+	
 
 			<!--按钮-->
-			<div class="dele">
-				<span>立即核销</span>
+			<div class="dele" >
+				<span @click='writeOff(OrderInfo.orderId)' v-if="OrderInfo.status=='待核销'">立即核销</span>
+				<span v-else>已核销</span>
+				<span @click='jumpIndex'>返回首页</span>
 			</div>
 		</div>
+		<div v-else class="audit">
+			<span>您不是核销员哦,无法核销</span>
+			<span><img :src="auditimg"></span> 
+			<span @click='jumpIndex'>返回首页</span>
+		</div>
+		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 	</div>
 </template>
 
 <script>
 	import goodslist from '@/components/goodslist'
+	import loginModel from "@/components/loginModel"; 
+	import Store from '@/store/store'
+	import Api from '@/api/order'
+	import Index_Lib from '@/utils/index'
+	import Lib from '@/utils/lib'
 	export default {
 		components: {
-			goodslist
+			goodslist,
+			loginModel
 		},
 
 		data() {
 			return {
-				detailOrder: [{
-
-					reservations: "小明",
-					quantity: 1,
-					phone: 15932325588,
-					integral: 30,
-					days: "2018-12-07  11:34:38",
-					remarks: "这是我要说的一段备注信息，我也不知道说什么",
-
-				}],
-				codeNumber: "3053558899432156515",
-				code: "/static/images/code.png",
-				title: "等待买家使用", 
-				state: "5天18:59:59",
-				rec: [{
-					recId: 1,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					make: "免预约",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: 223,
-					present: 16.99,
-					rate: 6.98,
-					discounts: "83",
-					people: "2人",
-					sell: "2368",
-					dianzhan: "1188"
-				}, ]
+				isWrite:false,
+				auditimg:'/static/images/audit.png',
+				OrderInfo:{},
+				isSubmit:false,
+				orderId:'',
 			}
 		},
+		methods:{
+			// 判断能否核销
+			async isWriteOff(unionId,orderId){
+				let that=this
+				let params={}
+				params.unionId=unionId
+				params.orderId=orderId
+				let isWriteOffRes=await Api.isWriteOff(params)
+				if(isWriteOffRes.code==0){
+					that.isWrite=true
+					that.getOnList(774)
+				}
+				else{
+					that.isWrite=false
+				}
+			},
+			// 核销
+			async writeOff(orderId){
+				let that=this
+				let params={}
+				params.orderId=orderId
+				if(!that.isSubmit){
+					that.isSubmit=true
+					let writeOffRes=await Api.writeOff(params)
+					if(writeOffRes.code==0){
+						Lib.showToast('核销成功','success')
+						that.getOnList(orderId)
+					}
+					console.log(writeOffRes);
+
+
+				}
+
+			},
+			async getOnList(orderId){
+				let that = this;
+				let data = {};
+				data.orderId=orderId
+				let res = await Api.getOrderList(data).catch(err => {
+					Lib.showToast('失败','loading')
+				});
+				if(res.code == 0){
+					let OrderInfo = res.pageUtils.rows[0]
+						if(OrderInfo.status == 0){
+                           OrderInfo.status = '待支付'
+						}else if (OrderInfo.status == 1) {
+							OrderInfo.status = '待核销'
+						}else if (OrderInfo.status == 2) {
+							OrderInfo.status = ' 已核销'
+						}else if (OrderInfo.status == 3) {
+							OrderInfo.status = '已取消'
+						}
+					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)
+					if(OrderInfo.orderType==2){
+						OrderInfo.endTime=Index_Lib.formatTime(OrderInfo.endTime)
+					}
+					that.OrderInfo = OrderInfo
+				};
+			},
+			jumpIndex(){
+				wx.switchTab({
+					url:'../index/main'
+				})
+			} 
+		},
+		async mounted(){
+			let that=this
+			await that.$refs.loginModel.userLogin()
+			that.isWriteOff(Store.state.userInfo.unionid,that.orderId)
+		},
+		onLoad(options){
+			var that = this 
+            that.orderId=decodeURIComponent(options.scene)
+      
+		},
 		computed: {
-			present() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					return present;
-				};
-			},
-			rate() {
-				for(var i in this.rec) {
-					var rate = this.rec[i].rate.toFixed(2);
-					return rate;
-
-				};
-			},
-			total() {
-				for(var i in this.rec) {
-					var present = this.rec[i].present.toFixed(2);
-					var rate = this.rec[i].rate.toFixed(2);
-					var total = (present - rate).toFixed(2);
-					return total;
-				};
-			}
-
 		},	
+
 	}
 </script>
 
@@ -176,7 +191,7 @@
 					width: 351px;
 					height: 60px;
 					color: #ff7d28;
-					font-size: 25px;
+					font-size: 18px;
 					text-align: center;
 					line-height: 60px;
 					background-color: #fff;
@@ -317,39 +332,10 @@
 				}
 			}
 		}
-		/*订单详情*/
-		.detail-order {
-			background-color: #fff;
-			margin-top: 8px;
-			padding-bottom: 44px;
-			.tit {
-				font-size: 14px;
-				font-weight: bold;
-				padding: 20px 12px 9px 12px;
-			}
-			.detail-order-li {
-				padding: 0px 12px 50px 12px;
-				div {
-					span {
-						display: inline-block;
-						font-size: 12px;
-						color: #666666;
-						margin-top: 10px;
-						&:nth-child(1) {
-							width: 65px;
-							margin-top: 0;
-						}
-						&:nth-child(2) {
-							margin-left: 22px;
-						}
-					}
-				}
-			}
-		}
+
 		.dele {
 			background-color: #fff;
 			width: 100%;
-			border-top: 1px solid #DEDEDE;
 			padding: 8px 12px;
 			position: fixed;
 			bottom: 0;
@@ -364,7 +350,37 @@
             	font-size: 14PX;
             	background-color: #ff7d28;
             	border-radius: 16px;
+            	margin-bottom: 15px;
             }
+		}
+	}
+	 .audit{
+		width: 100%;
+		span{
+			display: block;
+			text-align:center; 
+			&:nth-child(1){
+				color: #111111;
+				font-size:16px;
+				padding-top: 63px;
+				padding-bottom: 22px;
+			}
+				&:nth-child(2){
+				width: 116px;
+				height: 116px;
+				margin:  0 auto; 
+				img{width: 100%;height: 100%;}
+			}
+			&:nth-child(3){
+				color: #fff;
+			    font-size:16px;
+			    width: 290px;
+			    height: 49px;
+			    line-height: 49px;
+			    background-color: #32a1ff;
+			    margin: 0 auto;
+			    margin-top: 66px;
+			}
 		}
 	}
 </style>

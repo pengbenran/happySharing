@@ -40,7 +40,7 @@
 					<div class="price3">
 						<p>推荐师优惠：</p>
 						<p v-if="userInfo.whetherDistribe==0"> <span>(非推荐师优惠0元)</span></p>
-						<p v-else> ¥ {{goodDetail.returnAmount}}元</p>	
+						<p v-else> {{goodDetail.returnAmount}}元</p>	
 					</div>
 					<!--<div class="price6">
 						<p>预约时间</p>
@@ -51,16 +51,22 @@
 			<!--支付-->		
 			<div class="payment">
 				<div class="payment-commission">
-					<div class="inp">
-						<span><input type="checkbox"  value="佣金抵扣" /></span><span>佣金抵扣</span>
+					<checkbox-group @change="useBanlance" class="inp">
+						<div>
+							<checkbox  :value="isChoose"  />佣金抵扣
+						</div>
+						<div>还有{{userInfo.balance}}元可用佣金</div>
+					</checkbox-group>
+					<!-- <div class="inp">
+						<span><input type="checkbox" value="佣金抵扣" @change="useBanlance"/></span><span>佣金抵扣</span>
 					</div>
-					<div>还有{{userInfo.balance}}可用佣金</div>
+					<div>还有{{userInfo.balance}}元可用佣金</div> -->
 				</div>
 			</div>			
 		</div>
 		<!--提交订单-->
 		<button class="submit" :disbaled='isSubmit' @click='save'>
-			<span>¥ {{totalPay}}</span>
+			<span>¥ {{totalMoney}}</span>
 			<span>提交订单</span>
 		</button>
 	</div>
@@ -78,12 +84,14 @@
 
 		data() {
 			return {
+				isChoose:true,
 				isSubmit:false,
 				goodDetail:{},
 				orderForm:{num:1},
 				userInfo:{},
 				order:{},
-				orderType:''
+				orderType:'',
+				useBanlan:0
 			
 			}
 		},
@@ -103,9 +111,27 @@
 					return util.accSub(that.discountPrice,0)
 				}
 				
+			},
+			totalMoney(){
+				let that=this
+				return util.accSub(that.totalPay,that.useBanlan)
 			}
 		},
 		methods:{
+			useBanlance(e){
+				let that=this
+			   if(e.mp.detail.value.length!=0){
+			   		if(that.userInfo.balance<that.totalPay){
+			   			that.useBanlan=that.userInfo.balance
+			   		}
+			   		else{
+						that.useBanlan=util.accSub(that.totalPay,0.01)
+			   		}		
+			   }
+			   else{
+			   		that.useBanlan=0	
+			   }
+			},
 				async save(){
 				let that=this
 				wx.showLoading({
@@ -132,12 +158,13 @@
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
+					params.shopId=that.goodDetail.shopId
 					params.goodsAmount=that.goodDetail.price
-					params.orderAmount=that.totalPay
+					params.orderAmount=that.totalMoney
 					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral
 					params.discount=that.userInfo.discount
-					params.needPayMoney=that.totalPay
-					params.balance=that.userInfo.balance
+					params.needPayMoney=that.totalMoney
+					params.balance=that.useBanlan
 					params.recommend=that.goodDetail.returnAmount == null ? 0 : that.goodDetail.returnAmount
 					params.goodsId=that.goodDetail.id
 					params.thumbnail=that.goodDetail.thumbnail
@@ -147,8 +174,9 @@
 					let saveRes=await Api.orderSave(params)
 					if(saveRes.code==0){
 						wx.hideLoading()
+						that.userInfo.balance=util.accSub(that.userInfo.balance,that.useBanlan)
+						store.commit("storeUserInfo",that.userInfo)
 						that.order=saveRes.orderDO
-						console.log(that.order);
 						that.weixinPay()
 					}	
 				}
@@ -159,8 +187,8 @@
 				let that=this
 				params.sn = that.order.sn
 				params.openid=that.userInfo.xopenid
-	            // params.total_fee = that.order.needPayMoney*100
-	            params.total_fee=1
+	            params.total_fee = that.order.needPayMoney*100
+	            // params.total_fee=1
 	            Api.prepay(params).then(function(parRes){
 	            	wx.requestPayment({
 	            		timeStamp: parRes.timeStamp,
@@ -195,15 +223,18 @@
 	        	// 订单支付成功之后修改订单状态
 	        	let QRparams={}
 	        	let that=this
-	         //    QRparams.orderId=that.order.orderId
-	         //    QRparams.page='pages/xxxx/main'
-	        	// let getQRCode=await Api.getQRCode(QRparams)
-	        	// console.log(getQRCode);
+	            QRparams.params=that.order.orderId
+	            QRparams.page='pages/order-cancel/main'
+	        	let getQRCode=await Api.getQRCode(QRparams)
 	        	let statuParam={}
 	        	statuParam.orderId=that.order.orderId
-	        	// statuParam.orderCode=getQRCode.msg
-	        	statuParam.orderCode='sdfsfsdfsdfds'
+	        	statuParam.orderCode=getQRCode.url
 	        	let payOrder=await Api.payOrder(statuParam)
+	        	if(payOrder.code==0){
+	        		wx.navigateTo({
+	        			url: '../order-detail/main?orderId='+that.order.orderId
+	        		})
+	        	}
 	        	console.log(payOrder);
 	        }
 		},
@@ -383,6 +414,9 @@ checkbox .wx-checkbox-input.wx-checkbox-input-checked::before {
 				border-bottom: 1px solid #DEDEDE;
 				.inp {
 					color: #111111;
+					width:100%;
+					display: flex;
+					justify-content: space-between;
 					span{
 						&:nth-child(2){margin-left: 8px;}
 					}
