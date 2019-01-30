@@ -1,29 +1,17 @@
 <template>
 	<div class="make">
-		<!-- <div class="myself-make">
-			<div class="head">
-			    <div class="img"><img :src="head.img"/></div>
-			    <div class="cant">
-			    	<span>{{head.name}}</span>
-			    	<span>{{head.pai}}</span>
-			    </div>
-			</div>
-			<div class="invite">邀你加入一起嗨翻</div>
-			<div class="code"><img :src="code"/></div>
-			<div class="flicking">使用微信扫一扫</div>
-			<div class="momoda">【抹哒抹哒】小程序</div>
-		</div> -->
 		<div class="paintImg">
 			<img :src="shareImage">
 		</div>
 		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
-		<div class="btn">保存图片</div> 
+		<div class="btn" @click="eventSave">保存图片</div> 
 		<div class="rule"><span>了解规则</span></div>
 	</div>
 </template>
 <script>
 	import util from '@/utils/index'
 	import store from '@/store/store'
+	import Api from '@/api/goods'
 	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
@@ -44,19 +32,27 @@
 		},
 	
 		methods: {
-			   //点击生成海报
-			   async eventDraw(){
+			// 生成二维码
+			async getErCode(unionid,inviteCode){
+				let that=this
+				let params={}
+				params.params=store.state.userInfo.unionid+','+inviteCode+','+3
+				let QrcodeRes=await Api.GetQrcode(params)
+				console.log(QrcodeRes);
+				if(QrcodeRes.code==0){
+					that.eventDraw(QrcodeRes.url)
+				}
+				
+			},
+			//点击生成海报
+			async eventDraw(codeUrl){
 			   	let that = this;
-			    wx.showLoading({
-			        title:'推广码绘制中'
-			    })	
-			    that.userInfo = store.state.userInfo
-			    console.log(that.userInfo);
-			   	// let res = await api.GetShare('pages/shopInfo/main',that.goodsId)
-			   	let ImgArr = ['https://shop.guqinet.com/html/images/zhifenxiang/bcg.png','https://shop.guqinet.com/html/images/zhifenxiang/ecode.png',]
+			   	wx.showLoading({
+			   		title:'推广码绘制中'
+			   	})	
+			   	let ImgArr = ['https://shop.guqinet.com/html/images/zhifenxiang/bcg.png']
+			   	ImgArr[1]=codeUrl
 			   	ImgArr[2]=that.userInfo.face
-			   	// let ImgRes = await util.getImageInfo(ImgArr)
-			   	// let name='彭本燃彭彭本燃彭彭'
 			   	that.painting={
 			   		width: 290,
 			   		height: 413,
@@ -99,13 +95,13 @@
 			   			isCenter:true
 			   		},{
 			   			type: 'text',
-			   			content:that.userInfo.lvname,
+			   			content:that.userInfo.dlvname,
 			   			fontSize: 13,
 			   			color: '#666',
 			   			textAlign: 'left',
 			   			breakWord: true,
 			   			left: 15,
-			   			top: 90,
+			   			top: 100,
 			   			width:200,
 			   			isCenter:true
 			   		},
@@ -125,8 +121,8 @@
 			     //        current: this.shareImage, // 当前显示图片的http链接
 			     //        urls: [this.shareImage] // 需要预览的图片http链接列表
 			     //    })
-			   	}
-			   },
+			 }
+			},
 			eventSave() {
 				wx.saveImageToPhotosAlbum({
 					filePath: this.shareImage,
@@ -140,9 +136,10 @@
 				})
 			},
 		},
-		mounted(){
+		onLoad(options){
 			let that=this
-			that.eventDraw()
+			that.userInfo = store.state.userInfo
+			that.getErCode(that.userInfo.unionid,options.inviteCode)
 		}
 	};
 </script>

@@ -2,7 +2,7 @@
 	<div>
 		<div class="myself-dredge" v-if="!isApply">
 			<div class="dredge-banner">
-				<img src="/static/images/dredge-banner.png" />
+				<img src="https://shop.guqinet.com/html/images/zhifenxiang/dredge-banner.png" />
 			</div>
 			<!--注册类容-->
 			<div class="cant">
@@ -25,7 +25,7 @@
 		<div v-else class="audit">
 			<span>正在为您审核，耐心等待噢~</span>
 			<span><img :src="auditimg"></span> 
-			<span>朕知道了</span>
+			<span @click='jumpMyself'>朕知道了</span>
 		</div>
 	</div>
 </template>
@@ -48,6 +48,11 @@
 			};
 		},
 		methods: {
+			jumpMyself(){
+				wx.switchTab({
+					url:'../myself/main'
+				})
+			},
 			async distribeApply(){
 				console.log(111111);
 				let that=this

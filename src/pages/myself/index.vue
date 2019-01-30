@@ -66,7 +66,7 @@
 </template>
 <script>
 import API from '@/api/myself'
-
+import distribeApi from '@/api/distribe'
 	import store from '@/store/store'
 
 	export default {
@@ -80,10 +80,10 @@ import API from '@/api/myself'
 					name: "我的团队",
 					ourl: "../myself-team/main"
 				},
-				// {
-				// 	name: "推荐邀请",
-				// 	ourl: "../myself-make/main" 
-				// },
+				{
+					name: "推荐邀请",
+					ourl: "../myself-make/main" 
+				},
 				{
 					name: "个人资料",
 					ourl: "../myself-data/main"
@@ -103,12 +103,12 @@ import API from '@/api/myself'
 			}
 		},
 		methods: {
-			jumpUrl(url){
+			async jumpUrl(url){
 				let that=this
 				if(url=='../myself-data/main'){
 					 wx.navigateTo({ url: '../myself-data/main?memberId='+that.userInfo.id});
 				}
-				else if(url=='../myself-team/main'||url=='../myself-make/main'){
+				else if(url=='../myself-team/main'){
 					if(that.userInfo.whetherDistribe==0){
 						wx.showToast({
 							title:'该功能仅对推荐师开放',
@@ -118,6 +118,30 @@ import API from '@/api/myself'
 					}
 					else{
 						wx.navigateTo({ url:url});
+					}
+				}
+				else if(url=='../myself-make/main'){
+					if(that.userInfo.whetherDistribe==0){
+						wx.showToast({
+							title:'该功能仅对推荐师开放',
+							icon:"none",
+							duration:1500
+						})
+					}
+					else{
+						let params={}
+						params.unionid=that.userInfo.unionid
+						let canGetCodeRes=await distribeApi.canGetCode(params)
+						if(canGetCodeRes.code==0){
+							wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
+						}
+						else{
+							wx.showToast({
+								title:'生成推荐码的数量达到上限',
+								icon:"none",
+								duration:1500
+							})
+						}
 					}
 				}
 				else{

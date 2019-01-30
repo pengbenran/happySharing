@@ -46,7 +46,6 @@ export default {
                     that.isSubmit=false
                     that.isMember=false
                     that.userLogin()
-                    that.$emit('getIndex')
                     if(wx.getStorageSync('distribeId')==null){
 
                     }

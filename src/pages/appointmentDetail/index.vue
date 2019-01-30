@@ -14,7 +14,8 @@
 				<div class="preLeft">
 					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
-					<!-- <div class="people fr">{{item.people}}</div> -->
+					<div class="people  fr"  v-if="userInfo.whetherDistribe!=0">
+						推荐师优惠<span class="Present">{{goodsDetail.returnAmount}}</span></div>
 				</div>
 				<div class="preRight" v-if="Time">
 						<div class="time">{{TimeStr}}</div>
@@ -25,8 +26,8 @@
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
 				</div>
 				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{goodsDetail.phone}}</div>
-					<div class="phone-img fr iconfont">&#xe613;</div>
+					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+					<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
 				</div>
 			</div>
 		</div>
@@ -51,15 +52,16 @@
 			</div>
 		</div>
 		<div class="paintImg" v-show="paintOk">
-			<div class="bcg"></div>
+			<div class="bcg" @click="closeClick"></div>
 			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
 				<img :src="shareImage">
 			</div>
-			
+			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 		</div>
 		<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>
-
-		<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
+		<div style="margin-bottom:55px">
+			<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
+		</div>
 	</div>
 </template>
 
@@ -100,7 +102,10 @@
 				UsertagId:'',
 				btnSubmit:false,
 				detailContent:'',
-				btnStr:'立即购买'
+				btnStr:'立即购买',
+				userInfo:{},
+				paintOk:false
+
 			}
 
 		},
@@ -121,14 +126,40 @@
 			this.btnStr = '立即购买'
 		},
 		methods: {
-				//点击生成海报
-		   async eventDraw(){
+			// 拨打电话
+			makePhone(){
+				let that=this
+				wx.makePhoneCall({
+				  phoneNumber:that.goodsDetail.shopPhone//仅为示例，并非真实的电话号码
+				})
+			},
+			closeClick(){
+				let that = this;
+				that.paintOk = false;
+			},
+			// 保存图片到本地
+			saveImg(){
+				let that=this
+				wx.saveImageToPhotosAlbum({
+					filePath: that.shareImage,
+					success(res) {
+						wx.showToast({
+							title: '保存图片成功',
+							icon: 'success',
+							duration: 2000
+						})
+					}
+				})
+			},
+			//点击生成海报
+		   async eventDraw(codeUrl){
 		   	let that = this;
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
 		   	})	
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
+		   	ImgArr[1]=codeUrl
 		   	that.painting={
 		   		width: that.Width,
 		   		height: that.Width,
@@ -142,14 +173,20 @@
 		   			width: that.Width,
 		   			height: that.Width
 		   		},
+		   		{
+		   			type: 'image',
+		   			url: ImgArr[1],
+		   			top: that.Width-80,
+		   			left: 160,
+		   			width: 70,
+		   			height:70
+		   		},
 		   		]
 		   	}
 		   	this.$refs.canvas.readyPigment()
 		   },
 		   eventGetImage(event) {
 		   	wx.hideLoading()
-		   	console.log('我绘制完了');
-		   	console.log(event);
 		   	const { tempFilePath, errMsg } = event
 		   	if (errMsg === 'canvasdrawer:ok') {
 		   		this.paintOk=true
@@ -170,7 +207,9 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+2
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes);
+				if(QrcodeRes.code==0){
+					that.eventDraw(QrcodeRes.url)
+				}
 			},
 			showPicker() {
 				if(this.btnSubmit){
@@ -181,10 +220,9 @@
 					this.pickerValueDefault = [1, 0];
 					this.$refs.mpvuePicker.show();
 					console.log(this);
-				}else{
+				 }else{
 				       lib.showToast('您不是指定用户','none')
 					}
-	
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -248,7 +286,7 @@
     		}, 
     		onConfirm(e) {
     			let that=this
-    			console.log(e,"我的亲",that.goodBooks);
+  
     			let goodBooksItem=that.goodBooks[e.index[0]]
     			let dateTime=goodBooksItem.dateTime
     			let endtime=e.label.split('-')[2]
@@ -336,12 +374,14 @@
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
+
 			let userInfo = store.state.userInfo
 			that.whetherDistribe = userInfo.whetherDistribe
+
             let params={}
             params.goodId=that.goodsId
-            if(userInfo.whetherDistribe!=0){
-            	params.memberLv=userInfo.whetherDistribe
+            if(that.userInfo.whetherDistribe!=0){
+            	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据
@@ -371,12 +411,26 @@
 			top: 80px;
 		}
 	}
+	.saveImgBtn{
+		width:80%;
+		height: 50px;
+		text-align:center;
+		background: #ff7d28;
+		color: #fff;
+		border-radius: 25px;
+		line-height:50px;
+		position: absolute;
+		bottom: 80px;
+		left: 10%;
+	}
 	.nav {
 		position: fixed;
 		bottom: 0px;
 		display: flex;
 		width: 100%;
 		height: 55px;
+		background: #fff;
+		z-index:10;
 		border-top: 1px solid #dedede;
 		.index {
 			width: 16%;

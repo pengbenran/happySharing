@@ -20,13 +20,15 @@
 					</div>
 					<!-- <div class="people fr">{{item.people}}</div> -->
 				</div>
+				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
 				</div>
 				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{goodsDetail.phone}}</div>
-					<div class="phone-img fr iconfont">&#xe613;</div>
+					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+					<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
 				</div>
 			</div>
 		</div>
@@ -34,7 +36,7 @@
 		<div class="product-detail centered">
 			<span>商品详情</span>
 		</div>
-        <div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+        <div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
 
 		<!--底下导航-->
 		<div class="nav">
@@ -79,6 +81,7 @@
 				painting:{},
 				shareImage:'',
 				Width:'',
+				userInfo:{},
 				TimeStr:'',
 				Time:'',
 				whetherDistribe:'',
@@ -100,14 +103,30 @@
 			},
 			
 		},
-		onShow(){
-			this.Time = ''
-			this.btnStr = '立即购买'
-			 
-		},
+
 		methods: {
+			saveImg(){
+				let that=this
+				wx.saveImageToPhotosAlbum({
+					filePath: that.shareImage,
+					success(res) {
+						wx.showToast({
+							title: '保存图片成功',
+							icon: 'success',
+							duration: 2000
+						})
+					}
+				})
+			},
+			// 拨打电话
+			makePhone(){
+				let that=this
+				wx.makePhoneCall({
+				  phoneNumber:that.goodsDetail.shopPhone//仅为示例，并非真实的电话号码
+				})
+			},
 			//点击生成海报
-		   async eventDraw(){
+		   async eventDraw(codeUrl){
 		   	let that = this;
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
@@ -115,6 +134,7 @@
 			   console.log("你好史学家阿萨德",that.goodsDetail.posterImg)
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
+		   	ImgArr[1]=codeUrl
 		   	that.painting={
 		   		width: that.Width,
 		   		height: that.Width,
@@ -128,14 +148,21 @@
 		   			width: that.Width,
 		   			height: that.Width
 		   		},
+		   		{
+		   			type: 'image',
+		   			url: ImgArr[1],
+		   			top: that.Width-80,
+		   			left: 160,
+		   			width: 70,
+		   			height:70
+		   		},
+
 		   		]
 		   	}
 		   	this.$refs.canvas.readyPigment()
 		   },
 		   eventGetImage(event) {
 		   	wx.hideLoading()
-		   	console.log('我绘制完了');
-		   	console.log(event);
 		   	const { tempFilePath, errMsg } = event
 		   	if (errMsg === 'canvasdrawer:ok') {
 		   		this.paintOk=true
@@ -148,7 +175,7 @@
 				})
 			},
 			jumpSaveOrder(){
-				console.log(this.Time,"sadss")
+				console.log(this.Time,"sadss",this.btnSubmit)
 				if(!this.Time){ //定时上架
 				    if(this.btnSubmit){//判断专买权
                        wx.navigateTo({url:`../order-submit/main?orderType=1`})
@@ -174,8 +201,12 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes,"asd");
-				that.eventDraw()
+
+				console.log(QrcodeRes)
+				if(QrcodeRes.code==0){
+					that.eventDraw(QrcodeRes.url)
+				}
+
 			},
 
 			async getGoodsInfo(params){
@@ -270,18 +301,23 @@
 
 		async onLoad(options) {
 			let that=this
+            this.Time = ''
+			this.btnSubmit = false;
+			this.btnStr = '立即购买'
+
 			clearInterval(this.Time);
 			that.goodsId =options.goodsId
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
             that.Width=wx.getSystemInfoSync().windowWidth
+            that.userInfo = store.state.userInfo
+            let params={}
             let userInfo = store.state.userInfo
-			let params={}
 			that.whetherDistribe = store.state.userInfo.whetherDistribe
             params.goodId=that.goodsId
-			if(userInfo.whetherDistribe!=0){
-            	params.memberLv=userInfo.whetherDistribe
+			if(that.userInfo.whetherDistribe!=0){
+            	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
 			
@@ -296,6 +332,14 @@
 	/*底部*/
 	.swiper{
 		height: 190px;
+	}
+	.disribe{
+		color: #999999;
+		font-size: 12px;
+		.Present{
+			color: #ff0000;
+			font-size: 17px;
+		}
 	}
 	.saveImgBtn{
 		width:80%;
@@ -335,6 +379,8 @@
 		display: flex;
 		width: 100%;
 		height: 55px;
+		background: #fff;
+		z-index:10;
 		border-top: 1px solid #dedede;
 		.index {
 			width: 16%;

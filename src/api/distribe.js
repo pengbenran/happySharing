@@ -23,5 +23,9 @@ export default {
  },
 getWithdrawList:params=>{
 	return API.GET('/api-member/distribe/withdraw/list',params)
+ },
+ // 判断还能否生成推荐师二维码
+ canGetCode:params=>{
+ 	return API.GET('/api-member/api/distribe/generateCode',params)
  }
 }

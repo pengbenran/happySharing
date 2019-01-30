@@ -46,11 +46,11 @@
 				<div class="tamemate-tit clr" @click="showList(memberLvindex)">
 					<span :class="memberLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">{{memberLvitem.name}}</span>
+					<span class="fl">{{memberLvitem.isSelect}}</span>
 					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
-				<div class="data">
-					<div class="data-li clr" v-for="(item,index) in memberLvitem.list" v-if="memberLvitem.isSelect">
+				<div class="data" v-if="memberLvitem.isSelect">
+					<div class="data-li clr" v-for="(item,index) in memberLvitem.list">
 						<div class="img fl"><img :src="item.face" /></div>
 						<div class="name fl">
 							<span>{{item.name}}</span>
@@ -200,8 +200,10 @@
 				that.isIocn = false	
 				that.memberLvDOList.map(item=>{
 					item.isSelect=false
+					return item
 				})
 				that.memberLvDOList[memberLvindex].isSelect=true		
+				console.log(that.memberLvDOList)
 			},
 
 			//			点击显示 推荐师队友
@@ -235,9 +237,14 @@
 					item.isSelect = false
 					return item
 				})
+				memberRes.data.memberLvDOList.map(item => {
+					item.isSelect = false
+					return item
+				})
 				that.distribeLvDOList = memberRes.data.distribeLvDOList
 				that.distribeCount = memberRes.data.distribeCount
 				that.memberLvDOList = memberRes.data.memberLvDOList
+				console.log(that.memberLvDOList);
 				that.memberCount = memberRes.data.memberCount
 			}
 			that.getmemberList()
