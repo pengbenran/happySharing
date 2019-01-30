@@ -11,9 +11,14 @@
 				</div>
 				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
+				<div class="preLeft">
 					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
 					<!-- <div class="people fr">{{item.people}}</div> -->
+				</div>
+				<div class="preRight" v-if="Time">
+						<div class="time">{{TimeStr}}</div>
+				</div>
 				</div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
@@ -29,6 +34,7 @@
 		<div class="product-detail centered">
 			<span>图文详情</span>
 		</div>
+		<div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
 	</picker>
 		<!--底下导航-->
 		<div class="nav">
@@ -61,8 +67,11 @@
 	import Api from '@/api/goods'
 	import util from '@/utils/index'
 	import store from '@/store/store'
+	import lib from '@/utils/lib'
+	import Api_user from '@/api/userinfo'
 	import mpvuePicker from '@/components/mpvuePick'
 	import canvasdrawer from '@/components/canvasdrawer'
+	import wxParse from 'mpvue-wxparse'
 	export default {
 		data() {
 			return {
@@ -83,13 +92,22 @@
 			    goodBooks:[],
 			    painting:{},
 				shareImage:'',
-				Width:''
+				Width:'',
+				detailContent:'',
+				Time:'',
+				TimeStr:'',
+				whetherDistribe:'',
+				UsertagId:'',
+				btnSubmit:false,
+				detailContent:'',
+				btnStr:'立即购买'
 			}
 
 		},
 		components: {
 			mpvuePicker,
-			canvasdrawer
+			canvasdrawer,
+			wxParse
 		},
 		computed:{
 			discounts(){
@@ -97,6 +115,10 @@
 				return util.accSub(that.goodsDetail.showPrice,that.goodsDetail.price) 
 			},
 			
+		},
+		onShow(){
+			this.Time = ''
+			this.btnStr = '立即购买'
 		},
 		methods: {
 				//点击生成海报
@@ -136,7 +158,12 @@
 			},
 			share(){
 				let that=this
-				that.getErCode()
+				let shareRight = that.goodsDetail.shareRight.split(',')
+				if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
+                   that.getErCode()
+				}else{
+                   lib.showToast('抱歉您暂无推荐权限','none')
+				}
 			},
 			async getErCode(){
 				let that=this
@@ -146,13 +173,18 @@
 				console.log(QrcodeRes);
 			},
 			showPicker() {
-				 console.log("预约")
-				this.pickerValueArray = this.mulLinkageTwoPicker;
-				this.mode = 'multiLinkageSelector';
-				this.deepLength = 2;
-				this.pickerValueDefault = [1, 0];
-				this.$refs.mpvuePicker.show();
-				console.log(this);
+				if(this.btnSubmit){
+			     	console.log("预约")
+					this.pickerValueArray = this.mulLinkageTwoPicker;
+					this.mode = 'multiLinkageSelector';
+					this.deepLength = 2;
+					this.pickerValueDefault = [1, 0];
+					this.$refs.mpvuePicker.show();
+					console.log(this);
+				}else{
+				       lib.showToast('您不是指定用户','none')
+					}
+	
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -160,7 +192,9 @@
 				})
 			},
 			jumpSaveOrder(){
-				wx.navigateTo({url:`../order-submit/main`})
+		
+                      wx.navigateTo({url:`../order-submit/main`})
+					
 			},
 			async getGoodsInfo(params){
 				let that=this
@@ -169,7 +203,19 @@
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
+					that.detailContent = that.goodsDetail.content
 					that.goodBooks=goodsDetailRes.goodBooks
+
+				that.Timer(goodsDetailRes.good.upTime,goodsDetailRes.good.upType,function(res){
+			
+					if(res != 'noTime'){
+						that.TimeStr = res;
+					}else{
+						that.TimeStr = '';
+						this.btnStr = '立即购买'
+					}	
+				})
+                that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					let dateArr=[]
 					for(var i in goodsDetailRes.goodBooks){
 						let dateArr={}
@@ -222,10 +268,67 @@
     		    store.commit("stateappointment",appointmentParam)
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
 
-    		}
+			},
+
+			async GetUserLable(unionid){
+						console.log("这下进来的阿斯顿",res)
+			let that = this;
+			let data = {unionid:unionid}	
+			let res = await Api_user.getUserLable(data).catch(err => {
+				 lib.showToast('没有获取到该用户的标签数据','none')
+			})
+            if(res.code == 0 && res.TagList.length > 0){
+				let arr = []
+				res.TagList.map(v => {
+                     arr.push(v.tagId);
+				})
+				arr.map(v => {
+					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
+						 that.btnSubmit = true;
+						 return
+					}else{
+						 that.btnSubmit = false;
+					}	
+				})
+			}
+		},
+			
+			Timer(time,timeIndex,fn){
+				// console.log(maxtime,new Date(),new Date(time),'uijm')
+				var msg = ''
+				var maxtime = ''
+				if(timeIndex == 3){
+					 this.Time = setInterval(function(){
+						maxtime = (new Date(time) - new Date())/1000;
+						if(maxtime >= 0) {
+							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
+							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
+							var mm = parseInt(maxtime / 60 % 60, 10);//计算剩余的分钟数  
+							var ss = parseInt(maxtime % 60, 10);//计算剩余的秒数  
+							hh = lib.checkTime(hh);
+							mm = lib.checkTime(mm);
+							ss = lib.checkTime(ss);
+				
+							msg =  dd + "天" + hh + "时" + mm + "分" + ss + "秒" + '后上架';
+							fn(msg);
+						} else {
+							clearInterval( this.Time );
+							fn("NoTime");
+							// return {msg:msg,maxtime:maxtime};
+						}
+					},1000);
+					if(maxtime >= 0){
+						this.btnStr = '暂未上架'
+					}
+				}else{
+
+					clearInterval(this.Time);
+				}
+		},
 		},
 		async onLoad(options) {
 			let that=this
+			clearInterval( this.Time );
 			that.goodsId =options.goodsId
 			that.Width=wx.getSystemInfoSync().windowWidth
 			that.multiArray=[]
@@ -233,7 +336,8 @@
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
-            let userInfo = store.state.userInfo
+			let userInfo = store.state.userInfo
+			that.whetherDistribe = userInfo.whetherDistribe
             let params={}
             params.goodId=that.goodsId
             if(userInfo.whetherDistribe!=0){
@@ -246,6 +350,7 @@
 </script>
 
 <style lang="less">
+@import url("~mpvue-wxparse/src/wxParse.css");
 	/*底部*/
 	.paintImg{
 		position: fixed;
@@ -312,6 +417,7 @@
 				height: 100%;
 			}
 		}
+		
 		.cant {
 			.address-make {
 				margin: 6px 0;
@@ -348,7 +454,8 @@
 					font-size: 12px;
 				}
 			}
-			.Present-discounts-people {
+			.Present-discounts-people {position: relative;
+					.preRight{position:absolute;top:0px;right: 5px;font-size: 15px;color: #fff;background: #ff0000;}
 				margin-top: 10px;
 				.Present {
 					color: #ff0000;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id">
+    <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id"  @click="topage(item)">
       <div class="img fl"><img :src="item.thumbnail" /></div>
       <div class="rec-center fl">
         <div class="tit">{{item.title}}</div>
@@ -27,11 +27,14 @@
       }
     },
     components: {
-
+     
     },
 
     methods: {
-
+      topage(item){
+      let that = this;
+        wx.navigateTo({url:`../detail/main?goodsId=${item.id}&codeUnionid=`})
+      }
     },
 
     created () {

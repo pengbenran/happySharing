@@ -47,7 +47,7 @@
 				<div class="text">分享</div>
 			</div>
 			<div @click="jumpSaveOrder(index)" class="rush">
-				立即购买
+				{{btnStr}}
 			</div>
 		</div>
 		<div class="paintImg" v-show="paintOk">
@@ -84,7 +84,8 @@
 				whetherDistribe:'',
 				UsertagId:'',
 				btnSubmit:false,
-				detailContent:''
+				detailContent:'',
+				btnStr:'立即购买'
 			}
 
 		},
@@ -101,6 +102,7 @@
 		},
 		onShow(){
 			this.Time = ''
+			this.btnStr = '立即购买'
 			 
 		},
 		methods: {
@@ -109,7 +111,8 @@
 		   	let that = this;
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
-		   	})	
+			   })	
+			   console.log("你好史学家阿萨德",that.goodsDetail.posterImg)
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
 		   	that.painting={
@@ -137,11 +140,6 @@
 		   	if (errMsg === 'canvasdrawer:ok') {
 		   		this.paintOk=true
 		   		this.shareImage=tempFilePath
-
-		   		// wx.previewImage({
-		     //        current: this.shareImage, // 当前显示图片的http链接
-		     //        urls: [this.shareImage] // 需要预览的图片http链接列表
-		     //    })
 		    }
 			},
 			jumpIndex(){
@@ -150,6 +148,7 @@
 				})
 			},
 			jumpSaveOrder(){
+				console.log(this.Time,"sadss")
 				if(!this.Time){ //定时上架
 				    if(this.btnSubmit){//判断专买权
                        wx.navigateTo({url:`../order-submit/main?orderType=1`})
@@ -175,7 +174,7 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes);
+				console.log(QrcodeRes,"asd");
 				that.eventDraw()
 			},
 
@@ -188,10 +187,11 @@
 
 				that.detailContent = that.goodsDetail.content
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
-					if(res != 'noTime'){
+					if(res != 'NoTime'){
 						that.TimeStr = res;
 					}else{
 						that.TimeStr = '';
+						
 					}	
 				})
 				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
@@ -203,9 +203,18 @@
 			Timer(time,timeIndex,fn){
 				// console.log(maxtime,new Date(),new Date(time),'uijm')
 				var msg = ''
+				var maxtime = (new Date(time) - new Date())/1000;
+				console.log("序号阿萨德",timeIndex,maxtime)
 				if(timeIndex == 3){
+						if(maxtime >= 0){
+					  	this.btnStr = '暂未上架'
+						}else{
+							that.btnStr = '立即购买'
+							this.Time = true;
+							console.log("商品是否上架",this.Time)
+						}
 					 this.Time = setInterval(function(){
-						var maxtime = (new Date(time) - new Date())/1000;
+						 maxtime = (new Date(time) - new Date())/1000;
 						if(maxtime >= 0) {
 							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
 							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
@@ -219,12 +228,13 @@
 							fn(msg);
 						} else {
 							clearInterval( this.Time );
+							
 							fn("NoTime");
 							// return {msg:msg,maxtime:maxtime};
 						}
 					},1000);
+				
 				}else{
-
 					clearInterval(this.Time);
 				}
 		},
@@ -236,7 +246,6 @@
 
 		async GetUserLable(unionid){
 			let that = this;
-			console.log("进来了吗")
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
 				 lib.showToast('没有获取到该用户的标签数据','none')
@@ -247,7 +256,6 @@
                      arr.push(v.tagId);
 				})
 				arr.map(v => {
-					// console.log(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()),"购买的限制")
 					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
 						 that.btnSubmit = true;
 						 return
