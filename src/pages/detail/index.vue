@@ -34,6 +34,8 @@
 		<div class="product-detail centered">
 			<span>商品详情</span>
 		</div>
+        <div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+
 		<!--底下导航-->
 		<div class="nav">
 			<div class="index" @click="jumpIndex">
@@ -65,6 +67,7 @@
 	import util from '@/utils/index'
 	import store from '@/store/store'
 	import lib from '@/utils/lib'
+	import wxParse from 'mpvue-wxparse'
 	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
@@ -80,12 +83,14 @@
 				Time:'',
 				whetherDistribe:'',
 				UsertagId:'',
-				btnSubmit:false
+				btnSubmit:false,
+				detailContent:''
 			}
 
 		},
 		components: {
-			canvasdrawer
+			canvasdrawer,
+			wxParse
 		},
 		computed:{
 			discounts(){
@@ -180,13 +185,15 @@
 				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
 				goodsDetailRes.goodbanner.pop()
 				that.goodsDetail=goodsDetailRes
-					that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
-						if(res != 'noTime'){
-						   that.TimeStr = res;
-						}else{
-						   that.TimeStr = '';
-						}	
-					})
+
+				that.detailContent = that.goodsDetail.content
+				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
+					if(res != 'noTime'){
+						that.TimeStr = res;
+					}else{
+						that.TimeStr = '';
+					}	
+				})
 				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				store.commit("stateGoodDetail",that.goodsDetail)
 			},
@@ -264,7 +271,6 @@
             let userInfo = store.state.userInfo
 			let params={}
 			that.whetherDistribe = store.state.userInfo.whetherDistribe
-            console.log("查看用户的身份",store.state.userInfo.unionid)
             params.goodId=that.goodsId
 			if(userInfo.whetherDistribe!=0){
             	params.memberLv=userInfo.whetherDistribe
@@ -278,6 +284,7 @@
 </script>
 
 <style lang="less">
+@import url("~mpvue-wxparse/src/wxParse.css");
 	/*底部*/
 	.swiper{
 		height: 190px;
