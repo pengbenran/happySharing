@@ -46,7 +46,7 @@
 				<div class="tamemate-tit clr" @click="showList(memberLvindex)">
 					<span :class="memberLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">{{memberLvitem.isSelect}}</span>
+					<span class="fl">{{memberLvitem.name}}</span>
 					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
 				<div class="data" v-if="memberLvitem.isSelect">

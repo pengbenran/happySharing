@@ -59,7 +59,9 @@
 		</div>
 
 		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
-
+		<div class="footer">
+			<img src="https://shop.guqinet.com/html/images/shuiguo/index/footerImg.png"/>
+		</div>
 	</div>
 
 </template>
@@ -341,4 +343,5 @@
 			}
 		}
 	}
+	.footer{height: 80rpx;padding: 20rpx 30rpx 10rpx 0;}
 </style>

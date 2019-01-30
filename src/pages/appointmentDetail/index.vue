@@ -13,9 +13,9 @@
 				<div class="Present-discounts-people clr">
 					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
-					<div class="people  fr"  v-if="userInfo.whetherDistribe!=0">
-						推荐师优惠<span class="Present">{{goodsDetail.returnAmount}}</span></div>
 				</div>
+				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
@@ -56,6 +56,7 @@
 		<div style="margin-bottom:55px">
 			<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 		</div>
+		
 	</div>
 </template>
 
@@ -300,6 +301,14 @@
 			z-index: 10;
 			position: absolute;
 			top: 80px;
+		}
+	}
+	.disribe{
+		color: #999999;
+		font-size: 12px;
+		.Present{
+			color: #ff0000;
+			font-size: 17px;
 		}
 	}
 	.saveImgBtn{
