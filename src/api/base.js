@@ -61,6 +61,7 @@ fly.interceptors.response.use(
     }
 )
    // let base='https://zhifenxiang.guqinet.com'
+//    let base='https://zhifenxiang.guqinet.com'
 // let base='http://192.168.2.131:8011'
 let base='http://192.168.2.111:8012'
 // export default {

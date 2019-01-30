@@ -26,7 +26,6 @@
       wx.removeStorageSync('canvasdrawer_pic_cache')
       this.cache = wx.getStorageSync('canvasdrawer_pic_cache') || {}
       this.ctx = wx.createCanvasContext('canvasdrawer', this) 
-      console.log(this.painting,"盆本人")
       this.painting=this.painting   
       this.width= this.painting.width  
       this.height= this.painting.height      
@@ -35,6 +34,7 @@
     methods: {
     readyPigment () {
       let that=this 
+      that.showCanvas=true
       const inter = setInterval(() => {
         if (this.ctx) {
           clearInterval(inter)

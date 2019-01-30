@@ -44,10 +44,8 @@
 				}
 				
 			},
-
-
-			   //点击生成海报
-			   async eventDraw(codeUrl){
+			//点击生成海报
+			async eventDraw(codeUrl){
 			   	let that = this;
 			   	wx.showLoading({
 			   		title:'推广码绘制中'

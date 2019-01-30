@@ -11,11 +11,17 @@
 				</div>
 				<div class="desc">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
-					<div class="Present fl">￥{{goodsDetail.price}}元</div>
-					<div class="discounts fl">优惠:{{discounts}}元</div>
-					<div class="people fr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
+					<div class="preLeft">
+						<div class="Present fl">￥:{{goodsDetail.price}}元</div>
+						<div class="discounts fl">优惠:{{discounts}}元</div>
+					</div>
+					<div class="preRight" v-if="Time">
+                         <div class="time">{{TimeStr}}</div>
+					</div>
+					<!-- <div class="people fr">{{item.people}}</div> -->
 				</div>
+				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
@@ -30,6 +36,8 @@
 		<div class="product-detail centered">
 			<span>商品详情</span>
 		</div>
+        <div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+
 		<!--底下导航-->
 		<div class="nav">
 			<div class="index" @click="jumpIndex">
@@ -45,7 +53,7 @@
 			</div>
 		</div>
 		<div class="paintImg" v-show="paintOk">
-			<div class="bcg"></div>
+			<div class="bcg" @click="closeClick"></div>
 			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
 				<img :src="shareImage">
 			</div>
@@ -57,8 +65,11 @@
 
 <script>
 	import Api from '@/api/goods'
+	import Api_user from '@/api/userinfo'
 	import util from '@/utils/index'
 	import store from '@/store/store'
+	import lib from '@/utils/lib'
+	import wxParse from 'mpvue-wxparse'
 	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
@@ -70,12 +81,19 @@
 				painting:{},
 				shareImage:'',
 				Width:'',
-				userInfo:{}
+				userInfo:{},
+				TimeStr:'',
+				Time:'',
+				whetherDistribe:'',
+				UsertagId:'',
+				btnSubmit:false,
+				detailContent:''
 			}
 
 		},
 		components: {
-			canvasdrawer
+			canvasdrawer,
+			wxParse
 		},
 		computed:{
 			discounts(){
@@ -84,8 +102,25 @@
 			},
 			
 		},
+		onShow(){
+			this.Time = ''
+			 
+		},
 		methods: {
-				// 拨打电话
+			saveImg(){
+				let that=this
+				wx.saveImageToPhotosAlbum({
+					filePath: that.shareImage,
+					success(res) {
+						wx.showToast({
+							title: '保存图片成功',
+							icon: 'success',
+							duration: 2000
+						})
+					}
+				})
+			},
+			// 拨打电话
 			makePhone(){
 				let that=this
 				wx.makePhoneCall({
@@ -93,13 +128,14 @@
 				})
 			},
 			//点击生成海报
-		   async eventDraw(){
+		   async eventDraw(codeUrl){
 		   	let that = this;
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
 		   	})	
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
+		   	ImgArr[1]=codeUrl
 		   	that.painting={
 		   		width: that.Width,
 		   		height: that.Width,
@@ -113,23 +149,25 @@
 		   			width: that.Width,
 		   			height: that.Width
 		   		},
+		   		{
+		   			type: 'image',
+		   			url: ImgArr[1],
+		   			top: that.Width-80,
+		   			left: 160,
+		   			width: 70,
+		   			height:70
+		   		},
+
 		   		]
 		   	}
 		   	this.$refs.canvas.readyPigment()
 		   },
 		   eventGetImage(event) {
 		   	wx.hideLoading()
-		   	console.log('我绘制完了');
-		   	console.log(event);
 		   	const { tempFilePath, errMsg } = event
 		   	if (errMsg === 'canvasdrawer:ok') {
 		   		this.paintOk=true
 		   		this.shareImage=tempFilePath
-
-		   		// wx.previewImage({
-		     //        current: this.shareImage, // 当前显示图片的http链接
-		     //        urls: [this.shareImage] // 需要预览的图片http链接列表
-		     //    })
 		    }
 			},
 			jumpIndex(){
@@ -138,32 +176,122 @@
 				})
 			},
 			jumpSaveOrder(){
-				wx.navigateTo({url:`../order-submit/main?orderType=1`})
+				if(!this.Time){ //定时上架
+				    if(this.btnSubmit){//判断专买权
+                       wx.navigateTo({url:`../order-submit/main?orderType=1`})
+					}else{
+				       lib.showToast('您不是指定用户','none')
+					}
+				}else{
+				    lib.showToast('该商品还未上架','none')
+				}
 			},
 			share(){
 				let that=this
-				that.getErCode()
+				let shareRight = that.goodsDetail.shareRight.split(',')
+				if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
+                   that.getErCode()
+				}else{
+                   lib.showToast('抱歉您暂无推荐权限','none')
+				}
 			},
+
 			async getErCode(){
 				let that=this
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes);
-				that.eventDraw()
+				console.log(QrcodeRes)
+				if(QrcodeRes.code==0){
+					that.eventDraw(QrcodeRes.url)
+				}
+				
 			},
+
 			async getGoodsInfo(params){
 				let that=this
 				let goodsDetailRes=await Api.getGoodDetail(params)
 				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
 				goodsDetailRes.goodbanner.pop()
 				that.goodsDetail=goodsDetailRes
+
+				that.detailContent = that.goodsDetail.content
+				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
+					if(res != 'noTime'){
+						that.TimeStr = res;
+					}else{
+						that.TimeStr = '';
+					}	
+				})
+				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				store.commit("stateGoodDetail",that.goodsDetail)
+			},
+
+
+
+			Timer(time,timeIndex,fn){
+				// console.log(maxtime,new Date(),new Date(time),'uijm')
+				var msg = ''
+				if(timeIndex == 3){
+					 this.Time = setInterval(function(){
+						var maxtime = (new Date(time) - new Date())/1000;
+						if(maxtime >= 0) {
+							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
+							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
+							var mm = parseInt(maxtime / 60 % 60, 10);//计算剩余的分钟数  
+							var ss = parseInt(maxtime % 60, 10);//计算剩余的秒数  
+							hh = lib.checkTime(hh);
+							mm = lib.checkTime(mm);
+							ss = lib.checkTime(ss);
+				
+							msg =  dd + "天" + hh + "时" + mm + "分" + ss + "秒";
+							fn(msg);
+						} else {
+							clearInterval( this.Time );
+							fn("NoTime");
+							// return {msg:msg,maxtime:maxtime};
+						}
+					},1000);
+				}else{
+
+					clearInterval(this.Time);
+				}
+		},
+
+		closeClick(){
+			let that = this;
+			that.paintOk = false;
+		},
+
+		async GetUserLable(unionid){
+			let that = this;
+			console.log("进来了吗")
+			let data = {unionid:unionid}	
+			let res = await Api_user.getUserLable(data).catch(err => {
+				 lib.showToast('没有获取到该用户的标签数据','none')
+			})
+            if(res.code == 0 && res.TagList.length > 0){
+				let arr = []
+				res.TagList.map(v => {
+                     arr.push(v.tagId);
+				})
+				arr.map(v => {
+					// console.log(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()),"购买的限制")
+					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
+						 that.btnSubmit = true;
+						 return
+					}else{
+						 that.btnSubmit = false;
+					}	
+				})
 			}
 		},
+		},
+
 
 		async onLoad(options) {
 			let that=this
+			clearInterval(this.Time);
 			that.goodsId =options.goodsId
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
@@ -171,20 +299,33 @@
             that.Width=wx.getSystemInfoSync().windowWidth
             that.userInfo = store.state.userInfo
             let params={}
+            let userInfo = store.state.userInfo
+			that.whetherDistribe = store.state.userInfo.whetherDistribe
             params.goodId=that.goodsId
 			if(that.userInfo.whetherDistribe!=0){
             	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
+			
+			
 			// 调用应用实例的方法获取全局数据
 		}
 	}
 </script>
 
 <style lang="less">
+@import url("~mpvue-wxparse/src/wxParse.css");
 	/*底部*/
 	.swiper{
 		height: 190px;
+	}
+	.disribe{
+		color: #999999;
+		font-size: 12px;
+		.Present{
+			color: #ff0000;
+			font-size: 17px;
+		}
 	}
 	.saveImgBtn{
 		width:80%;
@@ -224,6 +365,8 @@
 		display: flex;
 		width: 100%;
 		height: 55px;
+		background: #fff;
+		z-index:10;
 		border-top: 1px solid #dedede;
 		.index {
 			width: 16%;
@@ -300,7 +443,9 @@
 					font-size: 12px;
 				}
 			}
-			.Present-discounts-people {
+			.Present-discounts-people { display: flex;position: relative;
+			.preRight{position:absolute;top:0px;right: 5px;font-size: 15px;color: #fff;background: #ff0000;}
+			// .preRight .time{width: 120px;}
 				margin-top: 10px;
 				.Present {
 					color: #ff0000;

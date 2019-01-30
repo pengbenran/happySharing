@@ -1,5 +1,12 @@
 
 
+function checkTime(i) {
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+
 export default {
 
     //加载提示框
@@ -10,6 +17,14 @@ export default {
             duration: 2000
           })
     },
+
+    //定时器
+    checkTime(i) {
+        if (i < 10) {
+            i = "0" + i;
+        }
+        return i;
+    }
     
 
 }

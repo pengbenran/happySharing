@@ -22,8 +22,8 @@
 					<div class="cant clr">
 						<div class="img fl"><img :src="orderItem.thumbnail" /></div>
 						<div class="rec-center fl">
-							<div class="tit">{{orderItem.goodName}}</div>
-							<div class="name">{{orderItem.goodName}}</div>
+							<div class="tit fontHidden">{{orderItem.goodName}}</div>
+							<div class="name fontHidden1">{{orderItem.goodName}}</div>
 							<div class="present ">￥:{{orderItem.needPayMoney}}</div>
 
 						</div>
