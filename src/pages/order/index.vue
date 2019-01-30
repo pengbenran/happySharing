@@ -241,10 +241,8 @@ import Config from '@/config'
 								Lib.showToast('失败','loading')
 								wx.hideLoading()
 							})
-
-							console.log(res,"查看信息")
 						} else if (res.cancel) {
-						console.log('用户点击取消')
+
 						}
 					}
 					})
@@ -253,7 +251,6 @@ import Config from '@/config'
 			},
 
 			orderDetail(orderId){
-				console.log(111111)
 				 wx.navigateTo({
 					url: '../order-detail/main?orderId='+orderId
 				})
@@ -263,6 +260,8 @@ import Config from '@/config'
 			async wxPay(Ordersn,needPayMoney,orderId){
 				let that = this;
 				let params={}
+				wx.showLoading({ title: '加载中',})
+
 				that.disabledBtn = true;
 				params.sn = Ordersn
 				params.openid=that.userInfo.xopenid
@@ -282,7 +281,8 @@ import Config from '@/config'
 	            				title: '支付成功',
 	            				icon: 'success',
 	            				duration: 2000
-	            			})
+							})
+							
 	            			that.payOrder(orderId)
 	            		},
 	            		fail: function (res) {
@@ -294,7 +294,8 @@ import Config from '@/config'
 		                        })
 		                    },
 		                    complete: function (complete) {
-		                        // complete   
+								// complete   
+								wx.hideLoading()
 		                       	that.disabledBtn = false;
 		                    }
 		            })
@@ -305,14 +306,13 @@ import Config from '@/config'
 	        	let QRparams={}
 	        	let that=this
 	            QRparams.orderId=OrderId
-	            QRparams.page='pages/xxxx/main'
+	            QRparams.page='pages/order-cancel/main'
 	        	let getQRCode=await API_ORDER.getQRCode(QRparams)
-	        	console.log(getQRCode);
 	        	let statuParam={}
 	        	statuParam.orderId=OrderId
 	        	statuParam.orderCode=getQRCode.msg
 	        	let payOrder=await API_ORDER.payOrder(statuParam)
-				console.log(payOrder);
+				 this.hasMore = true;
 				 this.onload();
 			},
 			
@@ -338,7 +338,6 @@ import Config from '@/config'
 					}
 				}
 				})
-
 			},
 			
 		},

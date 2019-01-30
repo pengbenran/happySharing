@@ -244,15 +244,16 @@
 					that.detailContent = that.goodsDetail.content
 					that.goodBooks=goodsDetailRes.goodBooks
 
-				that.Timer(goodsDetailRes.good.upTime,goodsDetailRes.good.upType,function(res){
+				// that.Timer(goodsDetailRes.good.upTime,goodsDetailRes.good.upType,function(res){
 			
-					if(res != 'noTime'){
-						that.TimeStr = res;
-					}else{
-						that.TimeStr = '';
-						this.btnStr = '立即购买'
-					}	
-				})
+				// 	if(res != 'noTime'){
+				// 		that.TimeStr = res;
+				// 	}else{
+				// 		that.TimeStr = '';
+				// 		this.btnStr = '立即购买'
+				// 	}	
+				// })
+				console.log(that.goodsDetail,"商品详情")
                 that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					let dateArr=[]
 					for(var i in goodsDetailRes.goodBooks){
@@ -366,7 +367,8 @@
 		},
 		async onLoad(options) {
 			let that=this
-			clearInterval( this.Time );
+			// clearInterval( this.Time );
+			console.log("nihkasdadasdjlkj ")
 			that.goodsId =options.goodsId
 			that.Width=wx.getSystemInfoSync().windowWidth
 			that.multiArray=[]
@@ -374,15 +376,17 @@
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
             }
-
-			let userInfo = store.state.userInfo
-			that.whetherDistribe = userInfo.whetherDistribe
-
+   
+			that.userInfo = store.state.userInfo
+			that.whetherDistribe = that.userInfo.whetherDistribe
+			
+			
             let params={}
             params.goodId=that.goodsId
             if(that.userInfo.whetherDistribe!=0){
             	params.memberLv=that.userInfo.whetherDistribe
-            }
+			}
+			console.log("过来了吗",params)
 			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据
 		}

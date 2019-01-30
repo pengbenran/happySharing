@@ -217,16 +217,18 @@
 				that.goodsDetail=goodsDetailRes
 
 				that.detailContent = that.goodsDetail.content
+				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
+				store.commit("stateGoodDetail",that.goodsDetail)
+				console.log("阿桑单阿空蛋壳")
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
 					if(res != 'NoTime'){
 						that.TimeStr = res;
 					}else{
 						that.TimeStr = '';
-						
 					}	
 				})
-				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
-				store.commit("stateGoodDetail",that.goodsDetail)
+					console.log("阿桑单阿空蛋壳123132")
+
 			},
 
 
@@ -277,6 +279,7 @@
 
 		async GetUserLable(unionid){
 			let that = this;
+			console.log("你好世界大赛大三")
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
 				 lib.showToast('没有获取到该用户的标签数据','none')
@@ -286,6 +289,7 @@
 				res.TagList.map(v => {
                      arr.push(v.tagId);
 				})
+				console.log(that.goodsDetail.buyLimit,"购买限制",arr)
 				arr.map(v => {
 					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
 						 that.btnSubmit = true;
