@@ -154,7 +154,7 @@
 		   			type: 'image',
 		   			url: ImgArr[1],
 		   			top: that.Width-80,
-		   			left: 160,
+		   			left: 155,
 		   			width: 70,
 		   			height:70
 		   		},
