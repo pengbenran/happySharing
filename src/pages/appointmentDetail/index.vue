@@ -62,6 +62,8 @@
 		<div style="margin-bottom:55px">
 			<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 		</div>
+
+		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 	</div>
 </template>
 
@@ -73,6 +75,7 @@
 	import Api_user from '@/api/userinfo'
 	import mpvuePicker from '@/components/mpvuePick'
 	import canvasdrawer from '@/components/canvasdrawer'
+	import loginModel from "@/components/loginModel"; 
 	import wxParse from 'mpvue-wxparse'
 	export default {
 		data() {
@@ -112,7 +115,8 @@
 		components: {
 			mpvuePicker,
 			canvasdrawer,
-			wxParse
+			wxParse,
+			loginModel
 		},
 		computed:{
 			discounts(){
@@ -365,9 +369,13 @@
 				}
 		},
 		},
+		mounted(){
+			await this.$refs.loginModel.userLogin()
+		},
 		async onLoad(options) {
 			let that=this
 			// clearInterval( this.Time );
+
 			console.log("nihkasdadasdjlkj ")
 			that.goodsId =options.goodsId
 			that.Width=wx.getSystemInfoSync().windowWidth
