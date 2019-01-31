@@ -179,6 +179,9 @@
 			async getIndex(){
 				let that=this
 				wx.hideTabBar({})
+				that.discount=[]
+				that.nowPage=1
+				that.hasMore=true
 				await that.$refs.loginModel.userLogin()
 				let GoodCatRes=await Api.getGoodCart()
 				that.menuItem=GoodCatRes.goodCats
@@ -201,6 +204,13 @@
 			let that = this;
 			that.nowPage+=1
 			that.getRecommendGood(that.nowPage,3)
+		},
+		onShareAppMessage: function () {
+			withShareTicket: true
+		},
+		onPullDownRefresh: function(){
+			let that=this
+			that.getIndex()
 		},
 		mounted(){
 			let that = this;

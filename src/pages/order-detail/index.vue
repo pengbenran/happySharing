@@ -72,8 +72,8 @@
 
 			<!--按钮-->
 			<div class="dele">
-				<span>删除订单</span>
-				<span>积分详情</span>
+				<!-- <span>删除订单</span> -->
+				<span @click='jumpHome'>回到首页</span>
 			</div>
 		</div>
 	</div>
@@ -117,17 +117,20 @@
 						}else if (OrderInfo.status == 3) {
 							OrderInfo.status = '已取消'
 						}
-					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)
-					
+					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)	
 					that.OrderInfo = OrderInfo
 				};
 			},
+			jumpHome(){
+				wx.switchTab({
+					url:'../index/main'
+				})
+			}
 		},
 
 		onLoad(options){
 			 let that = this;
 			 that.orderId = options.orderId;
-			 console.log(that.orderId,"订单ID")
 			  that.getOnList();
 		},
 
@@ -382,9 +385,6 @@
 				display: block;
 				margin-right: 12px;
 				&:nth-child(1) {
-					color: #666666;
-				}
-				&:nth-child(2) {
 					color: #fff;
 					background-color: #ff7d28;
 					border: 1px solid #ff7d28;

@@ -140,7 +140,7 @@
 				let params={}
 				if(!that.isSubmit){
 					that.isSubmit=true
-					if(store.state.codeUnionid!=''){
+					if(store.state.codeUnionid!=''&&store.state.goodsId==that.goodDetail.id){
 						params.paymentId=2
 						params.codeUnionid=store.state.codeUnionid
 					}
@@ -154,7 +154,6 @@
 						params.index=store.state.appointment.index
 						params.goodBookId=store.state.appointment.goodBookId
 						params.memberId = that.userInfo.id;
-						console.log("进来了吗",params)
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
@@ -235,7 +234,6 @@
 	        			url: '../order-detail/main?orderId='+that.order.orderId
 	        		})
 	        	}
-	        	console.log(payOrder);
 	        }
 		},
 		mounted(){
@@ -243,10 +241,11 @@
 			that.goodDetail = store.state.goodDetail
 			that.userInfo = store.state.userInfo
 		},
+		
 		onLoad(options){
 			// 1为普通订单2为预约订单
+			this.useBanlan=0
 			this.orderType=options.orderType
-			console.log(options);
 		}
 	}
 </script>

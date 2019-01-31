@@ -54,7 +54,6 @@
 				})
 			},
 			async distribeApply(){
-				console.log(111111);
 				let that=this
 				if(that.distribeInfo.wechatId==''){
 					wx.showToast({
@@ -110,7 +109,6 @@
 				    }
 
 				}
-				console.log(this.distribeInfo);
 				// Api.submitApply()
 			}
 		},

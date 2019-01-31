@@ -54,7 +54,6 @@
 						that.hasMore = false
 					}
 					that.discount = that.discount.concat(discount.rows)
-					console.log(that.discount)
 				}
 				else{
 					wx.showToast({

@@ -38,7 +38,6 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+inviteCode+','+3
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes);
 				if(QrcodeRes.code==0){
 					that.eventDraw(QrcodeRes.url)
 				}
@@ -111,8 +110,6 @@
 			   },
 			   eventGetImage(event) {
 			   	wx.hideLoading()
-			   	console.log('我绘制完了');
-			   	console.log(event);
 			   	const { tempFilePath, errMsg } = event
 			   	if (errMsg === 'canvasdrawer:ok') {
 			   		this.shareImage=tempFilePath

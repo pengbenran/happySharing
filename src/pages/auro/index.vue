@@ -105,7 +105,6 @@
 			let that = this;
 			that.nowPage+=1
 			that.getRegionGood(that.nowPage,6,that.regionId)
-			console.log(that.nowPage)
 		},
 		async onLoad(options) {
 			let that=this
@@ -128,7 +127,7 @@
 			// 获取地区分类下的商品分类
 			let GoodCatRes=await kindApi.getGoodCart()
 			that.menuItem=GoodCatRes.goodCats
-			 console.log("商品分类",that.menuItem)
+
 			 
 			that.getRegionGood(1,3,that.regionId)
 			// 获取地区分类下的商品(非推荐)
@@ -145,14 +144,12 @@
 				//		  用户点击右上角分享
 		onShareAppMessage: function(res) {
 			return {
-				title: '抹哒抹哒' + item.name,
-				path: "pages/auro/main",
+				title: '抹哒抹哒',
+				path: "pages/index/main",
 				success: function(shareTickets) {
-					console.info(shareTickets + '成功');
 					// 转发成功
 				},
 				fail: function(res) {
-					console.log(res + '失败');
 					// 转发失败
 				},			
 			}

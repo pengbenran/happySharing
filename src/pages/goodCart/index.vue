@@ -3,7 +3,7 @@
 		<!--搜索-->
 		<Search></Search>
 		<!--轮播-->
-		<Banner :banner='bannerImg'></Banner>
+		<!-- <Banner :banner='bannerImg'></Banner> -->
 		<!--类目-->
 		<div class="cate centered">
 			<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
@@ -101,7 +101,6 @@
 			that.getKindGoods(that.nowPage,3,that.goodCatId)
 		},
 		async onLoad(options) {
-			console.log(options);
 			let that=this
 			that.catGoodRes=[]
 			that.catGoodRecommend=[]

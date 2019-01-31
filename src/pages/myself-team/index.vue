@@ -203,7 +203,6 @@
 					return item
 				})
 				that.memberLvDOList[memberLvindex].isSelect=true		
-				console.log(that.memberLvDOList)
 			},
 
 			//			点击显示 推荐师队友
@@ -244,7 +243,6 @@
 				that.distribeLvDOList = memberRes.data.distribeLvDOList
 				that.distribeCount = memberRes.data.distribeCount
 				that.memberLvDOList = memberRes.data.memberLvDOList
-				console.log(that.memberLvDOList);
 				that.memberCount = memberRes.data.memberCount
 			}
 			that.getmemberList()

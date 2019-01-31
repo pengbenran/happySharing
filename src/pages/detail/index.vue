@@ -24,7 +24,7 @@
 						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+					<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 				</div>
 				<div class="phone clr">
 					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -49,7 +49,7 @@
 				<div class="text">分享</div>
 			</div>
 			<div @click="jumpSaveOrder(index)" class="rush">
-				立即购买
+				{{btnStr}}
 			</div>
 		</div>
 		<div class="paintImg" v-show="paintOk">
@@ -60,6 +60,7 @@
 			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 		</div>
 		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+		<loginModel ref="loginModel"></loginModel>
 	</div>
 </template>
 
@@ -70,6 +71,7 @@
 	import store from '@/store/store'
 	import lib from '@/utils/lib'
 	import wxParse from 'mpvue-wxparse'
+	import loginModel from "@/components/loginModel"; 
 	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
@@ -87,13 +89,15 @@
 				whetherDistribe:'',
 				UsertagId:'',
 				btnSubmit:false,
-				detailContent:''
+				detailContent:'',
+				btnStr:'立即购买'
 			}
 
 		},
 		components: {
 			canvasdrawer,
-			wxParse
+			wxParse,
+			loginModel
 		},
 		computed:{
 			discounts(){
@@ -102,10 +106,7 @@
 			},
 			
 		},
-		onShow(){
-			this.Time = ''
-			 
-		},
+
 		methods: {
 			saveImg(){
 				let that=this
@@ -132,7 +133,7 @@
 		   	let that = this;
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
-		   	})	
+			   })	
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
 		   	ImgArr[1]=codeUrl
@@ -201,11 +202,10 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
-				console.log(QrcodeRes)
 				if(QrcodeRes.code==0){
 					that.eventDraw(QrcodeRes.url)
 				}
-				
+
 			},
 
 			async getGoodsInfo(params){
@@ -216,25 +216,33 @@
 				that.goodsDetail=goodsDetailRes
 
 				that.detailContent = that.goodsDetail.content
+				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
+				store.commit("stateGoodDetail",that.goodsDetail)
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
-					if(res != 'noTime'){
+					if(res != 'NoTime'){
 						that.TimeStr = res;
 					}else{
 						that.TimeStr = '';
 					}	
 				})
-				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
-				store.commit("stateGoodDetail",that.goodsDetail)
+
+
 			},
 
 
 
 			Timer(time,timeIndex,fn){
-				// console.log(maxtime,new Date(),new Date(time),'uijm')
 				var msg = ''
+				var maxtime = (new Date(time) - new Date())/1000;
 				if(timeIndex == 3){
+						if(maxtime >= 0){
+					  	this.btnStr = '暂未上架'
+						}else{
+							that.btnStr = '立即购买'
+							this.Time = true;
+						}
 					 this.Time = setInterval(function(){
-						var maxtime = (new Date(time) - new Date())/1000;
+						 maxtime = (new Date(time) - new Date())/1000;
 						if(maxtime >= 0) {
 							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
 							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
@@ -248,12 +256,13 @@
 							fn(msg);
 						} else {
 							clearInterval( this.Time );
+							
 							fn("NoTime");
 							// return {msg:msg,maxtime:maxtime};
 						}
 					},1000);
+				
 				}else{
-
 					clearInterval(this.Time);
 				}
 		},
@@ -265,7 +274,6 @@
 
 		async GetUserLable(unionid){
 			let that = this;
-			console.log("进来了吗")
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
 				 lib.showToast('没有获取到该用户的标签数据','none')
@@ -275,15 +283,18 @@
 				res.TagList.map(v => {
                      arr.push(v.tagId);
 				})
+				let falg=false
 				arr.map(v => {
-					// console.log(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()),"购买的限制")
 					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
-						 that.btnSubmit = true;
-						 return
-					}else{
-						 that.btnSubmit = false;
+						 falg = true;
 					}	
 				})
+				if(falg){
+					that.btnSubmit=true
+				}
+				else{
+					that.btnSubmit=false
+				}
 			}
 		},
 		},
@@ -291,24 +302,32 @@
 
 		async onLoad(options) {
 			let that=this
+            this.Time = ''
+			this.btnSubmit = false;
+			this.btnStr = '立即购买'
 			clearInterval(this.Time);
 			that.goodsId =options.goodsId
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
+            	store.commit("stategoodsid",options.goodsId)
             }
-            that.Width=wx.getSystemInfoSync().windowWidth
-            that.userInfo = store.state.userInfo
+           
+			
+			
+			// 调用应用实例的方法获取全局数据
+		},
+		async mounted(){
+			let that=this
+			await that.$refs.loginModel.userLogin()
+			that.Width=wx.getSystemInfoSync().windowWidth
             let params={}
-            let userInfo = store.state.userInfo
+            that.userInfo = store.state.userInfo
 			that.whetherDistribe = store.state.userInfo.whetherDistribe
             params.goodId=that.goodsId
 			if(that.userInfo.whetherDistribe!=0){
             	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
-			
-			
-			// 调用应用实例的方法获取全局数据
 		}
 	}
 </script>
