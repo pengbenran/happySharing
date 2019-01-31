@@ -173,8 +173,6 @@
 			
 			},
 
-
-
 			// 获取地区列表
 			async getIndex(){
 				let that=this

@@ -157,7 +157,7 @@
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
-					params.shopId=that.goodDetail.shopId
+					params.shopsId=that.goodDetail.shopId
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalMoney
 					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral
