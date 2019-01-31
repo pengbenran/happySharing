@@ -46,7 +46,7 @@
 				<div class="tamemate-tit clr" @click="showList(memberLvindex)">
 					<span :class="memberLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
 					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">{{memberLvitem.isSelect}}</span>
+					<span class="fl">{{memberLvitem.name}}</span>
 					<span class="fr">{{memberLvitem.lvCount}}人</span>
 				</div>
 				<div class="data" v-if="memberLvitem.isSelect">
@@ -203,7 +203,6 @@
 					return item
 				})
 				that.memberLvDOList[memberLvindex].isSelect=true		
-				console.log(that.memberLvDOList)
 			},
 
 			//			点击显示 推荐师队友
@@ -244,7 +243,6 @@
 				that.distribeLvDOList = memberRes.data.distribeLvDOList
 				that.distribeCount = memberRes.data.distribeCount
 				that.memberLvDOList = memberRes.data.memberLvDOList
-				console.log(that.memberLvDOList);
 				that.memberCount = memberRes.data.memberCount
 			}
 			that.getmemberList()

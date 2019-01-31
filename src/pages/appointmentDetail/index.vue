@@ -14,16 +14,16 @@
 				<div class="preLeft">
 					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 					<div class="discounts fl">优惠:{{discounts}}元</div>
-					<div class="people  fr"  v-if="userInfo.whetherDistribe!=0">
-						推荐师优惠<span class="Present">{{goodsDetail.returnAmount}}</span></div>
 				</div>
+				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="preRight" v-if="Time">
 						<div class="time">{{TimeStr}}</div>
 				</div>
 				</div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+					<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 				</div>
 				<div class="phone clr">
 					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -63,7 +63,8 @@
 			<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 		</div>
 
-		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
+		<loginModel ref="loginModel"></loginModel>
+
 	</div>
 </template>
 
@@ -325,14 +326,18 @@
 				res.TagList.map(v => {
                      arr.push(v.tagId);
 				})
+				let flag=false
 				arr.map(v => {
-					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
-						 that.btnSubmit = true;
-						 return
-					}else{
-						 that.btnSubmit = false;
+					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){ 
+						 flag=true
 					}	
 				})
+				if(falg){
+					that.btnSubmit=true
+				}
+				else{
+					that.btnSubmit=false
+				}
 			}
 		},
 			
@@ -369,34 +374,32 @@
 				}
 		},
 		},
-		mounted(){
+		async mounted(){
 			await this.$refs.loginModel.userLogin()
 		},
 		async onLoad(options) {
 			let that=this
-			// clearInterval( this.Time );
-
-			console.log("nihkasdadasdjlkj ")
 			that.goodsId =options.goodsId
-			that.Width=wx.getSystemInfoSync().windowWidth
 			that.multiArray=[]
 			that.dataArray=[]
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
+            	store.commit("stategoodsid",options.goodsId)
             }
-   
-			that.userInfo = store.state.userInfo
-			that.whetherDistribe = that.userInfo.whetherDistribe
-			
-			
-            let params={}
-            params.goodId=that.goodsId
-            if(that.userInfo.whetherDistribe!=0){
-            	params.memberLv=that.userInfo.whetherDistribe
-			}
-			console.log("过来了吗",params)
-			that.getGoodsInfo(params)
 			// 调用应用实例的方法获取全局数据
+		},
+		async mounted(){
+			let that=this
+			await that.$refs.loginModel.userLogin()
+			that.Width=wx.getSystemInfoSync().windowWidth
+			let params={}
+			that.userInfo = store.state.userInfo
+			that.whetherDistribe = store.state.userInfo.whetherDistribe
+			params.goodId=that.goodsId
+			if(that.userInfo.whetherDistribe!=0){
+				params.memberLv=that.userInfo.whetherDistribe
+			}
+			that.getGoodsInfo(params)
 		}
 	}
 </script>
@@ -421,6 +424,14 @@
 			z-index: 10;
 			position: absolute;
 			top: 80px;
+		}
+	}
+	.disribe{
+		color: #999999;
+		font-size: 12px;
+		.Present{
+			color: #ff0000;
+			font-size: 17px;
 		}
 	}
 	.saveImgBtn{

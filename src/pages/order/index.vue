@@ -265,8 +265,8 @@ import Config from '@/config'
 				that.disabledBtn = true;
 				params.sn = Ordersn
 				params.openid=that.userInfo.xopenid
-	            // params.total_fee = needPayMoney*100
-	            params.total_fee=1
+	            params.total_fee = needPayMoney*100
+	            // params.total_fee=1
 				let parRes = await API_ORDER.prepay(params).catch(err => {
 					Lib.showToast('付款失败','loading')
 				})
@@ -326,7 +326,6 @@ import Config from '@/config'
 					if (res.confirm) {
 					//   let data = {orderId:orderId}
 					  API_ORDER.deleteOrder(orderId).then(res => {
-						   console.log(res,"删除成功")
 						  Lib.showToast('删除成功','success')
 						that.goodList.splice(index,1); //删除下标的指定数组  
 					  }).catch(err => {
@@ -334,7 +333,6 @@ import Config from '@/config'
 					  })
 
 					} else if (res.cancel) {
-					console.log('用户点击取消')
 					}
 				}
 				})

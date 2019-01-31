@@ -70,7 +70,6 @@ import nomoreTip from "@/components/nomoreTip"
 			// that.nowPage+=1
 			// that.getRecommendGood(that.nowPage,3)
             that.listQuery.page += 1
-			console.log("我是底部时间")
 		    this.getGoodsBookList()
 			
 		},
@@ -89,9 +88,7 @@ import nomoreTip from "@/components/nomoreTip"
 						v.endTime = Index_Lib.formatTime(v.endTime)
 						return v;
 					})
-					console.log(book,'预约数据')
 					that.BookList = that.BookList.concat(book)
-					Lib.showToast('成功','success')
 					if(book.length < that.listQuery.limit){
                          that.hasMore=false
 					}

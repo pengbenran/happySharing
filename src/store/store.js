@@ -9,7 +9,8 @@ export default new Vuex.Store({
     goodDetail:{},
     codeUnionid:'',
     appointment:{},
-    UserTagList:[]
+    UserTagList:[],
+    goodsId:''
   },
   mutations:{
    storeUserInfo(state,userInfo){
@@ -23,6 +24,9 @@ export default new Vuex.Store({
    },
    statecodeUnionid(state,codeUnionid){
     state.codeUnionid=codeUnionid
+   },
+    stategoodsid(state,goodsId){
+    state.goodsId=goodsId
    },
    stateappointment(state,appointment){
     state.appointment=appointment

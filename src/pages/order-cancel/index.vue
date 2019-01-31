@@ -60,14 +60,14 @@
 			<span><img :src="auditimg"></span> 
 			<span @click='jumpIndex'>返回首页</span>
 		</div>
-		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
+		<loginModel ref="loginModel"></loginModel> 
 	</div>
 </template>
 
 <script>
 	import goodslist from '@/components/goodslist'
 	import loginModel from "@/components/loginModel"; 
-	import Store from '@/store/store'
+	import store from '@/store/store'
 	import Api from '@/api/order'
 	import Index_Lib from '@/utils/index'
 	import Lib from '@/utils/lib'
@@ -96,7 +96,7 @@
 				let isWriteOffRes=await Api.isWriteOff(params)
 				if(isWriteOffRes.code==0){
 					that.isWrite=true
-					that.getOnList(774)
+					that.getOnList(that.orderId)
 				}
 				else{
 					that.isWrite=false
@@ -114,9 +114,6 @@
 						Lib.showToast('核销成功','success')
 						that.getOnList(orderId)
 					}
-					console.log(writeOffRes);
-
-
 				}
 
 			},
@@ -154,12 +151,11 @@
 		async mounted(){
 			let that=this
 			await that.$refs.loginModel.userLogin()
-			that.isWriteOff(Store.state.userInfo.unionid,that.orderId)
+			that.isWriteOff(store.state.userInfo.unionid,that.orderId)
 		},
 		onLoad(options){
 			var that = this 
             that.orderId=decodeURIComponent(options.scene)
-      
 		},
 		computed: {
 		},	

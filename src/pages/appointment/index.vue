@@ -73,7 +73,6 @@
 				let that=this
 				that.timeindex = index;
 				that.goodCatId=that.goodCart[index].id
-				console.log(that.bookList[that.timeindex]);
 				if(that.bookList[that.timeindex].length==0){
 					that.getBookGood(1,3,that.goodCatId)
 				}		
@@ -100,7 +99,6 @@
 					if(bookRes.rows.length<pageSize){
 						that.hasMore[that.timeindex]=false
 					}
-					console.log(that.bookList);
 					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(bookRes.rows)
 					
 				}
@@ -137,13 +135,11 @@
 		onShareAppMessage: function(res) {
 			return {
 				title: '抹哒抹哒 - 预约',
-				path: "pages/appointment/main",
+				path: "pages/index/main",
 				success: function(shareTickets) {
-					console.info(shareTickets + '成功');
 					// 转发成功
 				},        
-				fail: function(res) {
-					console.log(res + '失败');
+				fail: function(res) {	
 					// 转发失败
 				},			
 			}

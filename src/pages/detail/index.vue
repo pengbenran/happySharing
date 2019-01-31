@@ -24,7 +24,7 @@
 						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+					<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 				</div>
 				<div class="phone clr">
 					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -60,6 +60,7 @@
 			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 		</div>
 		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+		<loginModel ref="loginModel"></loginModel>
 	</div>
 </template>
 
@@ -70,6 +71,7 @@
 	import store from '@/store/store'
 	import lib from '@/utils/lib'
 	import wxParse from 'mpvue-wxparse'
+	import loginModel from "@/components/loginModel"; 
 	import canvasdrawer from '@/components/canvasdrawer'
 	export default {
 		data() {
@@ -94,7 +96,8 @@
 		},
 		components: {
 			canvasdrawer,
-			wxParse
+			wxParse,
+			loginModel
 		},
 		computed:{
 			discounts(){
@@ -131,7 +134,6 @@
 		   	wx.showLoading({
 		   		title:'推广码绘制中'
 			   })	
-			   console.log("你好史学家阿萨德",that.goodsDetail.posterImg)
 		   	let ImgArr = []
 		   	ImgArr[0]=that.goodsDetail.posterImg
 		   	ImgArr[1]=codeUrl
@@ -175,7 +177,6 @@
 				})
 			},
 			jumpSaveOrder(){
-				console.log(this.Time,"sadss",this.btnSubmit)
 				if(!this.Time){ //定时上架
 				    if(this.btnSubmit){//判断专买权
                        wx.navigateTo({url:`../order-submit/main?orderType=1`})
@@ -201,8 +202,6 @@
 				let params={}
 				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
-
-				console.log(QrcodeRes)
 				if(QrcodeRes.code==0){
 					that.eventDraw(QrcodeRes.url)
 				}
@@ -219,7 +218,6 @@
 				that.detailContent = that.goodsDetail.content
 				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				store.commit("stateGoodDetail",that.goodsDetail)
-				console.log("阿桑单阿空蛋壳")
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
 					if(res != 'NoTime'){
 						that.TimeStr = res;
@@ -227,24 +225,21 @@
 						that.TimeStr = '';
 					}	
 				})
-					console.log("阿桑单阿空蛋壳123132")
+
 
 			},
 
 
 
 			Timer(time,timeIndex,fn){
-				// console.log(maxtime,new Date(),new Date(time),'uijm')
 				var msg = ''
 				var maxtime = (new Date(time) - new Date())/1000;
-				console.log("序号阿萨德",timeIndex,maxtime)
 				if(timeIndex == 3){
 						if(maxtime >= 0){
 					  	this.btnStr = '暂未上架'
 						}else{
 							that.btnStr = '立即购买'
 							this.Time = true;
-							console.log("商品是否上架",this.Time)
 						}
 					 this.Time = setInterval(function(){
 						 maxtime = (new Date(time) - new Date())/1000;
@@ -279,7 +274,6 @@
 
 		async GetUserLable(unionid){
 			let that = this;
-			console.log("你好世界大赛大三")
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
 				 lib.showToast('没有获取到该用户的标签数据','none')
@@ -289,15 +283,18 @@
 				res.TagList.map(v => {
                      arr.push(v.tagId);
 				})
-				console.log(that.goodsDetail.buyLimit,"购买限制",arr)
+				let falg=false
 				arr.map(v => {
 					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
-						 that.btnSubmit = true;
-						 return
-					}else{
-						 that.btnSubmit = false;
+						 falg = true;
 					}	
 				})
+				if(falg){
+					that.btnSubmit=true
+				}
+				else{
+					that.btnSubmit=false
+				}
 			}
 		},
 		},
@@ -308,25 +305,29 @@
             this.Time = ''
 			this.btnSubmit = false;
 			this.btnStr = '立即购买'
-
 			clearInterval(this.Time);
 			that.goodsId =options.goodsId
             if(options.codeUnionid!=''){
             	store.commit("statecodeUnionid",options.codeUnionid)
+            	store.commit("stategoodsid",options.goodsId)
             }
-            that.Width=wx.getSystemInfoSync().windowWidth
-            that.userInfo = store.state.userInfo
+           
+			
+			
+			// 调用应用实例的方法获取全局数据
+		},
+		async mounted(){
+			let that=this
+			await that.$refs.loginModel.userLogin()
+			that.Width=wx.getSystemInfoSync().windowWidth
             let params={}
-            let userInfo = store.state.userInfo
+            that.userInfo = store.state.userInfo
 			that.whetherDistribe = store.state.userInfo.whetherDistribe
             params.goodId=that.goodsId
 			if(that.userInfo.whetherDistribe!=0){
             	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
-			
-			
-			// 调用应用实例的方法获取全局数据
 		}
 	}
 </script>

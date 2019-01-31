@@ -59,7 +59,9 @@
 		</div>
 
 		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
-
+		<div class="footer">
+			<img src="https://shop.guqinet.com/html/images/shuiguo/index/footerImg.png"/>
+		</div>
 	</div>
 
 </template>
@@ -177,6 +179,9 @@
 			async getIndex(){
 				let that=this
 				wx.hideTabBar({})
+				that.discount=[]
+				that.nowPage=1
+				that.hasMore=true
 				await that.$refs.loginModel.userLogin()
 				let GoodCatRes=await Api.getGoodCart()
 				that.menuItem=GoodCatRes.goodCats
@@ -199,6 +204,13 @@
 			let that = this;
 			that.nowPage+=1
 			that.getRecommendGood(that.nowPage,3)
+		},
+		onShareAppMessage: function () {
+			withShareTicket: true
+		},
+		onPullDownRefresh: function(){
+			let that=this
+			that.getIndex()
 		},
 		mounted(){
 			let that = this;
@@ -341,4 +353,5 @@
 			}
 		}
 	}
+	.footer{height: 80rpx;padding: 20rpx 30rpx 10rpx 0;}
 </style>
