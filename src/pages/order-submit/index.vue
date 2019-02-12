@@ -15,7 +15,7 @@
 							<div class="make fr">{{make}}</div>
 						</div>
 						<!-- <div class="people ">{{goodDetail.people}}</div> -->
-						<div class="sell ">已售:{{goodDetail.showSales}}</div>
+						<div class="sell ">已售:{{goodDetail.sales}}</div>
 					</div>
 				</div>
 				<!--总价-->
@@ -157,7 +157,7 @@
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
-					params.shopsId=that.goodDetail.shopId
+					params.shopsId=that.goodDetail.shopId*1
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalMoney
 					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral

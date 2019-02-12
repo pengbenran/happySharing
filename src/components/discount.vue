@@ -16,7 +16,7 @@
 				<div class="Present-discounts-sell clr">
 					<div class="Present fl">￥{{item.price}}元</div>
 					<div class="discounts fl">优惠:{{item.saveMoney}}元</div>
-					<div class="sell fr">已售:{{item.showSales}}件</div>
+					<div class="sell fr">已售:{{item.sales}}件</div>
 				</div>
 			</div>
 		</div> 
