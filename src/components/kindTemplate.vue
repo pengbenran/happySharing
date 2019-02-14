@@ -1,10 +1,10 @@
 <template>
 	<div class="kind centered">
 		<div class="kindList" v-for="(item,index) in kind_item" @click="jumpKind(item.id)">		
-			<div class="kindIntro">
+			<!-- <div class="kindIntro">
 				<div class="tipIcon">{{item.name}}</div>
 				<div class="kindname oneover">{{item.description}}</div>
-			</div>
+			</div> -->
 			<div class="rightImg">
 				<img :src="item.img" mode="widthFix">
 			</div>
@@ -84,14 +84,14 @@
 				}
 			}
 			.rightImg {
-				width: 100px;
-				height: 100px;
-				border-radius: 50%;
-				border: 1px solid #ddd;
+				width: 100%;
+				// height: 100px;
+				// border-radius: 50%;
+				// border: 1px solid #ddd;
 				overflow: hidden;
 				position: absolute;
-				top: 30px;
-				right: -10px;
+				top: 0;
+				right: 0;
 			}
 			&:nth-child(1) {
 				background-color: #ffb2b5;

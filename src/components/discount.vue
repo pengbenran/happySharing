@@ -6,7 +6,7 @@
 			<div class="cant">
 				<div class="name-make clr">
 					<div class="name fl">{{item.title}}</div>
-					<div class="make fr">免预约</div>
+					<!-- <div class="make fr">免预约</div> -->
 				</div>
 				<!-- <div class="desc">{{item.goodName}}</div> -->
 				<div class="original-people clr">
@@ -16,7 +16,7 @@
 				<div class="Present-discounts-sell clr">
 					<div class="Present fl">￥{{item.price}}元</div>
 					<div class="discounts fl">优惠:{{item.saveMoney}}元</div>
-					<div class="sell fr">已售:{{item.sales}}件</div>
+					<div class="sell fr">已售:{{item.showSales}}件</div>
 				</div>
 			</div>
 		</div> 
