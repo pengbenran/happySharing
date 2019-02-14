@@ -24,7 +24,7 @@
 						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
 				</div>
 				<div class="phone clr">
 					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
