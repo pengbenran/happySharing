@@ -9,7 +9,7 @@
 					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
 					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
 				</div>
-				<div class="desc">{{goodsDetail.goodName}}</div>
+				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
 				<div class="Present-discounts-people clr">
 					<div class="preLeft">
 						<div class="Present fl">￥:{{goodsDetail.price}}元</div>
@@ -176,7 +176,8 @@
 					url:'../index/main'
 				})
 			},
-			jumpSaveOrder(){
+			async jumpSaveOrder(){
+				await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				if(!this.Time){ //定时上架
 				    if(this.btnSubmit){//判断专买权
                        wx.navigateTo({url:`../order-submit/main?orderType=1`})
@@ -216,7 +217,6 @@
 				that.goodsDetail=goodsDetailRes
 
 				that.detailContent = that.goodsDetail.content
-				that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				store.commit("stateGoodDetail",that.goodsDetail)
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
 					if(res != 'NoTime'){
@@ -272,23 +272,34 @@
 			that.paintOk = false;
 		},
 
+		/**
+		 * 获取用户标签并判断购买限制
+		 * that.btnSubmit：购买限制
+		 * unionid: 用户unionid
+		 */
 		async GetUserLable(unionid){
 			let that = this;
+			wx.showLoading({title: '加载中',})
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
 				 lib.showToast('没有获取到该用户的标签数据','none')
 			})
             if(res.code == 0 && res.TagList.length > 0){
+				console.log(" 进来了吗")
 				let arr = []
 				res.TagList.map(v => {
                      arr.push(v.tagId);
 				})
 				let falg=false
-				arr.map(v => {
-					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
-						 falg = true;
-					}	
-				})
+				if(that.goodsDetail.buyLimit == ''){ //判断商品是否设置了变量限制
+					falg = true;
+				}else{
+					arr.map(v => {
+						if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
+							falg = true;
+						}	
+					})
+				}
 				if(falg){
 					that.btnSubmit=true
 				}
@@ -296,6 +307,7 @@
 					that.btnSubmit=false
 				}
 			}
+			 wx.hideLoading()
 		},
 		},
 

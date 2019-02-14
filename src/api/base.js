@@ -7,7 +7,7 @@ fly.interceptors.request.use((request) => {
         request.headers = {//设置请求头
             "content-type": "application/x-www-form-urlencoded",
             // "Authorization": wx.getStorageSync('Token')
-            "Authorization":"eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU0OTI3NTAwMzE1MywiZXhwIjoxNTQ5ODIyMDA1fQ.i9Snkbj1FZp940_IShxjIjMhj6cvpSeUB0ajaQtGvcQ"
+            "Authorization":"eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU1MDIyOTM5NzA0MCwiZXhwIjoxNTUwNTAyODk4fQ.30ETY-B4MlhKaZRw7Ua3ckDGShEotXu241kM8loWEjw"
         }
         return request;
     } else {
