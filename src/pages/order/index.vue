@@ -28,7 +28,9 @@
 
 						</div>
 						<div class="rec-right fr">
-							<!-- <div class="use">{{goodlist.use}}</div> -->
+							<div class="time" v-if="orderItem.orderType == 3">
+                                 <span >积分订单</span>
+							</div>
 
 							<div class="num ">数量 : {{orderItem.goodsNum}}</div>
 								<span class="time ">
@@ -43,7 +45,8 @@
 						<div class="line fr"></div>
 					</div>
 					<div class="rec-bottom">
-						订单总额:{{orderItem.orderAmount}}
+						订单总额:{{orderItem.orderAmount}} 
+						<span>{{orderItem.orderType == 3? '分':'元'}}</span>
 					</div>
 				</div>
 				<div class="bottom" v-if="SelectIndex == 0">
@@ -189,7 +192,10 @@ import Config from '@/config'
 					}else{
 						that.goodList = [];
 					}
-					wx.hideLoading()
+
+					// setTimeout(function () {
+					//   wx.hideLoading()
+					// }, 1500)
 				}
 
 			},

@@ -25,7 +25,9 @@
     "pages/goodCart/main",
     "pages/logs/main",   
     "pages/myself/main",
-    "pages/search/main"
+    "pages/search/main",
+    "pages/welfareDetail/main",
+    "pages/welfareSubmint/main"
     ], 
   "window": { 
     "backgroundTextStyle": "light",
@@ -47,6 +49,12 @@
         "iconPath": "/static/images/appointment.png",
         "selectedIconPath": "/static/images/appointmentselect.png",
         "text": "预约"
+      },
+      {
+        "pagePath": "pages/welfare/main",  
+        "iconPath": "/static/images/welfare.png",
+        "selectedIconPath": "/static/images/welfareselect.png",
+        "text": "福利"
       },
       {
         "pagePath": "pages/order/main",

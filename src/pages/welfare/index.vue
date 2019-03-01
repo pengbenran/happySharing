@@ -5,59 +5,73 @@
 			<div class="img"><img src="https://shop.guqinet.com/html/images/zhifenxiang/dial-bg.png" /></div>
 			<!--转盘-->
 			<div id="rotary-table">
-				<div class="award" v-for="(item,index) in awards" :class="['award'+index,{'active': index==current}]">
-					<div><span>x</span><span>{{item.name}}</span></div>
+				<div class="award" v-for="(item,index) in turntablesList" :class="['award'+index,{'active': index==current}]">
+					<div class="icoImg"><img :src="item.image" :alt="item.content"></div>	
+					<div class="ico"><span>{{item.content}}分</span></div>
 				</div>
-				<div id="start-btn" @click="start">开始</div>
+				<div id="start-btn" @click="start" class="start-btn">开始</div>
 
 				<div class="popup">
 					<!--中奖数字-->
 					<div class="popup-left">
-						<span>{{award.name}}100</span>
+						<span>{{getPoint}}</span>
 					</div>
 					<!--可用积分-->
 					<div class="popup-right">
-						<spna>{{sum}}100</spna>
+						<spna>{{UserInfo.point}}</spna>
 					</div>
 				</div>
 
 				<!--下面的确认按钮-->
-				<div class="confirm">
+				<div class="confirm" @click="submitBtn">
 					<img src="https://shop.guqinet.com/html/images/zhifenxiang/confirm.png" />
 				</div>
+
+				<div class="zhuanPoint" @click="tojump"> 
+
+				</div>
+
 			</div>
 			<!--列表-->
 			<div class="list">
 				<div class="list-wp">
-					<div class="rec-li" v-for="(goodlist , index) in rec" :key="goodlist.recId">
-
+					<div class="rec-li" v-for="(goodlist , index) in pointShopList" :key="goodlist.recId">
 						<div class="cant clr">
-							<div class="img fl"><img :src="goodlist.img" /></div>
+							<div class="img fl"><img :src="goodlist.thumbnail" /></div>
 							<div class="rec-center fl">
-								<div class="tit">{{goodlist.title}}</div>
-								<div class="name">{{goodlist.name}}</div>
-								<div class="present ">{{goodlist.present}}积分</div>
+								<div class="tit fontHidden">{{goodlist.title}}</div>
+								<div class="name fontHidden1">{{goodlist.goodName}}</div>
+								<div class="present ">{{goodlist.buyIntegral}}积分</div>
 							</div>
 							<div class="rec-right fr">
-								<div class="num ">已兑 : {{goodlist.num}}</div>
+								<div class="num ">已兑 : {{goodlist.showSales}}</div>
 								<div class="use">
-									<navigator url="../order-detail/main" hover-class="none">
+									<div  @click="Jump(goodlist.goodId)">
 										去兑换
-									</navigator>
+									</div>
 								</div>
 							</div>
 						</div>
-
 					</div>
+					<nomoreTip v-if="hasMore"></nomoreTip>
 				</div>
-
 			</div>
 		</div>
 	</div>
 </template>
 <script>
+import API from '@/api/turntable'
+import Lib from '@/utils/lib'
+import store from '@/store/store'
+import nomoreTip from "@/components/nomoreTip"
 	export default {
 		name: 'raffle',
+		components:{
+			nomoreTip
+		},
+		computed: {
+		
+		},
 		data() {
 			return {
 				current: 0,
@@ -113,71 +127,110 @@
 						integral: "积分兑换",
 					},
 				],
-				awards: [{
-						id: 1,
-						name: 6
-					},
-					{
-						id: 2,
-						name: 50
-					},
-					{
-						id: 3,
-						name: 5
-					},
-					{
-						id: 4,
-						name: "谢谢参与"
-
-					},
-					{
-						id: 5,
-						name: 20
-					},
-					{
-						id: 6,
-						name: 15
-
-					},
-					{
-						id: 7,
-						name: 40
-					},
-					{
-						id: 8,
-						name: 5,
-
-					}
-				],
+				listQuery: {
+					page: 1,
+					limit: 3,
+				},
+				pointShopList:[],
+				total:5,
 				speed: 200,
 				diff: 15,
 				award: {},
 				time: 0,
 				timeout: '',
 				iss: false,
-
+				hasMore:false,
+				turntablesList:[],
+				UserInfo:{},
+				Config:{},
+				getPoint:0
 			};
 		},
+		mounted(){
+		   this.getShopList(this.listQuery);
+		   this.getData();
+		   this.UserInfo = store.state.userInfo
+		   this.Config = store.state.config
+		   console.log("查看一下用户的信息：", this.UserInfo.point)
+		},
+		//上拉请求
+		onReachBottom:function(){
+				let that = this;
+				that.listQuery.page += 1
+				that.getShopList(that.listQuery);
+		},
 		methods: {
+			getData(){
+				let that = this;
+				wx.showLoading({title: '加载中'})
+				API.get_Turntable().then(res => {
+					console.log(res," 请求的数据")
+					if(res.code == 0){
+						that.turntablesList = res.turntables
+						wx.hideLoading()
+					}else{
+                        Lib.showToast('网络开了个小差','none')
+					}
+				}).catch(err => {
+                   Lib.showToast('网络开了个小差','none')
+				})
+			},
 			start() {
 				// 开始抽奖
-				this.drawAward()
-				this.time = Date.now();
-				this.speed = 200;
-				this.diff = 15;
+				console.log('积分：',this.UserInfo.point)
+				let that = this;
+				console.log("查看配置信息",that.Config)
+				wx.showModal({
+					title: '提示',
+					content: '将扣除'+that.Config.turntable_consume_point+'积分',
+					success(res) {
+						if (res.confirm) {
+								if(that.UserInfo.point >= 15){
+									that.drawAward()
+									that.time = Date.now();
+									that.speed = 300;
+									that.diff = 15;
+								}else{
+									Lib.showToast('你的积分不足','none')
+								}
+						} else if (res.cancel) {
+							console.log('用户点击取消')
+						}
+					}
+				})
+			},
+
+			//获取一个随机数
+			sum(m,n){
+				return Math.floor(Math.random()*(m - n + 1) + n);
 			},
 			drawAward() {
 				// 请求接口, 这里我就模拟请求后的数据
-				setTimeout(() => {
-					this.award = {
-						id: '3',
-						name: 5,
-					};
-				}, 1000);
-				this.move();
+				let that = this;
+				let res = this.sum(1,100);
+				let num = 0;
+				that.turntablesList.map((v,index) => {
+                    if(res > num && res<=(parseInt(v.probability)+num)){
+						console.log(index,"确认范围：",res,num,parseInt(v.probability)+num,"名字：",v.content)
+						that.award.id = v.id
+					}
+					num = num + parseInt(v.probability)
+				})
+
+				//此处是消耗积分的请求
+				let data = {
+					unionId:this.UserInfo.unionid,
+					point:15
+				}
+				API.point_Consumption(data).then(res => {
+					if(res.code == 0){
+                   	    that.move();
+					}
+				}).catch(err => {
+                    Lib.showToast('网络开了个小差','none')
+				})
 			},
 			move() {
-
 				let that = this;
 				that.timeout = setTimeout(() => {
 					this.current++;
@@ -186,10 +239,29 @@
 					}
 					if(this.award.id && (Date.now() - this.time) / 1000 > 2) {
 						this.speed += this.diff;
-						if((Date.now() - this.time) / 1000 > 4 && this.award.id == this.awards[this.current].id) {
+						if((Date.now() - this.time) / 1000 > 4 && this.award.id == this.turntablesList[this.current].id) {
 							clearTimeout(that.timeout);
+							this.getPoint += this.turntablesList[this.current].content*1
+                           
+							//往后台保存积分
+							let data = {
+								unionId:this.UserInfo.unionid,
+								point:this.getPoint
+							}
+							API.point_Obtain(data).then(res => {
+							console.log(res,"获取积分")
+							   if(res.code == 0){
+								 Lib.showToast('获得积分'+this.turntablesList[this.current].content,'success')
+                                 this.UserInfo.point = res.nowPoint
+							   }else{
+								 Lib.showToast('网络开了个小差','none')
+							   }
+							}).catch(err => {
+							   Lib.showToast('网络开了个小差','none')
+							})
+
 							setTimeout(() => {
-								//								this.iss = true								
+								//this.iss = true								
 							}, 0);
 							return;
 						}
@@ -199,11 +271,56 @@
 					console.log(this.speed);
 					this.move();
 				}, this.speed);
-			}
+			},
+
+			tojump(){
+				let that = this;
+				console.log("进来了吗？")
+				wx.switchTab({
+					url: '../index/main',   //注意switchTab只能跳转到带有tab的页面，不能跳转到不带tab的页面
+				})
+			},
+			submitBtn(){
+               Lib.showToast('共获得积分'+this.getPoint,'success')
+			},
+			//跳转到商品详情
+			Jump(id){
+                wx.navigateTo({
+			     	url: '../welfareDetail/main?goodsId='+id　　// 页面 B
+				})
+			},
+
+			//获取积分商场商品
+			getShopList(listQuery){
+				wx.showLoading({title: '加载中'})
+				let that = this;
+				API.point_Shop(listQuery).then(res => {
+					console.log("你好世界",res)
+				    if(res.code == 0){
+					   wx.hideLoading()
+					   that.pointShopList = that.pointShopList.concat(res.IntegralGoodShowPage.rows);
+					   that.total = res.IntegralGoodShowPage.total
+					//    console.log("获得数据的长度",res.IntegralGoodShowPage.rows.length,that.listQuery.limit)
+					   	if(res.IntegralGoodShowPage.rows.length < that.listQuery.limit ){
+                            that.hasMore=true
+						}
+					}else{
+						 Lib.showToast('网络开了个小差','none')
+					}
+					wx.hideLoading()
+				}).catch(err => {
+					 Lib.showToast('网络开了个小差','none')
+					 wx.hideLoading()
+				})
+
+			},
+
 		},
 
+	
+
 		
-//		  用户点击右上角分享
+        //用户点击右上角分享
 		onShareAppMessage: function(res) {
 			return {
 				title: '抹哒抹哒',
@@ -211,6 +328,7 @@
 				success: function(shareTickets) {
 					console.info(shareTickets + '成功');
 					// 转发成功
+					
 				},
 				fail: function(res) {
 					console.log(res + '失败');
@@ -222,6 +340,9 @@
 </script>
 
 <style rel="stylesheet/less" lang="less">
+    .start-btn{
+		font-size: 38rpx;color: #fff;
+	}
 	.dial {
 		position: relative;
 		.img {
@@ -241,15 +362,24 @@
 				float: left;
 				position: absolute;
 				overflow: hidden;
-				div {
+				.ico {
 					position: absolute;
-					top: 4px;
-					right: 8px;
+					top: 0px;
+					right: 0;
 					font-size: 18px;
+					text-align: right;
+					text-shadow:0px 0px 50px #8df;
+					background: rgba(0, 0, 0, 0.275);
 					font-weight: bold;
+					width: 100%;
 					span {
 						color: #ffffff;
 					}
+				}
+				// .ico span{}
+				.icoImg{
+                  width:180rpx;
+                  height:192rpx;
 				}
 				&.active {
 					width: 90px;
@@ -339,6 +469,13 @@
 				position: absolute;
 				bottom: -72px;
 				left: 18px;
+			}
+			.zhuanPoint{
+				width: 126px;
+				height: 45px;
+				position: absolute;
+				bottom: -72px;
+				right: 22px;
 			}
 		}
 		/*产品列表*/
