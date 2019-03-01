@@ -30,7 +30,7 @@
 						<span>商品总价: </span>
 						<span> ¥ {{OrderInfo.goodsAmount}}</span>
 					</div>
-					<div class="price2">
+					<div class="price2" v-if="OrderInfo.orderType != 3">
 						<span>推荐师：</span>
 						<span> ¥ {{OrderInfo.recommend}}</span>
 					</div>
@@ -59,7 +59,7 @@
 			<div class="detail-order">
 				<div class="tit">订单详情</div>
 				<div  class="detail-order-li">
-					<div>
+					<div v-if="OrderInfo.orderType != 3">
 						<span>积分:</span>
 						<span>{{OrderInfo.gainedpoint}}</span>
 					</div>

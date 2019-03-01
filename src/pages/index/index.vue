@@ -14,7 +14,7 @@
 		</div> 
 		<!-- 积分商城 -->
 		<div class="pointLogo" @click="jumpPointShop">  
-			<img src="https://shop.guqinet.com/html/images/zhifenxiang/pointLogo.png" mode="widthFix">
+			<img src="https://shop.guqinet.com/html/images/zhifenxiang/pointLogo.png" mode="aspectFit">
 		</div>
 		<!-- 地区列表 -->
 		<div class="addressItem">
@@ -117,10 +117,8 @@
 				wx.navigateTo({url:`../goodCart/main?goodCatId=${goodCatId}&goodCatName=${goodCatName}`})
 			},
 			jumpPointShop:function(){
-				wx.showToast({
-					title:'开发中,敬请期待',
-					icon:'none',
-					duration:1500
+				wx.switchTab({
+					url: '../welfare/main',  
 				})
 			},
 			cutTimes: function(i,endtime) {
@@ -275,10 +273,8 @@
 		}
 		.pointLogo{
 			width:  240px;
-		    height: 55px;
+		    height: 72px;
 		    margin:  10px auto;
-		    
-			
 		}
 		.addressItem,
 		.menuItem {
