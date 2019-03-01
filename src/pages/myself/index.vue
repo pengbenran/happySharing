@@ -67,7 +67,7 @@
 <script>
 import API from '@/api/myself'
 import distribeApi from '@/api/distribe'
-	import store from '@/store/store'
+import store from '@/store/store'
 
 	export default {
 		data() {

@@ -153,10 +153,10 @@
 		   		{
 		   			type: 'image',
 		   			url: ImgArr[1],
-		   			top: that.Width-80,
-		   			left: 155,
-		   			width: 70,
-		   			height:70
+		   			top: that.Width-55,
+		   			left: 150,
+		   			width: 50,
+		   			height:50
 		   		},
 
 		   		]
@@ -211,11 +211,11 @@
 
 			async getGoodsInfo(params){
 				let that=this
+				wx.showLoading({title: '加载中',})
 				let goodsDetailRes=await Api.getGoodDetail(params)
 				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
 				goodsDetailRes.goodbanner.pop()
 				that.goodsDetail=goodsDetailRes
-
 				that.detailContent = that.goodsDetail.content
 				store.commit("stateGoodDetail",that.goodsDetail)
 				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
@@ -225,7 +225,7 @@
 						that.TimeStr = '';
 					}	
 				})
-
+				wx.hideLoading()
 
 			},
 
@@ -285,7 +285,6 @@
 				 lib.showToast('没有获取到该用户的标签数据','none')
 			})
             if(res.code == 0 && res.TagList.length > 0){
-				console.log(" 进来了吗")
 				let arr = []
 				res.TagList.map(v => {
                      arr.push(v.tagId);
@@ -310,27 +309,18 @@
 			 wx.hideLoading()
 		},
 		},
-
-
-		async onLoad(options) {
+		async mounted(){
 			let that=this
             this.Time = ''
 			this.btnSubmit = false;
 			this.btnStr = '立即购买'
+			that.goodsId =that.$root.$mp.query.goodsId
 			clearInterval(this.Time);
-			that.goodsId =options.goodsId
-            if(options.codeUnionid!=''){
-            	store.commit("statecodeUnionid",options.codeUnionid)
-            	store.commit("stategoodsid",options.goodsId)
-            }
-           
-			
-			
-			// 调用应用实例的方法获取全局数据
-		},
-		async mounted(){
-			let that=this
-			await that.$refs.loginModel.userLogin()
+			if(that.$root.$mp.query.codeUnionid!=''){
+				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
+				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
+				await that.$refs.loginModel.userLogin()
+			}	
 			that.Width=wx.getSystemInfoSync().windowWidth
             let params={}
             that.userInfo = store.state.userInfo

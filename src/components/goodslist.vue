@@ -3,8 +3,8 @@
     <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id"  @click="topage(item)">
       <div class="img fl"><img :src="item.thumbnail" /></div>
       <div class="rec-center fl">
-        <div class="tit">{{item.title}}</div>
-        <div class="name">{{item.goodName}}</div>
+        <!-- <div class="tit">{{item.title}}</div> -->
+        <div class="name fontHidden">{{item.goodName}}</div>
         <div class="present ">￥{{item.price}}</div>
         <div class="original ">原价:{{item.showPrice}}元</div>
         <!-- <div v-if="item.isshow" class="dianzhan">点赞:{{item.dianzhan}}</div> -->

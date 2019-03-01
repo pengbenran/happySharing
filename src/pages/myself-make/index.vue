@@ -16,13 +16,7 @@
 	export default {
 		data() {
 			return {
-				head:{
-					img:"/static/images/head.png", 
-					name:"bobo",
-					pai:"金牌推荐师"
-				},
 				painting:{},
-				code:"/static/images/code.png",
 				shareImage:'',
 				userInfo:{}
 			};
@@ -49,7 +43,8 @@
 			   	wx.showLoading({
 			   		title:'推广码绘制中'
 			   	})	
-			   	let ImgArr = ['https://shop.guqinet.com/html/images/zhifenxiang/bcg.png']
+			   	let ImgArr = []
+			   	ImgArr[0]=store.state.config.distribePoster
 			   	ImgArr[1]=codeUrl
 			   	ImgArr[2]=that.userInfo.face
 			   	that.painting={
@@ -57,30 +52,39 @@
 			   		height: 413,
 			   		clear: true,
 			   		views: [
+			   			{
+			   			type:'rect',
+			   			background:'#fff',
+			   			top:0,
+			   			left:0,
+			   			width:290,
+			   			height:413
+
+			   		},
 			   		{
 			   			type: 'image',
 			   			url: ImgArr[0],
 			   			top: 0,
 			   			left: 0,
 			   			width: 290,
-			   			height: 413
+			   			height: 318
 			   		},
 			   		{
 			   			type: 'image',
 			   			url: ImgArr[2],
-			   			top: 20,
-			   			left: 125,
-			   			width: 45,
-			   			height: 45,
+			   			top: 320,
+			   			left: 30,
+			   			width: 50,
+			   			height: 50,
 			   			borderRadius:22.5
 			   		},
 			   		{
 			   			type: 'image',
 			   			url: ImgArr[1],
-			   			top: 170,
-			   			left: 70,
-			   			width: 150,
-			   			height: 150
+			   			top: 320,
+			   			left: 170,
+			   			width: 90,
+			   			height: 90
 			   		},
 			   		{
 			   			type: 'text',
@@ -89,9 +93,11 @@
 			   			color: '#666',
 			   			textAlign: 'left',
 			   			breakWord: true,
-			   			top: 70,
-			   			width:200,
-			   			isCenter:true
+			   			top: 370,
+			   			left:30,
+			   			width:100,
+			   			MaxLineNumber:1,
+			   			isCenter:false
 			   		},{
 			   			type: 'text',
 			   			content:that.userInfo.dlvname,
@@ -99,10 +105,9 @@
 			   			color: '#666',
 			   			textAlign: 'left',
 			   			breakWord: true,
-			   			left: 15,
-			   			top: 100,
-			   			width:200,
-			   			isCenter:true
+			   			left: 30,
+			   			top: 390,
+			   			isCenter:false
 			   		},
 			   		]
 			   	}

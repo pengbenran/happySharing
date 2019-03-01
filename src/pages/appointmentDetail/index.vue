@@ -126,10 +126,6 @@
 			},
 			
 		},
-		onShow(){
-			this.Time = ''
-			this.btnStr = '立即购买'
-		},
 		methods: {
 			// 拨打电话
 			makePhone(){
@@ -181,10 +177,10 @@
 		   		{
 		   			type: 'image',
 		   			url: ImgArr[1],
-		   			top: that.Width-80,
-		   			left: 160,
-		   			width: 70,
-		   			height:70
+		   			top: that.Width-55,
+		   			left: 150,
+		   			width: 50,
+		   			height:50
 		   		},
 		   		]
 		   	}
@@ -241,24 +237,15 @@
 			},
 			async getGoodsInfo(params){
 				let that=this
+				wx.showLoading({title: '加载中',})
 				let goodsDetailRes=await Api.getBookGoodDetail(params)
 				if(goodsDetailRes.code==0){
+					wx.hideLoading()
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
 					that.detailContent = that.goodsDetail.content
 					that.goodBooks=goodsDetailRes.goodBooks
-
-				// that.Timer(goodsDetailRes.good.upTime,goodsDetailRes.good.upType,function(res){
-			
-				// 	if(res != 'noTime'){
-				// 		that.TimeStr = res;
-				// 	}else{
-				// 		that.TimeStr = '';
-				// 		this.btnStr = '立即购买'
-				// 	}	
-				// })
-				console.log(that.goodsDetail,"商品详情")
                 that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					let dateArr=[]
 					for(var i in goodsDetailRes.goodBooks){
@@ -292,7 +279,6 @@
     		}, 
     		onConfirm(e) {
     			let that=this
-  
     			let goodBooksItem=that.goodBooks[e.index[0]]
     			let dateTime=goodBooksItem.dateTime
     			let endtime=e.label.split('-')[2]
@@ -308,14 +294,12 @@
 				appointmentParam.endTime=endtimetap
 				appointmentParam.index = e.index[1]
 				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
-				console.log(appointmentParam,"查看两个时间")
     		    store.commit("stateappointment",appointmentParam)
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
 
 			},
 
 			async GetUserLable(unionid){
-						console.log("这下进来的阿斯顿",res)
 			let that = this;
 			let data = {unionid:unionid}	
 			let res = await Api_user.getUserLable(data).catch(err => {
@@ -375,22 +359,17 @@
 		},
 		},
 		async mounted(){
-			await this.$refs.loginModel.userLogin()
-		},
-		async onLoad(options) {
 			let that=this
-			that.goodsId =options.goodsId
 			that.multiArray=[]
 			that.dataArray=[]
-            if(options.codeUnionid!=''){
-            	store.commit("statecodeUnionid",options.codeUnionid)
-            	store.commit("stategoodsid",options.goodsId)
-            }
-			// 调用应用实例的方法获取全局数据
-		},
-		async mounted(){
-			let that=this
-			await that.$refs.loginModel.userLogin()
+			that.Time = ''
+			that.btnStr = '立即购买'
+			that.goodsId =that.$root.$mp.query.goodsId
+			if(that.$root.$mp.query.codeUnionid!=''){
+				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
+				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
+				await that.$refs.loginModel.userLogin()
+			}	
 			that.Width=wx.getSystemInfoSync().windowWidth
 			let params={}
 			that.userInfo = store.state.userInfo

@@ -7,7 +7,7 @@ fly.interceptors.request.use((request) => {
         request.headers = {//设置请求头
             "content-type": "application/x-www-form-urlencoded",
             // "Authorization": wx.getStorageSync('Token')
-            "Authorization":"eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU1MDIyOTM5NzA0MCwiZXhwIjoxNTUwNTAyODk4fQ.30ETY-B4MlhKaZRw7Ua3ckDGShEotXu241kM8loWEjw"
+            "Authorization":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLlsI_nqIvluo_nmbvlvZUiLCJjb250ZXh0VXNlcklkIjoi5bCP56iL5bqP55m75b2VIiwiY29udGV4dE5hbWUiOiLlsI_nqIvluo_nmbvlvZUiLCJyZW5ld2FsVGltZSI6MTU1MTA4MTU0MTEyMn0.bgWb9ZRbzFXtJhKKE-9WGGIeL3NvTeWXj5lClvNNnYQ"
         }
         return request;
     } else {
@@ -60,10 +60,10 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
+   // let base='https://zhifenxiang.guqinet.com'
    let base='https://zhifenxiang.guqinet.com'
-//    let base='https://zhifenxiang.guqinet.com'
 // let base='http://192.168.2.131:8011'
-// let base='http://192.168.2.111:8012'
+// let base='http://192.168.2.112:8012'
 // export default {
 //     fly: fly
 // }

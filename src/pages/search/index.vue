@@ -12,7 +12,7 @@
             <div class="title">
                 <div class="fontHidden">{{item.goodName}}</div>
             </div>
-            <div class="Price"><text class="Pri">￥{{item.showPrice}}</text><text class="info">销量：{{item.showSales}}</text></div>
+            <div class="Price"><text class="Pri">￥{{item.price}}</text><text class="info">销量：{{item.showSales}}</text></div>
         </div>
 
         <div class="Tip"  v-show='List.length == 0'>{{tip}}</div>

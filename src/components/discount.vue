@@ -5,7 +5,7 @@
 			<div class="img"><img :src="item.thumbnail" /></div>
 			<div class="cant">
 				<div class="name-make clr">
-					<div class="name fl">{{item.title}}</div>
+					<div class="name fl fontHidden">{{item.goodName}}</div>
 					<!-- <div class="make fr">免预约</div> -->
 				</div>
 				<!-- <div class="desc">{{item.goodName}}</div> -->
