@@ -220,8 +220,9 @@ import nomoreTip from "@/components/nomoreTip"
 				//此处是消耗积分的请求
 				let data = {
 					unionId:this.UserInfo.unionid,
-					point:that.Config.turntable_consume_point
+					point:that.Config.turntable_consume_point //后代设置消耗的积分
 				}
+				
 				API.point_Consumption(data).then(res => {
 					if(res.code == 0){
 						that.UserInfo.point = res.nowPoint
@@ -231,6 +232,8 @@ import nomoreTip from "@/components/nomoreTip"
                     Lib.showToast('网络开了个小差','none')
 				})
 			},
+
+			//转盘主题程序
 			move() {
 				let that = this;
 				that.timeout = setTimeout(() => {
@@ -247,7 +250,7 @@ import nomoreTip from "@/components/nomoreTip"
 							//往后台保存积分
 							let data = {
 								unionId:this.UserInfo.unionid,
-								point:this.turntablesList[this.current].content*1
+								point:this.turntablesList[this.current].content*1   //获取当前选择的那个积分
 							}
 							API.point_Obtain(data).then(res => {
 							console.log(res,"获取积分")
