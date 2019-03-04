@@ -82,6 +82,7 @@
 				goodsDetail:{},
 				painting:{},
 				shareImage:'',
+				shareBool:true,
 				Width:'',
 				userInfo:{},
 				TimeStr:'',
@@ -186,12 +187,17 @@
 			},
 			share(){
 				let that=this
-				let shareRight = that.goodsDetail.shareRight.split(',')
-				if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
-                   that.getErCode()
-				}else{
-                   lib.showToast('抱歉您暂无推荐权限','none')
-				}
+				if(that.shareBool){
+					that.shareBool = false
+				    that.getErCode()
+				}	
+
+				// let shareRight = that.goodsDetail.shareRight.split(',')
+				// if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
+                //    that.getErCode()
+				// }else{
+                //    lib.showToast('抱歉您暂无推荐权限','none')
+				// }
 			},
 
 			async getErCode(){
@@ -202,6 +208,7 @@
 				if(QrcodeRes.code==0){
 					that.eventDraw(QrcodeRes.url)
 				}
+				that.shareBool = true
 
 			},
 
