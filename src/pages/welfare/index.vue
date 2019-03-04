@@ -185,10 +185,10 @@ import nomoreTip from "@/components/nomoreTip"
 					content: '将扣除'+that.Config.turntable_consume_point+'积分',
 					success(res) {
 						if (res.confirm) {
-								if(that.UserInfo.point >= 15){
+								if(that.UserInfo.point >= that.Config.turntable_consume_point){
 									that.drawAward()
 									that.time = Date.now();
-									that.speed = 300;
+									that.speed = 250;
 									that.diff = 15;
 								}else{
 									Lib.showToast('你的积分不足','none')
@@ -220,10 +220,11 @@ import nomoreTip from "@/components/nomoreTip"
 				//此处是消耗积分的请求
 				let data = {
 					unionId:this.UserInfo.unionid,
-					point:15
+					point:that.Config.turntable_consume_point
 				}
 				API.point_Consumption(data).then(res => {
 					if(res.code == 0){
+						that.UserInfo.point = res.nowPoint
                    	    that.move();
 					}
 				}).catch(err => {
@@ -239,14 +240,14 @@ import nomoreTip from "@/components/nomoreTip"
 					}
 					if(this.award.id && (Date.now() - this.time) / 1000 > 2) {
 						this.speed += this.diff;
-						if((Date.now() - this.time) / 1000 > 4 && this.award.id == this.turntablesList[this.current].id) {
+						if((Date.now() - this.time) / 1000 > 5 && this.award.id == this.turntablesList[this.current].id) {
 							clearTimeout(that.timeout);
 							this.getPoint += this.turntablesList[this.current].content*1
                            
 							//往后台保存积分
 							let data = {
 								unionId:this.UserInfo.unionid,
-								point:this.getPoint
+								point:this.turntablesList[this.current].content*1
 							}
 							API.point_Obtain(data).then(res => {
 							console.log(res,"获取积分")

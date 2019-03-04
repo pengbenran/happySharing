@@ -179,11 +179,7 @@
 			async jumpSaveOrder(){
 				await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 				if(!this.Time){ //定时上架
-				    if(this.btnSubmit){//判断专买权
-                       wx.navigateTo({url:`../order-submit/main?orderType=1`})
-					}else{
-				       lib.showToast('您不是指定用户','none')
-					}
+					wx.navigateTo({url:`../order-submit/main?orderType=1`})
 				}else{
 				    lib.showToast('该商品还未上架','none')
 				}
