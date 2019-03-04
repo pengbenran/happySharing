@@ -5,7 +5,7 @@
 		</div>
 		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
 		<div class="btn" @click="eventSave">保存图片</div> 
-		<div class="rule"><span>了解规则</span></div>
+		<!-- <div class="rule"><span>了解规则</span></div> -->
 	</div>
 </template>
 <script>

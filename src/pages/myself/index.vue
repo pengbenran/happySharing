@@ -133,11 +133,20 @@ import store from '@/store/store'
 						params.unionid=that.userInfo.unionid
 						let canGetCodeRes=await distribeApi.canGetCode(params)
 						if(canGetCodeRes.code==0){
-							wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
+							if(canGetCodeRes.inviteCode==0){
+								wx.showToast({
+									title:'生成推荐码的数量达到上限',
+									icon:"none",
+									duration:1500
+								})
+							}
+							else{
+								wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
+							}
 						}
 						else{
 							wx.showToast({
-								title:'生成推荐码的数量达到上限',
+								title:'网络错误',
 								icon:"none",
 								duration:1500
 							})
