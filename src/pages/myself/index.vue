@@ -9,8 +9,10 @@
 					<span>ID : {{userInfo.id}}</span>
 				</div>
 				<div class="service">
+					<button  open-type="contact" session-from="weapp">
 					<span class="iconfont">&#xe61a;</span>
 					<span>客服</span>
+					</button>
 				</div>
 			</div>
 
@@ -208,6 +210,14 @@ import store from '@/store/store'
 				}
 			}
 			.service {
+				button{
+					padding: 0;
+					line-height: 1;
+					background: #fff;
+				}
+				button::after {
+			     	border: none;
+				}
 				span {
 					display: block;
 					text-align: center;
