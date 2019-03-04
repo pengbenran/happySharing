@@ -184,7 +184,6 @@
 				that.getRecommendGood(1,3)
 	            // 获取根分类
 	            let rootKindRes=await Api.getRootKind()
-	    
 	            that.kindItem=rootKindRes.rootCats
 				// 获取地区分类
 				let reginRes=await Api.getRegin()
@@ -213,10 +212,9 @@
 			wx.showLoading({
 				title: '加载中',
 			})
-
 			that.getIndex()
+		},
 
-		}
 
 	}
 </script>

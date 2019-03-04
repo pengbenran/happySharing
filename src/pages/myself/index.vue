@@ -58,7 +58,6 @@
 				<div class="list-cant" v-for="(item,index) in list">
 					<div class="list-li" @click="jumpUrl(item.ourl)">
 						<div class="name">{{item.name}}</div>
-
 						<div class="iconfont" style="color: #666666;">&#xe65c;</div>
 					</div>
 				</div>
@@ -93,6 +92,7 @@ import store from '@/store/store'
 				],
 				config:{},
 				userInfo:{},
+				canSubmit:true,
 			}
 		},
 		components: {
@@ -131,27 +131,31 @@ import store from '@/store/store'
 						})
 					}
 					else{
-						let params={}
-						params.unionid=that.userInfo.unionid
-						let canGetCodeRes=await distribeApi.canGetCode(params)
-						if(canGetCodeRes.code==0){
-							if(canGetCodeRes.inviteCode==0){
+						if(that.canSubmit){
+							that.canSubmit=false
+							let params={}
+							params.unionid=that.userInfo.unionid
+							let canGetCodeRes=await distribeApi.canGetCode(params)
+							that.canSubmit=true
+							if(canGetCodeRes.code==0){
+								if(canGetCodeRes.inviteCode==0){
+									wx.showToast({
+										title:'生成推荐码的数量达到上限',
+										icon:"none",
+										duration:1500
+									})
+								}
+								else{
+									wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
+								}
+							}
+							else{
 								wx.showToast({
-									title:'生成推荐码的数量达到上限',
+									title:'网络错误',
 									icon:"none",
 									duration:1500
 								})
 							}
-							else{
-								wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
-							}
-						}
-						else{
-							wx.showToast({
-								title:'网络错误',
-								icon:"none",
-								duration:1500
-							})
 						}
 					}
 				}
@@ -160,11 +164,11 @@ import store from '@/store/store'
 				}
 			}
 		},
-		mounted() {
+		onShow(){
 			let that = this
 			that.userInfo = store.state.userInfo
 			that.config = store.state.config
-		},
+		}
 	}
 </script>
 

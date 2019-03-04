@@ -108,6 +108,10 @@
 		},
 		mounted() {
 			let that=this
+			that.withdeawList=[]
+			that.commissionList=[]
+			that.hasMore=[true,true]
+			that.nowPage=[0,0]
 			that.userInfo = store.state.userInfo
 			this.type = this.popup[0].name;
 			that.getCommissionList(0,6,that.userInfo.unionid)
@@ -137,7 +141,7 @@
 					let commissionRes=await Api.getCommissionList(params)
 					wx.hideLoading();
 					commissionRes.rows.map(item=>{
-						item.stauname=item.status==1?'已红包返佣':item.status==2?'返佣失败':'返佣已加余额'
+						item.stauname=item.type==1?'已红包返佣':item.type==2?'返佣失败':'返佣已加余额'
 						return item
 					})
 					if(commissionRes.rows.length<pageSize){
@@ -351,7 +355,7 @@
 			}
 			.num{
 				p{
-					font-size: 14px;
+					font-size: 11px;
 					font-family: "roboto";
 					line-height: 25px;
 					span{
