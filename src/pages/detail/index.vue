@@ -26,50 +26,50 @@
 							<!-- <div class="people fr">{{item.people}}</div> -->
 						</div>
 						<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-							<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
-							<div class="original-sell clr">
-								<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-								<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
-							</div>
-							<div class="phone clr">
-								<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
-								<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
-							</div>
+							<span class="Present">{{goodsDetail.returnAmount}}元</span>
+							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+						</div>
+						<div class="original-sell clr">
+							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
+							<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+						</div>
+						<div class="phone clr">
+							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+							<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
 						</div>
 					</div>
-					<!--商品详情-->
-					<div class="product-detail centered">
-						<span>商品详情</span>
-					</div>
-					<div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
-
-					<!--底下导航-->
-					<div class="nav">
-						<div class="index" @click="jumpIndex">
-							<div class="img"><img src="/static/images/home.png" /></div>
-							<div class="text">首页</div>
-						</div>
-						<div class="index" @click="share">
-							<div class="img"><span class="iconfont">&#xe62a;</span></div>
-							<div class="text">分享</div>
-						</div>
-						<div @click="jumpSaveOrder(index)" class="rush">
-							{{btnStr}}
-						</div>
-					</div>
-					<div class="paintImg" v-show="paintOk">
-						<div class="bcg" @click="closeClick"></div>
-						<div class="img" :style="{width:Width+'px',height:Width+'px'}">
-							<img :src="shareImage">
-						</div>
-						<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
-					</div>
-					<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
 				</div>
-			</blockquote>
-			<loginModel ref="loginModel"></loginModel>
-		</div>
-	
+		<!--商品详情-->
+				<div class="product-detail centered">
+					<span>商品详情</span>
+				</div>
+				<div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+				<!--底下导航-->
+				<div class="nav">
+					<div class="index" @click="jumpIndex">
+						<div class="img"><img src="/static/images/home.png" /></div>
+						<div class="text">首页</div>
+					</div>
+					<div class="index" @click="share">
+						<div class="img"><span class="iconfont">&#xe62a;</span></div>
+						<div class="text">分享</div>
+					</div>
+					<div @click="jumpSaveOrder(index)" class="rush">
+						{{btnStr}}
+					</div>
+				</div>
+				<div class="paintImg" v-show="paintOk">
+					<div class="bcg" @click="closeClick"></div>
+					<div class="img" :style="{width:Width+'px',height:Width+'px'}">
+						<img :src="shareImage">
+					</div>
+					<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
+				</div>
+				<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+			</div>
+		</blockquote>
+		<loginModel ref="loginModel"></loginModel>
+	</div>	
 </template>
 
 <script>
@@ -190,11 +190,15 @@
 				})
 			},
 			async jumpSaveOrder(){
-				await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
-				if(!this.Time){ //定时上架
-					wx.navigateTo({url:`../order-submit/main?orderType=1`})
+				if(this.goodsDetail.inventory > 0){
+					await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
+					if(!this.Time){ //定时上架
+						wx.navigateTo({url:`../order-submit/main?orderType=1`})
+					}else{
+						lib.showToast('该商品还未上架','none')
+					}
 				}else{
-				    lib.showToast('该商品还未上架','none')
+                        lib.showToast('该商品库存为空','none')
 				}
 			},
 			share(){

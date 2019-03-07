@@ -16,7 +16,9 @@
 					<div class="discounts fl">优惠:{{discounts}}元</div>
 				</div>
 				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
+						<span class="Present">{{goodsDetail.returnAmount}}元</span>
+				        <div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+				</div>
 				<div class="preRight" v-if="Time">
 						<div class="time">{{TimeStr}}</div>
 				</div>
@@ -212,16 +214,21 @@
 				}
 			},
 			showPicker() {
-				if(this.btnSubmit){
-					this.pickerValueArray = this.mulLinkageTwoPicker;
-					this.mode = 'multiLinkageSelector';
-					this.deepLength = 2;
-					this.pickerValueDefault = [1, 0];
-					this.$refs.mpvuePicker.show();
-					console.log(this);
-				 }else{
-				       lib.showToast('您不是指定用户','none')
-					}
+				if(this.goodsDetail.inventory > 0){
+					if(this.btnSubmit){
+						this.pickerValueArray = this.mulLinkageTwoPicker;
+						this.mode = 'multiLinkageSelector';
+						this.deepLength = 2;
+						this.pickerValueDefault = [1, 0];
+						this.$refs.mpvuePicker.show();
+						console.log(this);
+					}else{
+						lib.showToast('您不是指定用户','none')
+						}
+				}else{
+				    	 lib.showToast('该商品库存为空','none')
+				}
+
 			},
 			jumpIndex(){
 				wx.switchTab({
