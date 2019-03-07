@@ -109,7 +109,6 @@
 				btnStr:'立即购买',
 				userInfo:{},
 				paintOk:false
-
 			}
 
 		},
@@ -196,26 +195,24 @@
 			},
 			share(){
 				let that=this
-				 that.getErCode()
-				// let shareRight = that.goodsDetail.shareRight.split(',')
-				// if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
-                  
-				// }else{
-                //    lib.showToast('抱歉您暂无推荐权限','none')
-				// }
+				if(that.shareImage==""){
+					that.eventDraw(that.posterErcode)
+				}
+				else{
+					that.paintOk=true
+				}
 			},
 			async getErCode(){
 				let that=this
 				let params={}
-				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+2
+				params.params=store.state.userInfo.unionid+','+that.goodsId+','+2
 				let QrcodeRes=await Api.GetQrcode(params)
 				if(QrcodeRes.code==0){
-					that.eventDraw(QrcodeRes.url)
+					that.posterErcode=QrcodeRes.url
 				}
 			},
 			showPicker() {
 				if(this.btnSubmit){
-			     	console.log("预约")
 					this.pickerValueArray = this.mulLinkageTwoPicker;
 					this.mode = 'multiLinkageSelector';
 					this.deepLength = 2;
@@ -232,8 +229,7 @@
 				})
 			},
 			jumpSaveOrder(){
-		
-                      wx.navigateTo({url:`../order-submit/main`})
+                wx.navigateTo({url:`../order-submit/main`})
 					
 			},
 			async getGoodsInfo(params){
@@ -364,6 +360,8 @@
 			that.multiArray=[]
 			that.dataArray=[]
 			that.Time = ''
+			that.shareImage=""
+			that.paintOk=false
 			that.btnStr = '立即购买'
 			that.goodsId =that.$root.$mp.query.goodsId
 			if(that.$root.$mp.query.codeUnionid!=''){
@@ -380,6 +378,7 @@
 				params.memberLv=that.userInfo.whetherDistribe
 			}
 			that.getGoodsInfo(params)
+			that.getErCode()
 		}
 	}
 </script>

@@ -91,7 +91,8 @@
 				UsertagId:'',
 				btnSubmit:false,
 				detailContent:'',
-				btnStr:'立即购买'
+				btnStr:'立即购买',
+				posterErcode:''
 			}
 
 		},
@@ -154,8 +155,8 @@
 		   		{
 		   			type: 'image',
 		   			url: ImgArr[1],
-		   			top: that.Width-55,
-		   			left: 150,
+		   			top: that.Width-60,
+		   			left: 155,
 		   			width: 50,
 		   			height:50
 		   		},
@@ -187,29 +188,22 @@
 			},
 			share(){
 				let that=this
-				if(that.shareBool){
-					that.shareBool = false
-				    that.getErCode()
+				if(that.shareImage==""){
+					that.eventDraw(that.posterErcode)
+				}
+				else{
+					that.paintOk=true
 				}	
-
-				// let shareRight = that.goodsDetail.shareRight.split(',')
-				// if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
-                //    that.getErCode()
-				// }else{
-                //    lib.showToast('抱歉您暂无推荐权限','none')
-				// }
 			},
 
 			async getErCode(){
 				let that=this
 				let params={}
-				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+1
+				params.params=store.state.userInfo.unionid+','+that.goodsId+','+1
 				let QrcodeRes=await Api.GetQrcode(params)
 				if(QrcodeRes.code==0){
-					that.eventDraw(QrcodeRes.url)
+					that.posterErcode=QrcodeRes.url
 				}
-				that.shareBool = true
-
 			},
 
 			async getGoodsInfo(params){
@@ -316,6 +310,8 @@
 			let that=this
             this.Time = ''
 			this.btnSubmit = false;
+			that.shareImage=""
+			that.paintOk=false
 			this.btnStr = '立即购买'
 			that.goodsId =that.$root.$mp.query.goodsId
 			clearInterval(this.Time);
@@ -333,6 +329,7 @@
             	params.memberLv=that.userInfo.whetherDistribe
             }
 			that.getGoodsInfo(params)
+			that.getErCode()
 		}
 	}
 </script>

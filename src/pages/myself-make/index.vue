@@ -126,16 +126,32 @@
 			 }
 			},
 			eventSave() {
+				let that=this
 				wx.saveImageToPhotosAlbum({
-					filePath: this.shareImage,
-					success(res) {
+					filePath: that.shareImage,
+					success: function (res) {
 						wx.showToast({
 							title: '保存图片成功',
 							icon: 'success',
 							duration: 2000
 						})
+					},
+					fail: function (res) {
+						if (res.errMsg === "saveImageToPhotosAlbum:fail:auth denied") {
+							console.log("打开设置窗口");
+							wx.openSetting({
+								success(settingdata) {
+									console.log(settingdata)
+									if (settingdata.authSetting["scope.writePhotosAlbum"]) {
+										console.log("获取权限成功，再次点击图片保存到相册")
+									} else {
+										console.log("获取权限失败")
+									}
+								}
+							})
+						}
 					}
-				})
+				})			
 			},
 		},
 		onLoad(options){

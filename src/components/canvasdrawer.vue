@@ -15,7 +15,9 @@
       	isPainting: false,
       	cache:{},
       	ctx:null,
-      	painting:{}
+      	painting:{},
+        bigentime:'',
+        endtime:''
       }
     },
     components: {
