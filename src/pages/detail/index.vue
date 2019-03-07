@@ -21,7 +21,9 @@
 					<!-- <div class="people fr">{{item.people}}</div> -->
 				</div>
 				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
+						<span class="Present">{{goodsDetail.returnAmount}}元</span>
+				        <div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+				</div>
 				<div class="original-sell clr">
 					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
@@ -178,11 +180,15 @@
 				})
 			},
 			async jumpSaveOrder(){
-				await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
-				if(!this.Time){ //定时上架
-					wx.navigateTo({url:`../order-submit/main?orderType=1`})
+				if(this.goodsDetail.inventory > 0){
+					await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
+					if(!this.Time){ //定时上架
+						wx.navigateTo({url:`../order-submit/main?orderType=1`})
+					}else{
+						lib.showToast('该商品还未上架','none')
+					}
 				}else{
-				    lib.showToast('该商品还未上架','none')
+                        lib.showToast('该商品库存为空','none')
 				}
 			},
 			share(){
