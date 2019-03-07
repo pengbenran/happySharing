@@ -1,73 +1,78 @@
 <template>
-	<div style="width: 100%;">
-		<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
-			<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
-				<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
-			</swiper>
-			<div class="cant centered">
-				<div class="address-make clr">
-					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
-					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div style="width: 100%;">
+				<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
+					<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
+						<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
+					</swiper>
+					<div class="cant centered">
+						<div class="address-make clr">
+							<div class="address fl">消费地址:{{goodsDetail.address}}</div>
+							<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
+						</div>
+						<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
+						<div class="Present-discounts-people clr">
+							<div class="preLeft">
+								<div class="Present fl">￥:{{goodsDetail.price}}元</div>
+								<div class="discounts fl">优惠:{{discounts}}元</div>
+							</div>
+							<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+								<span class="Present">{{goodsDetail.returnAmount}}元</span>
+								<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+							</div>
+							<div class="preRight" v-if="Time">
+								<div class="time">{{TimeStr}}</div>
+							</div>
+						</div>
+						<div class="original-sell clr">
+							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
+							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+						</div>
+						<div class="phone clr">
+							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+							<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
+						</div>
+					</div>
 				</div>
-				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
-				<div class="Present-discounts-people clr">
-				<div class="preLeft">
-					<div class="Present fl">￥:{{goodsDetail.price}}元</div>
-					<div class="discounts fl">优惠:{{discounts}}元</div>
+				<!--商品详情-->
+				<div class="product-detail centered">
+					<span>图文详情</span>
 				</div>
-				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span>
-				        <div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+				<div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+			</picker>
+			<!--底下导航-->
+			<div class="nav">
+				<div class="index" @click="jumpIndex">
+					<div class="img"><img src="/static/images/home.png" /></div>
+					<div class="text">首页</div>
 				</div>
-				<div class="preRight" v-if="Time">
-						<div class="time">{{TimeStr}}</div>
+				<div class="index" @click="share">
+					<div class="img"><span class="iconfont">&#xe62a;</span></div>
+					<div class="text">分享</div>
 				</div>
-				</div>
-				<div class="original-sell clr">
-					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
-				</div>
-				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
-					<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
+				<div v-if='goodsDetail.book==1' class="rush"  @click="showPicker">	
+					立即预约
 				</div>
 			</div>
-		</div>
-		<!--商品详情-->
-		<div class="product-detail centered">
-			<span>图文详情</span>
-		</div>
-		<div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
-	</picker>
-		<!--底下导航-->
-		<div class="nav">
-			<div class="index" @click="jumpIndex">
-				<div class="img"><img src="/static/images/home.png" /></div>
-				<div class="text">首页</div>
+			<div class="paintImg" v-show="paintOk">
+				<div class="bcg" @click="closeClick"></div>
+				<div class="img" :style="{width:Width+'px',height:Width+'px'}">
+					<img :src="shareImage">
+				</div>
+				<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 			</div>
-			<div class="index" @click="share">
-				<div class="img"><span class="iconfont">&#xe62a;</span></div>
-				<div class="text">分享</div>
-			</div>
-			<div v-if='goodsDetail.book==1' class="rush"  @click="showPicker">	
-				立即预约
-			</div>
+			<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>
+			<div style="margin-bottom:55px">
+				<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
+			</div>	
 		</div>
-		<div class="paintImg" v-show="paintOk">
-			<div class="bcg" @click="closeClick"></div>
-			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
-				<img :src="shareImage">
-			</div>
-			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
-		</div>
-		<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>
-		<div style="margin-bottom:55px">
-			<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
-		</div>
-
-		<loginModel ref="loginModel"></loginModel>
-
-	</div>
+	</blockquote>
+    <loginModel ref="loginModel"></loginModel>
+</div>
 </template>
 
 <script>
@@ -80,6 +85,7 @@
 	import canvasdrawer from '@/components/canvasdrawer'
 	import loginModel from "@/components/loginModel"; 
 	import wxParse from 'mpvue-wxparse'
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
@@ -110,7 +116,8 @@
 				detailContent:'',
 				btnStr:'立即购买',
 				userInfo:{},
-				paintOk:false
+				paintOk:false,
+				isLoading:false,
 			}
 
 		},
@@ -118,7 +125,8 @@
 			mpvuePicker,
 			canvasdrawer,
 			wxParse,
-			loginModel
+			loginModel,
+			loading
 		},
 		computed:{
 			discounts(){
@@ -221,7 +229,6 @@
 						this.deepLength = 2;
 						this.pickerValueDefault = [1, 0];
 						this.$refs.mpvuePicker.show();
-						console.log(this);
 					}else{
 						lib.showToast('您不是指定用户','none')
 						}
@@ -241,7 +248,6 @@
 			},
 			async getGoodsInfo(params){
 				let that=this
-				wx.showLoading({title: '加载中',})
 				let goodsDetailRes=await Api.getBookGoodDetail(params)
 				if(goodsDetailRes.code==0){
 					wx.hideLoading()
@@ -269,10 +275,10 @@
 								dateArr.children.push(multiArr)
 							}	
 						}
-						console.log(dateArr);
 						that.mulLinkageTwoPicker.push(dateArr)
 					}
 					store.commit("stateGoodDetail",that.goodsDetail)
+					that.isLoading=true
 				}
 			},
 			timeFormat(timestamp){
@@ -364,12 +370,6 @@
 		},
 		async mounted(){
 			let that=this
-			that.multiArray=[]
-			that.dataArray=[]
-			that.Time = ''
-			that.shareImage=""
-			that.paintOk=false
-			that.btnStr = '立即购买'
 			that.goodsId =that.$root.$mp.query.goodsId
 			if(that.$root.$mp.query.codeUnionid!=''){
 				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
@@ -386,6 +386,38 @@
 			}
 			that.getGoodsInfo(params)
 			that.getErCode()
+		},
+		onUnload(){
+			let that=this
+			that.wid= "100%"
+			that.magleft= "0"
+			that.goodsDetail={}
+			that.multiIndex= [0,0]
+			that.multiArray=[]
+			that.dataArray=[]
+			that.allBulletin= []
+			that.mode= 'selector'
+		    that.deepLength= 0 // 几级联动
+		    that.pickerValueDefault= [] // 初始化值
+		    that.pickerValueArray= []// picker 数组值
+		    that.pickerText= ''
+		    that.mulLinkageTwoPicker= []
+		    that.pickerValueDefault=[0,0]
+		    that.goodBooks=[]
+		    that.painting={}
+		    that.shareImage=''
+		    that.Width=''
+		    that.detailContent=''
+		    that.Time=''
+		    that.TimeStr=''
+		    that.whetherDistribe=''
+		    that.UsertagId=''
+		    that.btnSubmit=false
+		    that.detailContent=''
+		    that.btnStr='立即购买'
+		    that.userInfo={}
+		    that.paintOK=false
+		    that.isLoading=false
 		}
 	}
 </script>

@@ -1,30 +1,36 @@
 <template>
-	<div style="width: 100%;">
-		<!--搜索-->
-		<Search></Search>
-		<!--轮播-->
-		<!-- <Banner :banner='bannerImg'></Banner> -->
-		<!--类目-->
-		<div class="cate centered">
-			<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
-					<div class="img"><img :src="item.img" /></div>
-					<div class="name">{{item.name}}</div>
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div>
+				<!--搜索-->
+				<Search></Search>
+				<!--轮播-->
+				<!--类目-->
+				<div class="cate centered">
+					<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
+							<div class="img"><img :src="item.img" /></div>
+							<div class="name">{{item.name}}</div>
+					</div>
+				</div>
+				<!--超值优惠-->
+				<div class="discount-wrap centered">
+					<div class="title">超赞推荐</div>
+					<scroll-view scroll-x style="width: 100%;">	
+					   <discount :discountList="catGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
+					</scroll-view>
+				</div>
+				<!--超赞推荐-->
+				<div class="rec-wrap centered">
+					<div class="title ">超值优惠</div>
+					<!-- <div class="image"><img src="/static/images/rec-banner.png" /></div> -->
+					<goodslist :catGoodRecommend='catGoodRes'></goodslist>
+					<nomoreTip v-if="!hasMore"></nomoreTip>
+				</div>
 			</div>
-		</div>
-		<!--超值优惠-->
-		<div class="discount-wrap centered">
-			<div class="title">超赞推荐</div>
-			<scroll-view scroll-x style="width: 100%;">	
-			   <discount :discountList="catGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
-			</scroll-view>
-		</div>
-		<!--超赞推荐-->
-		<div class="rec-wrap centered">
-			<div class="title ">超值优惠</div>
-			<!-- <div class="image"><img src="/static/images/rec-banner.png" /></div> -->
-			<goodslist :catGoodRecommend='catGoodRes'></goodslist>
-			<nomoreTip v-if="!hasMore"></nomoreTip>
-		</div>
+		</blockquote>
 	</div>
 </template>
 
@@ -37,6 +43,7 @@
 	import Api from '@/api/goods'
 	import kindApi from '@/api/home'
 	import util from '@/utils/index'
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
@@ -50,7 +57,8 @@
 				catGoodRecommend:[],
 				nowPage:1,
 				hasMore:true,
-				bannerImg:[]
+				bannerImg:[],
+				isLoading:false,
 			}
 		},
 
@@ -59,7 +67,8 @@
 			Banner,
 			discount,
 			goodslist,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 
 		methods: {
@@ -71,13 +80,9 @@
 				// 获取地区分类下的商品(非推荐)
 				let that=this
 				if(that.hasMore){
-					wx.showLoading({
-						title: '加载中',
-					})
 					let params={}
 					params.goodCatId=goodCatId
-					let catGoodRes=await Api.getkindGood(pageNum,pageSize,params)
-					
+					let catGoodRes=await Api.getkindGood(pageNum,pageSize,params)	
 					wx.hideLoading();
 					if(catGoodRes.rows.length<pageSize){
 						that.hasMore=false
@@ -102,10 +107,6 @@
 		},
 		async onLoad(options) {
 			let that=this
-			that.catGoodRes=[]
-			that.catGoodRecommend=[]
-			that.nowPage=1
-			that.hasMore=true
 			that.goodCatName=options.goodCatName
 			that.goodCatId=options.goodCatId
 			wx.setNavigationBarTitle({
@@ -128,7 +129,23 @@
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 			})
 			that.catGoodRecommend=catGoodRecommendRes.rows
+			that.isLoading=true
 
+		},
+		onUnload(){
+			let that=this
+			that.displayType='flex'
+			that.addressItem= []
+			that.oodCatName=''
+			that.goodCatId=''
+			that.wid= '240px'
+			that.magleft= '10px'
+			that.catGoodRes= []
+			that.catGoodRecommend=[]
+			that.nowPage=1
+			that.hasMore=true
+			that.bannerImg=[]
+			that.isLoading=false
 		}
 	}
 </script>

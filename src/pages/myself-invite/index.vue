@@ -1,31 +1,38 @@
 <template>
-	<div>
-		<div class="rec-wrap centered">
-			<div class="rec-li" v-for="(BookItem , index) in BookList" :key="BookItem.orderId">
-					<div class="cant clr">
-						<div class="img fl"><img :src="BookItem	.thumbnail" /></div>
-						<div class="rec-center fl">
-							<div class="tit fontHidden">{{BookItem.goodName}}</div>
-							<div class="name fontHidden1">{{BookItem.goodName}}</div>
-							<div class="present ">￥:{{BookItem.orderAmount}}</div>
-							<div class="time ">预约时间：{{BookItem.endTime}}</div>
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div>
+				<div class="rec-wrap centered">
+					<div class="rec-li" v-for="(BookItem , index) in BookList" :key="BookItem.orderId">
+						<div class="cant clr">
+							<div class="img fl"><img :src="BookItem	.thumbnail" /></div>
+							<div class="rec-center fl">
+								<div class="tit fontHidden">{{BookItem.goodName}}</div>
+								<div class="name fontHidden1">{{BookItem.goodName}}</div>
+								<div class="present ">￥:{{BookItem.orderAmount}}</div>
+								<div class="time ">预约时间：{{BookItem.endTime}}</div>
+							</div>
+							<div class="rec-right fr">
+								<div class="use">待使用</div>
+								<div class="num ">数量 : {{BookItem.goodsNum}}</div>
+							</div>
 						</div>
-						<div class="rec-right fr">
-							<div class="use">待使用</div>
-							<div class="num ">数量 : {{BookItem.goodsNum}}</div>
+						<div class="clr">
+							<div class="line fr"></div>
+						</div>
+						<div class="rec-bottom">
+							<!-- <span>{{goodlist.dele}}</span> -->
+							<botton @click="toPage(BookItem.orderId)">订单详情</botton>					
 						</div>
 					</div>
-					<div class="clr">
-						<div class="line fr"></div>
-					</div>
-					<div class="rec-bottom">
-						<!-- <span>{{goodlist.dele}}</span> -->
-						<botton @click="toPage(BookItem.orderId)">订单详情</botton>					
-					</div>
+
+				</div>
+				<nomoreTip v-if="!hasMore"></nomoreTip>
 			</div>
-			
-		</div>
-		<nomoreTip v-if="!hasMore"></nomoreTip>
+		</blockquote>
 	</div>
 </template>
 <script>
@@ -34,6 +41,7 @@ import API_ORDER from '@/api/order'
 import Store from '@/store/store'
 import Index_Lib from '@/utils/index'
 import nomoreTip from "@/components/nomoreTip"
+import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
@@ -43,41 +51,23 @@ import nomoreTip from "@/components/nomoreTip"
 					page: 1,
 					limit: 3,
 				},
-				rec: [{
-					recId: 1,
-					img: "/static/images/d.png",
-					title: "西江月园林火锅",
-					name: "世茂/金塔/新力/莲塘/四店通用",
-					use: "待使用",
-					desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-					original: "223",
-					present: "16.9",
-					discounts: "83",
-					num: "1",
-					sell: "2368",
-					time: "2018-12-31",
-					dele: "删除订单",
-					detail: "订单详情",
-					integral: "积分兑换",
-				},  ]
+				rec:[],
+				isLoading:false,
 			};
 		},
 			components: {
-            nomoreTip
+            nomoreTip,
+            loading
 		},
 		onReachBottom:function(){
 			let that = this;
-			// that.nowPage+=1
-			// that.getRecommendGood(that.nowPage,3)
             that.listQuery.page += 1
-		    this.getGoodsBookList()
-			
+		    this.getGoodsBookList()			
 		},
 		methods: {
 			async getGoodsBookList(){
 				let that = this;
 				// let data = {memberId:wxgets}
-				wx.showLoading({title: '加载中',})
 				 let data = Object.assign({},{unionId:Store.state.userInfo.unionid,status:1},{orderType:2},that.listQuery) 
 				let res = await API_ORDER.getOrderList(data).catch(err => {
 					Lib.showToast('失败','loading')
@@ -107,8 +97,21 @@ import nomoreTip from "@/components/nomoreTip"
 			}
 
 		},
-		onLoad(){
-			this.getGoodsBookList();
+		async onLoad(){
+			let that=this
+			await that.getGoodsBookList();
+			that.isLoading=true
+		},
+		onUnload(){
+			let that=this
+				that.BookList=[]
+				that.hasMore=true
+                that.listQuery= {
+					page: 1,
+					limit: 3,
+				}
+				that.rec=[]
+				that.isLoading=false
 		}
 	};
 </script>

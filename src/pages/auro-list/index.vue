@@ -1,14 +1,21 @@
 <template>
-	<div style="width: 100%;">
-		<!--搜索-->
-		<Search></Search>
-		<!--超值优惠-->
-		<div class="discount-wrap centered">
-			<div class="discount">
-				<discount :discountList="discount" :isflex='displayType' :wid="wid" :magleft="magleft"></discount>
-				<nomoreTip v-if="!hasMore"></nomoreTip>
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div style="width: 100%;">
+				<!--搜索-->
+				<Search></Search>
+				<!--超值优惠-->
+				<div class="discount-wrap centered">
+					<div class="discount">
+						<discount :discountList="discount" :isflex='displayType' :wid="wid" :magleft="magleft"></discount>
+						<nomoreTip v-if="!hasMore"></nomoreTip>
+					</div>
+				</div>
 			</div>
-		</div>
+		</blockquote>
 	</div>
 </template>
 
@@ -17,6 +24,7 @@
 	import discount from '@/components/discount'
 	import Api from '@/api/goods'
 	import nomoreTip from "@/components/nomoreTip"
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
@@ -28,26 +36,24 @@
 				discount: [],
 				goodCatId:'',
 				regionId:'',
+				isLoading:false,
 			}
 		},
 
 		components: {
 			Search,
 			discount,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 
 		methods: {
 			async getRegionGood(pageNum, pageSize) {
 				let that = this
 				if(that.hasMore) {
-					wx.showLoading({
-						title: '加载中',
-					})
 					let params = {};					
 					params.regionId=that.regionId;
 					params.goodCatId=that.goodCatId;
-//				    console.log(params.regionId) 
 					let discount = await Api.getRegionKindGoods(pageNum,pageSize,params)
 					wx.hideLoading();
 					if(discount.rows.length < pageSize) { 
@@ -70,7 +76,6 @@
 			that.nowPage += 1
 			that.getRegionGood(that.nowPage,3)
 		},
-
 		async onLoad(options) {
 			let that = this		
 			that.discount=[]
@@ -82,8 +87,20 @@
 			// 获取地区分类下的商品分类下的商品  
 			that.regionId = options.regionId
 			that.goodCatId = options.goodCatId	
-			that.getRegionGood(1,3)
-
+			await that.getRegionGood(1,3)
+			that.isLoading=true
+		},
+		onUnload(){
+			let that=this
+			that.hasMore= true
+			that.nowPage= 1
+			that.displayType= 'block'
+			that.wid= '100%'
+			that.magleft= '0'
+			that.discount= []
+			that.goodCatId=''
+			that.regionId=''
+			that.isLoading=false
 		}
 	}
 </script>

@@ -1,39 +1,46 @@
 <template>
-	<div style="width: 100%;">
-		<!--搜索-->
-		<Search></Search>
-		<!--轮播-->
-		<Banner :banner='bannerImg'></Banner>
-		<!--类目-->
-		<div class="cate centered">
-			<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.id,item.name)">
-					<div class="img"><img :src="item.img" /></div>
-					<div class="name">{{item.name}}</div>
-			</div>
-		</div>
-		<!--超值优惠-->
-		<div class="discount-wrap centered">
-			<div class="title">超赞推荐</div>
-			<scroll-view scroll-x style="width: 100%;">	
-			   <discount :discountList="regionGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
-			</scroll-view>
-		</div>
-		<!--超赞推荐-->
-		<div class="rec-wrap centered">
-			<div class="title ">超值优惠</div>
-			<div class="image  zanWarpimg">
-		       <swiper indicator-dots='true' autoplay='true'>
-					<swiper-item v-for="(item,index) in recommendimgs" :key="index">
-					<image :src="item" class="slide-image" mode='aspectFit'  />
-					</swiper-item>
-				</swiper>
-			</div>
-			<!--image end-->
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div style="width: 100%;">
+				<!--搜索-->
+				<Search></Search>
+				<!--轮播-->
+				<Banner :banner='bannerImg'></Banner>
+				<!--类目-->
+				<div class="cate centered">
+					<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.id,item.name)">
+							<div class="img"><img :src="item.img" /></div>
+							<div class="name">{{item.name}}</div>
+					</div>
+				</div>
+				<!--超值优惠-->
+				<div class="discount-wrap centered">
+					<div class="title">超赞推荐</div>
+					<scroll-view scroll-x style="width: 100%;">	
+					   <discount :discountList="regionGoodRecommend"  :wid="wid" :magleft="magleft" :isflex='displayType'></discount>
+					</scroll-view>
+				</div>
+				<!--超赞推荐-->
+				<div class="rec-wrap centered">
+					<div class="title ">超值优惠</div>
+					<div class="image  zanWarpimg">
+				       <swiper indicator-dots='true' autoplay='true'>
+							<swiper-item v-for="(item,index) in recommendimgs" :key="index">
+							<image :src="item" class="slide-image" mode='aspectFit'  />
+							</swiper-item>
+						</swiper>
+					</div>
+					<!--image end-->
 
-			<goodslist :catGoodRecommend='regionGoodRes'></goodslist>
-			<nomoreTip v-if="!hasMore"></nomoreTip>
-			<!--goodslist end-->
-		</div>
+					<goodslist :catGoodRecommend='regionGoodRes'></goodslist>
+					<nomoreTip v-if="!hasMore"></nomoreTip>
+					<!--goodslist end-->
+				</div>
+			</div>
+		</blockquote>
 	</div>
 </template>
 
@@ -45,6 +52,7 @@
 	import Api from '@/api/goods'
 	import nomoreTip from "@/components/nomoreTip"
 	import kindApi from '@/api/home'
+	import loading from '@/components/loading'
 	import util from '@/utils/index'
 	export default {
 		data() {
@@ -60,7 +68,8 @@
 				bannerImg:[],
 				recommendimgs:[],
 				nowPage:1,
-				hasMore:true
+				hasMore:true,
+				isLoading:false,
 			}
 		},
 
@@ -69,7 +78,8 @@
 			Banner,
 			discount,
 			goodslist,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 
 		methods: {
@@ -80,9 +90,6 @@
 			async getRegionGood(pageNum,pageSize,regionId){
 				let that=this
 				if(that.hasMore){
-					wx.showLoading({
-						title: '加载中',
-					})
 					let params={}
 					params.regionId=regionId
 					let regionGoodRes=await Api.getRegionGoods(pageNum,pageSize,params)
@@ -140,19 +147,23 @@
 				item.saveMoney=util.accSub(item.showPrice,item.price)	
 			})
 			that.regionGoodRecommend=regionGoodRecommendRes.rows
+			that.isLoading=true
 		},
-				//		  用户点击右上角分享
-		onShareAppMessage: function(res) {
-			return {
-				title: '抹哒抹哒',
-				path: "pages/index/main",
-				success: function(shareTickets) {
-					// 转发成功
-				},
-				fail: function(res) {
-					// 转发失败
-				},			
-			}
+		onUnload(){
+			let that=this
+			that.displayType='flex'
+			that.menuItem= []
+			that.regionname=''
+			that.regionId=''
+			that.wid= '240px'
+			that.magleft= '10px'
+			that.regionGoodRes= []
+			that.regionGoodRecommend=[]
+			that.bannerImg=[]
+			that.recommendimgs=[]
+			that.nowPage=1
+			that.hasMore=true
+			that.isLoading=false
 		}
 	}
 </script>

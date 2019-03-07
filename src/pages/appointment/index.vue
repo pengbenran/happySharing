@@ -1,43 +1,41 @@
 <template>
 	<div style="width: 100%;">
-		<!--搜索-->
-		<Search></Search>
-		<!--类目-->
-		<div class="product-list centered">
-			<div @click="kindChang(index)" v-for="(item,index) in goodCart" :class="timeindex === index? 'product-list-li-on':'product-list-li' ">
-				<div class="title">{{item.name}}</div>
-				<div class="desc">{{item.description}}</div>
-			</div>
-		</div>
-		<!--最新最火-->
-		<!-- <div class="order">
-			<div class="latest">最新</div>
-			<div class="hot">最热</div>
-			<div class="active"></div>
-		</div>  -->
-		<!--列表-->
-		<div class="discount-wrap">
-			<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.id)">
-				<div class="img"><img :src="discountList.thumbnail" /></div>
-				<div class="cant">
-					<div class="name-make clr">
-						<div class="name fl">{{discountList.title}}</div>
-						<div class="make fr">需预约</div>
-					</div>
-					<div class="desc">{{discountList.goodName}}</div>
-					<div class="original-people clr">
-						<div class="original fl">原价:{{discountList.showPrice}}</div>
-						<!-- <div class="people fr">{{discountList.people}}</div> -->
-					</div>
-					<div class="Present-discounts-sell clr">
-						<div class="Present fl">￥:{{discountList.price}}</div>
-						<div class="discounts fl">优惠:{{discountList.saveMoney}}元</div>
-						<div class="sell fr">已售:{{discountList.showSales}}</div>
-					</div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<!--搜索-->
+			<Search></Search>
+			<!--类目-->
+			<div class="product-list centered">
+				<div @click="kindChang(index)" v-for="(item,index) in goodCart" :class="timeindex === index? 'product-list-li-on':'product-list-li' ">
+					<div class="title">{{item.name}}</div>
+					<div class="desc">{{item.description}}</div>
 				</div>
 			</div>
-			<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
-		</div>
+			<!--列表-->
+			<div class="discount-wrap">
+				<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.id)">
+					<div class="img"><img :src="discountList.thumbnail" /></div>
+					<div class="cant">
+						<div class="name-make clr">
+							<div class="name fl">{{discountList.title}}</div>
+							<div class="make fr">需预约</div>
+						</div>
+						<div class="desc">{{discountList.goodName}}</div>
+						<div class="original-people clr">
+							<div class="original fl">原价:{{discountList.showPrice}}</div>
+						</div>
+						<div class="Present-discounts-sell clr">
+							<div class="Present fl">￥:{{discountList.price}}</div>
+							<div class="discounts fl">优惠:{{discountList.saveMoney}}元</div>
+							<div class="sell fr">已售:{{discountList.showSales}}</div>
+						</div>
+					</div>
+				</div>
+				<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
+			</div>
+		</blockquote>
 	</div>
 </template>
 
@@ -47,9 +45,11 @@
 	import apiKind from '@/api/home'
 	import util from '@/utils/index'
 	import nomoreTip from "@/components/nomoreTip"
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
+				isLoading:false,
 				timeindex: 0,
 				goodCart: [],
 				wid: "100%",
@@ -65,7 +65,8 @@
 		},
 		components: {
 			Search,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 
 		methods: {
@@ -86,16 +87,12 @@
 			async getBookGood(pageNum,pageSize,goodCatId){
 				let that=this
 				if(that.hasMore[that.timeindex]){
-					wx.showLoading({
-						title: '加载中',
-					})
 					let params={}
 					params.goodCatId=goodCatId
 					let bookRes=await Api.getBookGood(pageNum,pageSize,params)
 					bookRes.rows.map(item=>{
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 					})
-					wx.hideLoading();
 					if(bookRes.rows.length<pageSize){
 						that.hasMore[that.timeindex]=false
 					}
@@ -129,21 +126,10 @@
 			}
 			await that.getBookGood(1,3,that.goodCatId)
 			that.bookItem=that.bookList[0]
+			that.isLoading=true
 			// 调用应用实例的方法获取全局数据
 		},
 		//		  用户点击右上角分享
-		onShareAppMessage: function(res) {
-			return {
-				title: '抹哒抹哒 - 预约',
-				path: "pages/index/main",
-				success: function(shareTickets) {
-					// 转发成功
-				},        
-				fail: function(res) {	
-					// 转发失败
-				},			
-			}
-		} 
 	}
 </script>
 

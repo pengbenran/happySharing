@@ -1,5 +1,9 @@
-<template>
+<template>	
 	<div class="container">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
 		<!--佣金-->
 		<div class="myselfdetails">
 			<div class="myselfdetail">
@@ -75,6 +79,7 @@
 				<div @click="btnHide" class="popup-footer">取消</div>
 			</div>
 		</div>
+	</blockquote>
 	</div>
 </template>
 
@@ -82,6 +87,7 @@
 	import store from '@/store/store'
 	import Api from '@/api/distribe'
 	import nomoreTip from "@/components/nomoreTip"
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
@@ -99,22 +105,21 @@
 				isShow: false,
 				current: 0,
 				nowPage:[0,0],
-				hasMore:[true,true]
+				hasMore:[true,true],
+				isLoading:false,
 			}
 		},
 
 		components: {
-			nomoreTip
+			nomoreTip,
+			loading
 		},
-		mounted() {
+		async mounted() {
 			let that=this
-			that.withdeawList=[]
-			that.commissionList=[]
-			that.hasMore=[true,true]
-			that.nowPage=[0,0]
 			that.userInfo = store.state.userInfo
 			this.type = this.popup[0].name;
-			that.getCommissionList(0,6,that.userInfo.unionid)
+			await that.getCommissionList(0,6,that.userInfo.unionid)
+			that.isLoading=true
 		},
 		methods: {
 			btnShow() {
@@ -130,9 +135,6 @@
 			async getCommissionList(pagesNum,pageSize,unionid){
 				let that=this
 				if(that.hasMore[0]){
-					wx.showLoading({
-						title: '加载中',
-					})
 					let params={}
 					params.offset=pagesNum*pageSize
 					params.limit=pageSize
@@ -156,8 +158,6 @@
 						duration:1500
 					})
 				}
-				
-
 			},
 			async getWithdrawList(pagesNum,pageSize,unionid){
 				let that=this
@@ -212,23 +212,19 @@
 			}
 			
 		},
-		computed: {
-			// expenditure() {
-			// 	return this.bills.expenditure.toFixed(2);
-			// },
-			// income() {
-			// 	return this.bills.income.toFixed(2);
-			// },
-			// tofiex() {
-			// 	return(this.bills.income - this.bills.expenditure).toFixed(2);
-			// },
-			// num() {
-			// 	for(var i in this.bill) {
-			// 		var num = this.bill[i].num.toFixed(2);
-			// 		return num;
-			// 	}
-			// }
-		},
+		onUnload(){
+			let that=this
+			that.type=''
+			that.userInfo={}
+			that.commissionList=[]
+			that.withdeawList=[]
+			that.isShow= false
+			that.current= 0
+			that.nowPage=[0,0]
+			that.hasMore=[true,true]
+			that.isLoading=false
+		}
+	
 	}
 </script>
 
