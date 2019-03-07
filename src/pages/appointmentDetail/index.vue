@@ -16,7 +16,9 @@
 					<div class="discounts fl">优惠:{{discounts}}元</div>
 				</div>
 				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
+						<span class="Present">{{goodsDetail.returnAmount}}元</span>
+				        <div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+				</div>
 				<div class="preRight" v-if="Time">
 						<div class="time">{{TimeStr}}</div>
 				</div>
@@ -109,7 +111,6 @@
 				btnStr:'立即购买',
 				userInfo:{},
 				paintOk:false
-
 			}
 
 		},
@@ -196,35 +197,38 @@
 			},
 			share(){
 				let that=this
-				 that.getErCode()
-				// let shareRight = that.goodsDetail.shareRight.split(',')
-				// if(shareRight.indexOf(that.whetherDistribe.toString()) != -1){
-                  
-				// }else{
-                //    lib.showToast('抱歉您暂无推荐权限','none')
-				// }
+				if(that.shareImage==""){
+					that.eventDraw(that.posterErcode)
+				}
+				else{
+					that.paintOk=true
+				}
 			},
 			async getErCode(){
 				let that=this
 				let params={}
-				params.params=store.state.userInfo.unionid+','+that.goodsDetail.id+','+2
+				params.params=store.state.userInfo.unionid+','+that.goodsId+','+2
 				let QrcodeRes=await Api.GetQrcode(params)
 				if(QrcodeRes.code==0){
-					that.eventDraw(QrcodeRes.url)
+					that.posterErcode=QrcodeRes.url
 				}
 			},
 			showPicker() {
-				if(this.btnSubmit){
-			     	console.log("预约")
-					this.pickerValueArray = this.mulLinkageTwoPicker;
-					this.mode = 'multiLinkageSelector';
-					this.deepLength = 2;
-					this.pickerValueDefault = [1, 0];
-					this.$refs.mpvuePicker.show();
-					console.log(this);
-				 }else{
-				       lib.showToast('您不是指定用户','none')
-					}
+				if(this.goodsDetail.inventory > 0){
+					if(this.btnSubmit){
+						this.pickerValueArray = this.mulLinkageTwoPicker;
+						this.mode = 'multiLinkageSelector';
+						this.deepLength = 2;
+						this.pickerValueDefault = [1, 0];
+						this.$refs.mpvuePicker.show();
+						console.log(this);
+					}else{
+						lib.showToast('您不是指定用户','none')
+						}
+				}else{
+				    	 lib.showToast('该商品库存为空','none')
+				}
+
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -232,8 +236,7 @@
 				})
 			},
 			jumpSaveOrder(){
-		
-                      wx.navigateTo({url:`../order-submit/main`})
+                wx.navigateTo({url:`../order-submit/main`})
 					
 			},
 			async getGoodsInfo(params){
@@ -364,6 +367,8 @@
 			that.multiArray=[]
 			that.dataArray=[]
 			that.Time = ''
+			that.shareImage=""
+			that.paintOk=false
 			that.btnStr = '立即购买'
 			that.goodsId =that.$root.$mp.query.goodsId
 			if(that.$root.$mp.query.codeUnionid!=''){
@@ -380,6 +385,7 @@
 				params.memberLv=that.userInfo.whetherDistribe
 			}
 			that.getGoodsInfo(params)
+			that.getErCode()
 		}
 	}
 </script>
