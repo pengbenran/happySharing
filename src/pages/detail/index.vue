@@ -1,67 +1,75 @@
 <template>
-	<div style="width: 100%;">
-		<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
-			<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
-				<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
-			</swiper>
-			<div class="cant centered">
-				<div class="address-make clr">
-					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
-					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
-				</div>
-				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
-				<div class="Present-discounts-people clr">
-					<div class="preLeft">
-						<div class="Present fl">￥:{{goodsDetail.price}}元</div>
-						<div class="discounts fl">优惠:{{discounts}}元</div>
+	<div class="contain">
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div>
+				<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
+					<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
+						<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
+					</swiper>
+					<div class="cant centered">
+						<div class="address-make clr">
+							<div class="address fl">消费地址:{{goodsDetail.address}}</div>
+							<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
+						</div>
+						<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
+						<div class="Present-discounts-people clr">
+							<div class="preLeft">
+								<div class="Present fl">￥:{{goodsDetail.price}}元</div>
+								<div class="discounts fl">优惠:{{discounts}}元</div>
+							</div>
+							<div class="preRight" v-if="Time">
+								<div class="time">{{TimeStr}}</div>
+							</div>
+							<!-- <div class="people fr">{{item.people}}</div> -->
+						</div>
+						<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+							<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
+							<div class="original-sell clr">
+								<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
+								<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+							</div>
+							<div class="phone clr">
+								<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+								<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
+							</div>
+						</div>
 					</div>
-					<div class="preRight" v-if="Time">
-                         <div class="time">{{TimeStr}}</div>
+					<!--商品详情-->
+					<div class="product-detail centered">
+						<span>商品详情</span>
 					</div>
-					<!-- <div class="people fr">{{item.people}}</div> -->
-				</div>
-				<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-						<span class="Present">{{goodsDetail.returnAmount}}元</span></div>
-				<div class="original-sell clr">
-					<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-					<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
-				</div>
-				<div class="phone clr">
-					<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
-					<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
-				</div>
-			</div>
-		</div>
-		<!--商品详情-->
-		<div class="product-detail centered">
-			<span>商品详情</span>
-		</div>
-        <div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+					<div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
 
-		<!--底下导航-->
-		<div class="nav">
-			<div class="index" @click="jumpIndex">
-				<div class="img"><img src="/static/images/home.png" /></div>
-				<div class="text">首页</div>
-			</div>
-			<div class="index" @click="share">
-				<div class="img"><span class="iconfont">&#xe62a;</span></div>
-				<div class="text">分享</div>
-			</div>
-			<div @click="jumpSaveOrder(index)" class="rush">
-				{{btnStr}}
-			</div>
+					<!--底下导航-->
+					<div class="nav">
+						<div class="index" @click="jumpIndex">
+							<div class="img"><img src="/static/images/home.png" /></div>
+							<div class="text">首页</div>
+						</div>
+						<div class="index" @click="share">
+							<div class="img"><span class="iconfont">&#xe62a;</span></div>
+							<div class="text">分享</div>
+						</div>
+						<div @click="jumpSaveOrder(index)" class="rush">
+							{{btnStr}}
+						</div>
+					</div>
+					<div class="paintImg" v-show="paintOk">
+						<div class="bcg" @click="closeClick"></div>
+						<div class="img" :style="{width:Width+'px',height:Width+'px'}">
+							<img :src="shareImage">
+						</div>
+						<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
+					</div>
+					<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+				</div>
+			</blockquote>
+			<loginModel ref="loginModel"></loginModel>
 		</div>
-		<div class="paintImg" v-show="paintOk">
-			<div class="bcg" @click="closeClick"></div>
-			<div class="img" :style="{width:Width+'px',height:Width+'px'}">
-				<img :src="shareImage">
-			</div>
-			<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
-		</div>
-		<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
-		<loginModel ref="loginModel"></loginModel>
-	</div>
+	
 </template>
 
 <script>
@@ -73,9 +81,11 @@
 	import wxParse from 'mpvue-wxparse'
 	import loginModel from "@/components/loginModel"; 
 	import canvasdrawer from '@/components/canvasdrawer'
+	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
+				isLoading:false,
 				wid: "100%",
 				magleft: "0",
 				paintOk:false,
@@ -99,7 +109,8 @@
 		components: {
 			canvasdrawer,
 			wxParse,
-			loginModel
+			loginModel,
+			loading
 		},
 		computed:{
 			discounts(){
@@ -208,7 +219,6 @@
 
 			async getGoodsInfo(params){
 				let that=this
-				wx.showLoading({title: '加载中',})
 				let goodsDetailRes=await Api.getGoodDetail(params)
 				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
 				goodsDetailRes.goodbanner.pop()
@@ -222,8 +232,7 @@
 						that.TimeStr = '';
 					}	
 				})
-				wx.hideLoading()
-
+				that.isLoading=true
 			},
 
 
@@ -308,11 +317,6 @@
 		},
 		async mounted(){
 			let that=this
-            this.Time = ''
-			this.btnSubmit = false;
-			that.shareImage=""
-			that.paintOk=false
-			this.btnStr = '立即购买'
 			that.goodsId =that.$root.$mp.query.goodsId
 			clearInterval(this.Time);
 			if(that.$root.$mp.query.codeUnionid!=''){
@@ -330,6 +334,27 @@
             }
 			that.getGoodsInfo(params)
 			that.getErCode()
+		},
+		onUnload(){
+			let that=this
+			that.isLoading=false
+			that.wid= "100%"
+			that.magleft= "0"
+			that.paintOk=false
+			that.goodsDetail={}
+			that.painting={}
+			that.shareImage=''
+			that.shareBool=true
+			that.Width=''
+			that.userInfo={}
+			that.TimeStr=''
+			that.Time=''
+			that.whetherDistribe=''
+			that.UsertagId=''
+			that.btnSubmit=false
+			that.detailContent=''
+			that.btnStr='立即购买'
+			that.posterErcode=''
 		}
 	}
 </script>

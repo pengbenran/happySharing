@@ -1,13 +1,11 @@
 <template>
 	<div class="container">
-		<!-- 顶部导航 -->
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<!-- 顶部导航 -->
 		<Search></Search>
-		<!-- <div class="top">		 -->
-				<!-- <span>南昌</span>
-				<span class="iconfont">&#xe60c;</span> -->
-			    <!-- <span></span>  -->
-			    <!-- <span>+</span> -->
-		<!-- </div> -->
 		<!-- banner图 -->
 		<div class="banner">
 			<Banner :banner='bannerList'></Banner>
@@ -57,11 +55,11 @@
 			<discount :discountList="discount" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount>
 			<nomoreTip v-if="!hasMore"></nomoreTip>
 		</div>
-
-		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 		<div class="footer">
 			<img src="https://shop.guqinet.com/html/images/shuiguo/index/footerImg.png"/>
 		</div>
+		</blockquote>
+		<loginModel ref="loginModel" @getIndex='getIndex'></loginModel> 
 	</div>
 
 </template>
@@ -75,12 +73,14 @@
     import loginModel from "@/components/loginModel"; 
     import nomoreTip from "@/components/nomoreTip"
 	import util from '@/utils/index'
+	import loading from '@/components/loading'
 	import Api from "@/api/home";
 	// let api=new Api
 
 	export default {
 		data() {
 			return {
+				isLoading:false,
 				displayType:'block',
 				message:[],
 				addressItem: [],
@@ -101,14 +101,9 @@
 			discount,
 			day,
 			loginModel,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
-
-  methods: {
-   
-  },
-
-
 		methods: {
 			jumpAuro:function(regionId,regionname){
 				wx.navigateTo({url:`../auro/main?regionId=${regionId}&regionname=${regionname}`})
@@ -148,14 +143,10 @@
 			async getRecommendGood(pages,limit){
 				let that=this
 				if(that.hasMore){
-					wx.showLoading({
-						title: '加载中',
-					})
 					let RecommendGood=await Api.getRecommendGood(pages,limit)
 					RecommendGood.rows.map(item=>{
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 					})
-					wx.hideLoading();
 					if(RecommendGood.rows.length<limit){
 						that.hasMore=false
 					}
@@ -193,6 +184,8 @@
 			    let bannerAndMessageRes=await Api.getbannerAndMessage()
 			    that.bannerList=bannerAndMessageRes.data.BannerList
 			    that.message=bannerAndMessageRes.data.messageDOList
+			    that.isLoading=true
+			    wx.showTabBar({})
 				},
 		},
 		onReachBottom:function(){
@@ -203,15 +196,12 @@
 		onShareAppMessage: function () {
 			withShareTicket: true
 		},
-		onPullDownRefresh: function(){
-			let that=this
-			that.getIndex()
-		},
+		// onPullDownRefresh: function(){
+		// 	let that=this
+		// 	that.getIndex()
+		// },
 		mounted(){
 			let that = this;
-			wx.showLoading({
-				title: '加载中',
-			})
 			that.getIndex()
 		},
 
@@ -220,6 +210,7 @@
 </script>
 
 <style scoped lang="less">
+     
 	/*隐藏滚动条*/
 	 ::-webkit-scrollbar {
 		width: 0;

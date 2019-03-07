@@ -71,7 +71,6 @@ export default {
           if (res.code) {
             Api.getCode(res.code).then(function(memberRes){
               if(memberRes.code!=500){
-                 wx.showTabBar({})
                 // wx.setStorageSync('Token','eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU0OTI3NTAwMzE1MywiZXhwIjoxNTQ5ODIyMDA1fQ.i9Snkbj1FZp940_IShxjIjMhj6cvpSeUB0ajaQtGvcQ')
                 wx.setStorageSync('memberId', memberRes.memberDo.id)
                 store.commit("storeUserInfo",memberRes.memberDo)
