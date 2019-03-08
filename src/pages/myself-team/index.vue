@@ -1,11 +1,5 @@
 <template>
 	<div>
-		<!--头部-->
-		<!--<div class="teams">
-			<div class="img"><img src="/static/images/head.png" /></div>
-			<div class="inp"><span class="iconfont">&#xe60b;</span><span>查找队友</span></div>
-			<div class="jia">＋</div>
-		</div>-->
 		<!--头像-->
 		<div class="myself-head">
 			<div class="img"><img :src="userInfo.face" /></div>
