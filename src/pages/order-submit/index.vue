@@ -79,7 +79,7 @@
 	import Api from '@/api/order'
 	export default {
 		components: {
-			goodslist
+			goodslist,
 		},
 
 		data() {

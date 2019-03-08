@@ -1,27 +1,33 @@
 <template>
 	<div style="width: 100%;">
-		<!--搜索-->
-		<Search></Search>
-		<!--轮播-->
-		<Banner></Banner>
-		<!--类目-->
-		<div class="product-list centered">
-			<div @click="kindChang(index)" v-for="(item,index) in kindItem"  :class="timeindex === index? 'product-list-li-on':'product-list-li' " >
-				<div class="title">{{item.name}}</div>
-				<div class="desc">{{item.description}}</div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+           	<!--搜索-->
+			<Search></Search>
+			<!--轮播-->
+			<Banner></Banner>
+			<!--类目-->
+			<div class="product-list centered">
+				<div @click="kindChang(index)" v-for="(item,index) in kindItem"  :class="timeindex === index? 'product-list-li-on':'product-list-li' " >
+					<div class="title">{{item.name}}</div>
+					<div class="desc">{{item.description}}</div>
+				</div>
 			</div>
-		</div>
-		<!--最新最火-->
-	<!-- 	<div class="order">
-			<div class="latest">最新</div>
-			<div class="hot">最热</div>
-			<div class="active"></div>
-		</div> -->
-		<!--列表-->
-		<div class="centered">
-			<discount :discountList="goodCatList" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount> 
-			<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
-		</div>
+			<!--最新最火-->
+		<!-- 	<div class="order">
+				<div class="latest">最新</div>
+				<div class="hot">最热</div>
+				<div class="active"></div>
+			</div> -->
+			<!--列表-->
+			<div class="centered">
+				<discount :discountList="goodCatList" :wid="wid" :magleft="magleft" ref="discounts" :isflex='displayType'></discount> 
+				<nomoreTip v-if="!hasMore[timeindex]"></nomoreTip>
+			</div>
+		</blockquote>
+
 			
 	</div>
 </template>
@@ -34,9 +40,11 @@
 	import util from '@/utils/index'
 	import Api from '@/api/goods'
 	import nomoreTip from "@/components/nomoreTip"
+	import loading from '@/components/loading'
 	export default { 
 		data() {
 			return {
+				isLoading:false,
 				timeindex:0, 
 				displayType:'block',
 				kindItem: [],
@@ -47,13 +55,13 @@
 				hasMore:[],
 				goodCatList:[]
 			}
-
 		},
 		components: {
 			Search,
 			Banner,
 			discount,
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 
 		methods: {
@@ -98,6 +106,7 @@
 					})
 				}
 				that.goodCatList=that.bookList[that.timeindex]	
+				that.isLoading = true;
 			}
 		},
 		onReachBottom:function(){
@@ -118,7 +127,19 @@
 			that.goodCatId=that.kindItem[0].id
 			that.getKindGood(that.nowPage,3,that.goodCatId)
 			// 调用应用实例的方法获取全局数据
-		}
+		},
+		onUnload(){
+				this.isLoading=false,
+				this.timeindex=0, 
+				this.displayType='block',
+				this.kindItem= [],
+				this.wid="100%",
+				this.magleft='0px',
+				this.bookList=[],
+				this.nowPage=1,
+				this.hasMore=[],
+				this.goodCatList=[]
+		},
 	}
 </script>
 

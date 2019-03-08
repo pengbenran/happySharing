@@ -47,6 +47,7 @@
 	import apiKind from '@/api/home'
 	import util from '@/utils/index'
 	import nomoreTip from "@/components/nomoreTip"
+
 	export default {
 		data() {
 			return {

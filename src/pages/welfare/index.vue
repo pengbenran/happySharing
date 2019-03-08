@@ -1,62 +1,68 @@
 <template>
 	<div>
-		<!--背景图-->
-		<div class="dial">
-			<div class="img"><img src="https://shop.guqinet.com/html/images/zhifenxiang/dial-bg.png" /></div>
-			<!--转盘-->
-			<div id="rotary-table">
-				<div class="award" v-for="(item,index) in turntablesList" :class="['award'+index,{'active': index==current}]">
-					<div class="icoImg"><img :src="item.image" :alt="item.content"></div>	
-					<div class="ico"><span>{{item.content}}分</span></div>
-				</div>
-				<div id="start-btn" @click="start" class="start-btn">开始</div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+            <!--背景图-->
+			<div class="dial">
+					<div class="img"><img src="https://shop.guqinet.com/html/images/zhifenxiang/dial-bg.png" /></div>
+					<!--转盘-->
+					<div id="rotary-table">
+						<div class="award" v-for="(item,index) in turntablesList" :class="['award'+index,{'active': index==current}]">
+							<div class="icoImg"><img :src="item.image" :alt="item.content"></div>	
+							<div class="ico"><span>{{item.content}}分</span></div>
+						</div>
+						<div id="start-btn" @click="start" class="start-btn">开始</div>
 
-				<div class="popup">
-					<!--中奖数字-->
-					<div class="popup-left">
-						<span>{{getPoint}}</span>
-					</div>
-					<!--可用积分-->
-					<div class="popup-right">
-						<spna>{{UserInfo.point}}</spna>
-					</div>
-				</div>
-
-				<!--下面的确认按钮-->
-				<div class="confirm" @click="submitBtn">
-					<img src="https://shop.guqinet.com/html/images/zhifenxiang/confirm.png" />
-				</div>
-
-				<div class="zhuanPoint" @click="tojump"> 
-
-				</div>
-
-			</div>
-			<!--列表-->
-			<div class="list">
-				<div class="list-wp">
-					<div class="rec-li" v-for="(goodlist , index) in pointShopList" :key="goodlist.recId">
-						<div class="cant clr">
-							<div class="img fl"><img :src="goodlist.thumbnail" /></div>
-							<div class="rec-center fl">
-								<div class="tit fontHidden">{{goodlist.title}}</div>
-								<div class="name fontHidden1">{{goodlist.goodName}}</div>
-								<div class="present ">{{goodlist.buyIntegral}}积分</div>
+						<div class="popup">
+							<!--中奖数字-->
+							<div class="popup-left">
+								<span>{{getPoint}}</span>
 							</div>
-							<div class="rec-right fr">
-								<div class="num ">已兑 : {{goodlist.showSales}}</div>
-								<div class="use">
-									<div  @click="Jump(goodlist.goodId)">
-										去兑换
+							<!--可用积分-->
+							<div class="popup-right">
+								<spna>{{UserInfo.point}}</spna>
+							</div>
+						</div>
+
+						<!--下面的确认按钮-->
+						<div class="confirm" @click="submitBtn">
+							<img src="https://shop.guqinet.com/html/images/zhifenxiang/confirm.png" />
+						</div>
+
+						<div class="zhuanPoint" @click="tojump"> 
+
+						</div>
+
+					</div>
+					<!--列表-->
+					<div class="list">
+						<div class="list-wp">
+							<div class="rec-li" v-for="(goodlist , index) in pointShopList" :key="goodlist.recId">
+								<div class="cant clr">
+									<div class="img fl"><img :src="goodlist.thumbnail" /></div>
+									<div class="rec-center fl">
+										<div class="tit fontHidden">{{goodlist.title}}</div>
+										<div class="name fontHidden1">{{goodlist.goodName}}</div>
+										<div class="present ">{{goodlist.buyIntegral}}积分</div>
+									</div>
+									<div class="rec-right fr">
+										<div class="num ">已兑 : {{goodlist.showSales}}</div>
+										<div class="use">
+											<div  @click="Jump(goodlist.goodId)">
+												去兑换
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
+							<nomoreTip v-if="hasMore"></nomoreTip>
 						</div>
 					</div>
-					<nomoreTip v-if="hasMore"></nomoreTip>
 				</div>
-			</div>
-		</div>
+		</blockquote>
+
 	</div>
 </template>
 <script>
@@ -64,69 +70,21 @@ import API from '@/api/turntable'
 import Lib from '@/utils/lib'
 import store from '@/store/store'
 import nomoreTip from "@/components/nomoreTip"
+import loading from '@/components/loading'
+
 	export default {
 		name: 'raffle',
 		components:{
-			nomoreTip
+			nomoreTip,
+			loading
 		},
 		computed: {
 		
 		},
 		data() {
 			return {
+				isLoading:false,
 				current: 0,
-				rec: [{
-						recId: 1,
-						img: "/static/images/d.png",
-						title: "西江月园林火锅",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						use: "待使用",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						present: 200,
-						discounts: "83",
-						num: "1000",
-						sell: "2368",
-						time: "2018-12-31",
-						dele: "删除订单",
-						detail: "订单详情",
-						integral: "积分兑换",
-					},
-					{
-						recId: 2,
-						img: "/static/images/d.png",
-						title: "西江月园林火锅",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						use: "待使用",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						present: 200,
-						discounts: "83",
-						num: "1000",
-						sell: "2368",
-						time: "2018-12-31",
-						dele: "删除订单",
-						detail: "订单详情",
-						integral: "积分兑换",
-					},
-					{
-						recId: 3,
-						img: "/static/images/d.png",
-						title: "西江月园林火锅",
-						name: "世茂/金塔/新力/莲塘/四店通用",
-						use: "待使用",
-						desc: "西江月园林艺术餐厅，真正的艺术赣菜,快来抢购！",
-						original: "223",
-						present: 200,
-						discounts: "83",
-						num: "1000",
-						sell: "2368",
-						time: "2018-12-31",
-						dele: "删除订单",
-						detail: "订单详情",
-						integral: "积分兑换",
-					},
-				],
 				listQuery: {
 					page: 1,
 					limit: 3,
@@ -167,6 +125,7 @@ import nomoreTip from "@/components/nomoreTip"
 					console.log(res," 请求的数据")
 					if(res.code == 0){
 						that.turntablesList = res.turntables
+						that.isLoading = true;
 						wx.hideLoading()
 					}else{
                         Lib.showToast('网络开了个小差','none')
@@ -321,9 +280,28 @@ import nomoreTip from "@/components/nomoreTip"
 
 		},
 
-	
+		onUnload(){
+				this.isLoading=false;
+				this.current=0;
+				this.listQuery= {
+					page: 1,
+					limit: 3,
+				};
+				this.pointShopList=[];
+				this.total=5;
+				this.speed= 200;
+				this.diff= 15;
+				this.award= {};
+				this.time= 0;
+				this.timeout= '';
+				this.iss= false;
+				this.hasMore=false;
+				this.turntablesList=[];
+				this.UserInfo={};
+				this.Config={};
+				this.getPoint=0;
+		},
 
-		
         //用户点击右上角分享
 		onShareAppMessage: function(res) {
 			return {

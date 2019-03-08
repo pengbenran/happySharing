@@ -66,7 +66,6 @@
 		</div>
 
 		<loginModel ref="loginModel"></loginModel>
-
 	</div>
 </template>
 

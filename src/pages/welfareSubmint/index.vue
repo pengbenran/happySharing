@@ -1,49 +1,53 @@
 <template>
 	<div>
-		<div class="order-detail">
-			<!--产品-->
-			<div class="rec-li ">
-				<div class="rec-li-warp clr">
-					<div class="img fl"><img :src="goodDetail.thumbnail" /></div>
-					<div class="rec-center fl">
-						<div class="tit fontHidden">{{goodDetail.title}}</div>
-						<div class="name fontHidden1">{{goodDetail.goodName}}</div>
-						<div class="present "><span>所需积分：{{goodDetail.buyIntegral}}</span></div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+            <div class="order-detail">
+				<!--产品-->
+				<div class="rec-li ">
+					<div class="rec-li-warp clr">
+						<div class="img fl"><img :src="goodDetail.thumbnail" /></div>
+						<div class="rec-center fl">
+							<div class="tit fontHidden">{{goodDetail.title}}</div>
+							<div class="name fontHidden1">{{goodDetail.goodName}}</div>
+							<div class="present "><span>所需积分：{{goodDetail.buyIntegral}}</span></div>
+						</div>
+						<div class="rec-right fr">
+						
+							<!-- <div class="people ">{{goodDetail.people}}</div> -->
+							<div class="sell ">已售:{{goodDetail.sales}}</div>
+						</div>
 					</div>
-					<div class="rec-right fr">
+					<!--总价-->
+					<div class="prices">
+						<div class="price1">
+							<p>数量:</p>
+							<p>1</p>
+						</div>
+						<div class="price2">
+							<p>商品积分: {{goodDetail.buyIntegral}}</p>
+							<p> </p>
+						</div>
+						<div class="price2">
+							<p>用户积分: {{userInfo.point}}</p>
+							<p> </p>
+						</div>
 					
-						<!-- <div class="people ">{{goodDetail.people}}</div> -->
-						<div class="sell ">已售:{{goodDetail.sales}}</div>
+						<!--<div class="price6">
+							<p>预约时间</p>
+							<p>{{item.phone}}</p>
+						</div>-->
 					</div>
 				</div>
-				<!--总价-->
-				<div class="prices">
-					<div class="price1">
-						<p>数量:</p>
-						<p>1</p>
-					</div>
-					<div class="price2">
-						<p>商品积分: {{goodDetail.buyIntegral}}</p>
-						<p> </p>
-					</div>
-					<div class="price2">
-						<p>用户积分: {{userInfo.point}}</p>
-						<p> </p>
-					</div>
-				
-					<!--<div class="price6">
-						<p>预约时间</p>
-						<p>{{item.phone}}</p>
-					</div>-->
-				</div>
+				<!--支付-->				
 			</div>
-			<!--支付-->		
-					
-		</div>
-		<!--提交订单-->
-		<button class="submit" :disbaled='isSubmit' @click='submit_PointOrder'>
-			<span>确认兑换</span>
-		</button>
+			<!--提交订单-->
+			<button class="submit" :disbaled='isSubmit' @click='submit_PointOrder'>
+				<span>确认兑换</span>
+			</button>
+		</blockquote>
 	</div>
 </template>
 
@@ -53,13 +57,16 @@
 	import lib from '@/utils/lib'
 	import Api from '@/api/turntable'
 	import Api_order from '@/api/order'
+	import loading from '@/components/loading'
 	export default {
 		components: {
-			goodslist
+			goodslist,
+			loading
 		},
 
 		data() {
 			return {
+				isLoading:false,
 				isChoose:true,
 				isSubmit:false,
 				goodDetail:{},
@@ -181,11 +188,19 @@
 		
 		onLoad(options){
 			//1为普通订单2为预约订单
-            this.useBanlan=0
-            console.log(options.goodDetail,"打印传过来的商品信息")
-            this.goodDetail = JSON.parse(options.goodDetail)
-            console.log("查看订单数据",this.goodDetail)
-		}
+			this.useBanlan=0
+			this.goodDetail = JSON.parse(options.goodDetail)
+			this.isLoading = true;
+		},
+		
+		onUnload(){
+			this.isLoading=false;
+			this.isChoose=true;
+			this.isSubmit=false;
+			this.goodDetail={};
+			this.userInfo={};
+			this.useBanlan=0;
+		},
 	}
 </script>
 

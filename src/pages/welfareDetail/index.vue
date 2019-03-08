@@ -1,57 +1,62 @@
 <template>
 	<div style="width: 100%;">
-		<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
-			<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
-				<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
-			</swiper>
-			<div class="cant centered">
-				<div class="address-make clr">
-					<div class="address fl">消费地址:{{goodsDetail.address}}</div>
-					<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
-				</div>
-				<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
-				<div class="Present-discounts-people clr">
-					<div class="Present fl">
-						<div class="left">
-							积分兑换: <span>{{goodsDetail.buyIntegral}}</span>
-						</div>
-						<div class="right">
-							库存：{{goodsDetail.inventory}}
-						</div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+            <div class="discount-li" :style="{width:wid,marginLeft:magleft}">
+				<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
+					<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
+				</swiper>
+				<div class="cant centered">
+					<div class="address-make clr">
+						<div class="address fl">消费地址:{{goodsDetail.address}}</div>
+						<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
 					</div>
-					<div class="preRight" v-if="Time">
-                         <div class="time">{{TimeStr}}</div>
+					<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
+					<div class="Present-discounts-people clr">
+						<div class="Present fl">
+							<div class="left">
+								积分兑换: <span>{{goodsDetail.buyIntegral}}</span>
+							</div>
+							<div class="right">
+								库存：{{goodsDetail.inventory}}
+							</div>
+						</div>
+						<div class="preRight" v-if="Time">
+							<div class="time">{{TimeStr}}</div>
+						</div>
+						<!-- <div class="people fr">{{item.people}}</div> -->
 					</div>
-					<!-- <div class="people fr">{{item.people}}</div> -->
+				</div>
+	     	</div>
+			<!--商品详情-->
+			<div class="product-detail centered">
+				<span>商品详情</span>
+			</div>
+            <div style="margin-bottom:55px"> <wxParse :content="goodsDetail.content" @preview="preview" @navigate="navigate" /></div>
+
+			<!--底下导航-->
+			<div class="nav">
+				<div class="index" @click="jumpIndex">
+					<button>
+						<div class="img"><img src="/static/images/home.png" /></div>
+						<div class="text">首页</div>
+					</button>
+				</div>
+				<div class="index share_Btn" @click="share">
+					<button open-type='share'>
+						<div class="img" ><span class="iconfont">&#xe62a;</span></div>
+						<div class="text">分享</div>
+					</button>
+				</div>
+				<div @click="jumpSaveOrder(index)" class="rush">
+					{{btnStr}}
 				</div>
 			</div>
-		</div>
-		<!--商品详情-->
-		<div class="product-detail centered">
-			<span>商品详情</span>
-		</div>
-        <div style="margin-bottom:55px"> <wxParse :content="goodsDetail.content" @preview="preview" @navigate="navigate" /></div>
 
-		<!--底下导航-->
-		<div class="nav">
-			<div class="index" @click="jumpIndex">
-				<button>
-					<div class="img"><img src="/static/images/home.png" /></div>
-					<div class="text">首页</div>
-				</button>
-			</div>
-			<div class="index share_Btn" @click="share">
-                <button open-type='share'>
-                    <div class="img" ><span class="iconfont">&#xe62a;</span></div>
-                    <div class="text">分享</div>
-                </button>
-			</div>
-			<div @click="jumpSaveOrder(index)" class="rush">
-				{{btnStr}}
-			</div>
-		</div>
-
-		<loginModel ref="loginModel"></loginModel>
+		   <loginModel ref="loginModel"></loginModel>
+		</blockquote>
 	</div>
 </template>
 
@@ -63,10 +68,12 @@
 	import lib from '@/utils/lib'
 	import wxParse from 'mpvue-wxparse'
 	import loginModel from "@/components/loginModel"; 
+	import loading from '@/components/loading'
 
 	export default {
 		data() {
 			return {
+				isLoading:false,
 				goodsDetail:{},
 				userInfo:{},
 				btnStr:'立即兑换'
@@ -75,7 +82,8 @@
 		},
 		components: {
 			wxParse,
-			loginModel
+			loginModel,
+			loading
 		},
 		computed:{
 			discounts(){
@@ -86,15 +94,6 @@
 		},
 
 		methods: {
-			
-			// 拨打电话
-			// makePhone(){
-			// 	let that=this
-			// 	wx.makePhoneCall({
-			// 	  phoneNumber:that.goodsDetail.shopPhone//仅为示例，并非真实的电话号码
-			// 	})
-			// },
-	
 		   
 			jumpIndex(){
 				wx.switchTab({
@@ -111,12 +110,6 @@
 					lib.showToast('抱歉库存不够',"none")
 				}
             },
-		
-            
-			share(){
-				
-			},
-
 
 			async getGoodsInfo(params){
                 let that=this
@@ -125,7 +118,8 @@
                 let goodDetail = goodsDetailRes.integralGood   
                 goodDetail.goodbanner=goodDetail.images.split(',')
                 goodDetail.goodbanner.pop()
-                that.goodsDetail=goodDetail 
+				that.goodsDetail=goodDetail 
+				that.isLoading = true;
                 wx.hideLoading()
 			},
 
@@ -138,7 +132,7 @@
 			// 调用应用实例的方法获取全局数据
 		},
 		async mounted(){
-            let that=this
+			let that=this
 			await that.$refs.loginModel.userLogin()
             let params={}
             that.userInfo = store.state.userInfo
@@ -147,11 +141,17 @@
         },
          onShareAppMessage: function () {
                 return {
-                title: '',
-                desc: '抹哒抹哒',
-                path: 'pages/welfareDetail/main?goodId='+this.goodsId
+					title: '',
+					desc: '抹哒抹哒',
+					path: 'pages/welfareDetail/main?goodId='+this.goodsId
                 }
-        }
+		},
+		onUnload(){
+			this.isLoading=false;
+			this.goodsDetail={};
+			this.userInfo={};
+			this.btnStr='立即兑换';
+		}
 	}
 </script>
 
