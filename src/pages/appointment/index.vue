@@ -16,7 +16,7 @@
 			<!--列表-->
 			<div class="discount-wrap">
 				<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.id)">
-					<div class="img"><img :src="discountList.thumbnail" /></div>
+					<div class="img"><img :src="discountList.p3" /></div>
 					<div class="cant">
 						<div class="name-make clr">
 							<div class="name fl">{{discountList.title}}</div>
@@ -29,7 +29,7 @@
 						<div class="Present-discounts-sell clr">
 							<div class="Present fl">￥:{{discountList.price}}</div>
 							<div class="discounts fl">优惠:{{discountList.saveMoney}}元</div>
-							<div class="sell fr">已售:{{discountList.showSales}}</div>
+							<div class="sell fr">已售:{{discountList.sales}}</div>
 						</div>
 					</div>
 				</div>

@@ -62,7 +62,7 @@
 							<span></span>
 							<span>{{item.time}}</span>
 						</div>
-						<div class="num">-{{item.withdraw}}</div>
+						<div class="num" style="line-height:80px">-{{item.withdraw}}</div>
 					</div>
 					<div class="xian"></div>
 				</div>
@@ -318,34 +318,24 @@
 			.img{
 				width: 44px;
 				height: 44px;
-				vertical-align: middle;
 				border-radius: 50%;
 				overflow: hidden;
+				margin-top: 11px;
 			}
 			.name{
-				margin-left: 12px;
-				flex-grow: 1;
-				margin-top: 4px;
+				flex-grow: 1;	
+				padding: 4px 0 4px 12px;
+				box-sizing: border-box;
 				span {
 					max-width: 200px;
 					display: block;
+					height: 22px;
+					line-height:22px;
+					font-size: 12px;
+					color: #999999;
 					&:nth-child(1) {
 						font-size: 14px;
-						color: #111111;
-						height: 20px;
-						line-height:20px;
-					}
-					&:nth-child(2) {
-						font-size: 12px;
-						color: #999999;
-						margin-top: 2px;
-					}
-					&:nth-child(3) {
-						font-size: 12px;
-						color: #999999;
-						margin-top: 2px;
-						height: 20px;
-						line-height:20px;
+						color: #111111;	
 					}
 				}
 			}
@@ -353,7 +343,7 @@
 				p{
 					font-size: 11px;
 					font-family: "roboto";
-					line-height: 25px;
+					line-height: 30px;
 					span{
 						color:red;
 						font-size: 18px;

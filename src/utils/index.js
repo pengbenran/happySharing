@@ -1,3 +1,5 @@
+import Api from "@/api/home";
+import store from '@/store/store'
 function formatNumber (n) {
   const str = n.toString()
   return str[1] ? str : `0${str}`
@@ -43,6 +45,21 @@ export function accSub(arg1, arg2) {
       }   
       return locaArr
   }
+  export function updateUserInfo(){
+      let that=this
+      wx.login({
+        success: function (res) {
+          if (res.code) {
+            Api.getCode(res.code).then(function(memberRes){
+              wx.setStorageSync('needLoad',false)  
+              if(memberRes.code!=500){
+                store.commit("storeUserInfo",memberRes.memberDo)         
+              }
+            })
+          }
+        }
+    }) 
+  }
 
   export function getImageInfo(arrimg){    //  图片缓存本地的方法
     return new Promise(function (resolve, reject) { 
@@ -81,5 +98,6 @@ export default {
   formatNumber,
   formatTime,
   accSub,
-  getImageInfo
+  getImageInfo,
+  updateUserInfo
 }

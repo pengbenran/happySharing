@@ -1,9 +1,5 @@
 <template>
 	<div style="width: 100%;">
-		<blockquote v-if="!isLoading">
-			<loading></loading>
-		</blockquote>
-		<blockquote v-else>
             <div class="discount-li" :style="{width:wid,marginLeft:magleft}">
 				<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
 					<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
@@ -54,12 +50,10 @@
 					{{btnStr}}
 				</div>
 			</div>
-
 		   <loginModel ref="loginModel"></loginModel>
-		</blockquote>
+		
 	</div>
 </template>
-
 <script>
     import Api from '@/api/goods'
     import Api_wel from '@/api/turntable'
@@ -110,7 +104,6 @@
 					lib.showToast('抱歉库存不够',"none")
 				}
             },
-
 			async getGoodsInfo(params){
                 let that=this
                 wx.showLoading({title: '加载中'})

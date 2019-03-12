@@ -58,7 +58,7 @@
 					立即预约
 				</div>
 			</div>
-			<div class="paintImg" v-show="paintOk">
+			<div class="paintImg" v-if="paintOk">
 				<div class="bcg" @click="closeClick"></div>
 				<div class="img" :style="{width:Width+'px',height:Width+'px'}">
 					<img :src="shareImage">
@@ -73,7 +73,7 @@
 
 
 	</blockquote>
-    <loginModel ref="loginModel"></loginModel>
+    <loginModel ref="loginModel" @getGoodsInfo="getGoodsInfo"></loginModel>
 </div>
 
 </template>
@@ -225,18 +225,14 @@
 				}
 			},
 			showPicker() {
-				if(this.goodsDetail.inventory > 0){
-					if(this.btnSubmit){
-						this.pickerValueArray = this.mulLinkageTwoPicker;
-						this.mode = 'multiLinkageSelector';
-						this.deepLength = 2;
-						this.pickerValueDefault = [1, 0];
-						this.$refs.mpvuePicker.show();
-					}else{
-						lib.showToast('您不是指定用户','none')
-						}
+				if(this.goodsDetail.inventory > 0){		
+					this.pickerValueArray = this.mulLinkageTwoPicker;
+					this.mode = 'multiLinkageSelector';
+					this.deepLength = 2;
+					this.pickerValueDefault = [1, 0];
+					this.$refs.mpvuePicker.show();
 				}else{
-				    	 lib.showToast('该商品库存为空','none')
+				    lib.showToast('该商品库存为空','none')
 				}
 
 			},
@@ -249,17 +245,22 @@
                 wx.navigateTo({url:`../order-submit/main`})
 					
 			},
-			async getGoodsInfo(params){
+			async getGoodsInfo(){
 				let that=this
+				let params={}  
+				that.userInfo=store.state.userInfo
+				that.whetherDistribe = that.userInfo.whetherDistribe
+				params.goodId=that.goodsId
+				if(that.whetherDistribe!=0){
+					params.memberLv=that.whetherDistribe
+				}
 				let goodsDetailRes=await Api.getBookGoodDetail(params)
 				if(goodsDetailRes.code==0){
 					wx.hideLoading()
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
-					goodsDetailRes.good.goodbanner.pop()
 					that.goodsDetail=goodsDetailRes.good
 					that.detailContent = that.goodsDetail.content
 					that.goodBooks=goodsDetailRes.goodBooks
-                that.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					let dateArr=[]
 					for(var i in goodsDetailRes.goodBooks){
 						let dateArr={}
@@ -271,7 +272,6 @@
 						for(let j in resArry){
 							let multiArr={}
 							let resdataArry=resArry[j].split('/')
-							console.log(resdataArry);
 							if(resdataArry[2]>0){
 								multiArr.label=resdataArry[1]
 								multiArr.value=resdataArry[0]
@@ -311,84 +311,24 @@
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
 
 			},
-
-			async GetUserLable(unionid){
-			let that = this;
-			let data = {unionid:unionid}	
-			let res = await Api_user.getUserLable(data).catch(err => {
-				 lib.showToast('没有获取到该用户的标签数据','none')
-			})
-            if(res.code == 0 && res.TagList.length > 0){
-				let arr = []
-				res.TagList.map(v => {
-                     arr.push(v.tagId);
-				})
-				let flag=false
-				arr.map(v => {
-					if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){ 
-						 flag=true
-					}	
-				})
-				if(falg){
-					that.btnSubmit=true
-				}
-				else{
-					that.btnSubmit=false
-				}
+			async getUserInfo(){
+				let that=this
+				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
+				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
+				await that.$refs.loginModel.userLogin()
 			}
-		},
-			
-			Timer(time,timeIndex,fn){
-				// console.log(maxtime,new Date(),new Date(time),'uijm')
-				var msg = ''
-				var maxtime = ''
-				if(timeIndex == 3){
-					 this.Time = setInterval(function(){
-						maxtime = (new Date(time) - new Date())/1000;
-						if(maxtime >= 0) {
-							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
-							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
-							var mm = parseInt(maxtime / 60 % 60, 10);//计算剩余的分钟数  
-							var ss = parseInt(maxtime % 60, 10);//计算剩余的秒数  
-							hh = lib.checkTime(hh);
-							mm = lib.checkTime(mm);
-							ss = lib.checkTime(ss);
-				
-							msg =  dd + "天" + hh + "时" + mm + "分" + ss + "秒" + '后上架';
-							fn(msg);
-						} else {
-							clearInterval( this.Time );
-							fn("NoTime");
-							// return {msg:msg,maxtime:maxtime};
-						}
-					},1000);
-					if(maxtime >= 0){
-						this.btnStr = '暂未上架'
-					}
-				}else{
-
-					clearInterval(this.Time);
-				}
-		},
 		},
 		async mounted(){
 			let that=this
 			that.goodsId =that.$root.$mp.query.goodsId
+			that.Width=wx.getSystemInfoSync().windowWidth 	
 			if(that.$root.$mp.query.codeUnionid!=''){
-				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
-				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
-				await that.$refs.loginModel.userLogin()
-			}	
-			that.Width=wx.getSystemInfoSync().windowWidth
-			let params={}
-			that.userInfo = store.state.userInfo
-			that.whetherDistribe = store.state.userInfo.whetherDistribe
-			params.goodId=that.goodsId
-			if(that.userInfo.whetherDistribe!=0){
-				params.memberLv=that.userInfo.whetherDistribe
+				that.getUserInfo()
 			}
-			that.getGoodsInfo(params)
-			that.getErCode()
+			else{
+				that.userInfo = store.state.userInfo
+				that.getGoodsInfo()
+			}	
 		},
 		onUnload(){
 			let that=this
@@ -419,7 +359,7 @@
 		    that.detailContent=''
 		    that.btnStr='立即购买'
 		    that.userInfo={}
-		    that.paintOK=false
+		    that.paintOk=false
 		    that.isLoading=false
 		}
 	}

@@ -7,9 +7,9 @@
            	<!--搜索-->
 			<Search></Search>
 			<!--轮播-->
-			<Banner></Banner>
+			<Banner :banner='bannerImg'></Banner>
 			<!--类目-->
-			<div class="product-list centered">
+			<div class="product-list">
 				<div @click="kindChang(index)" v-for="(item,index) in kindItem"  :class="timeindex === index? 'product-list-li-on':'product-list-li' " >
 					<div class="title">{{item.name}}</div>
 					<div class="desc">{{item.description}}</div>
@@ -51,9 +51,10 @@
 				wid:"100%",
 				magleft:'0px',
 				bookList:[],
-				nowPage:1,
+				nowPage:[],
 				hasMore:[],
-				goodCatList:[]
+				goodCatList:[],
+				bannerImg:[]
 			}
 		},
 		components: {
@@ -77,8 +78,17 @@
 				}	
 				// that.bookList=bookGoodRes.rows
 			},
+			getbannerMessage(typeId){
+				// 获取地区分类下的广告
+				let that=this
+				Api.getTypeImg(4,typeId).then(function(typeImgRes){
+					that.bannerImg=typeImgRes.data.imgs
+				})
+				
+			},
            async getKindGood(pageNum,pageSize,goodCatId){
 				let that=this
+				console.log(that.hasMore[that.timeindex])
 				if(that.hasMore[that.timeindex]){
 					let params={}
 					wx.showLoading({
@@ -106,7 +116,7 @@
 					})
 				}
 				that.goodCatList=that.bookList[that.timeindex]	
-				that.isLoading = true;
+				
 			}
 		},
 		onReachBottom:function(){
@@ -118,14 +128,32 @@
 			let that=this
 			let params={}
 			params.parentId=options.parentId
+			that.getbannerMessage(options.parentId)
 			let childKindRes=await Api.getChild(params)
-			that.kindItem=childKindRes.goodCats
-			for(var i in that.kindItem){
-				that.hasMore[i]=true
-				that.bookList[i]=[]
+			if(childKindRes.goodCats.length>0){
+				that.kindItem=childKindRes.goodCats
+				for(var i in that.kindItem){
+					that.hasMore[i]=true
+					that.bookList[i]=[]
+					that.nowPage[i]=1
+				}
+				that.goodCatId=that.kindItem[0].id
+				that.isLoading = true;
+				that.getKindGood(that.nowPage[0],3,that.goodCatId)
+			}else{
+				wx.showToast({
+						title:'该分类暂无商品',
+						icon:"none",
+						duration:1500
+				})
+			    let timr=setTimeout(function(){
+					wx.switchTab({
+						url: '../index/main',  
+					})
+				},1500);
+				
 			}
-			that.goodCatId=that.kindItem[0].id
-			that.getKindGood(that.nowPage,3,that.goodCatId)
+			
 			// 调用应用实例的方法获取全局数据
 		},
 		onUnload(){
@@ -136,7 +164,7 @@
 				this.wid="100%",
 				this.magleft='0px',
 				this.bookList=[],
-				this.nowPage=1,
+				this.nowPage=[],
 				this.hasMore=[],
 				this.goodCatList=[]
 		},
@@ -155,10 +183,8 @@
 		display: flex;
 		justify-content: space-around;
 		text-align: center;
-		margin-top: 18px;
-		
+		margin:20px auto;
 		.product-list-li{
-			margin-bottom: 16px;
 			.title {
 				color: #111111;
 				font-size: 16px;

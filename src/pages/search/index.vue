@@ -1,28 +1,22 @@
 <template>
 	<div class="search">
-        <blockquote v-if="!isLoading">
-			<loading></loading>
-		</blockquote>
-        <blockquote v-else>
-            <div class="header">
-                <div class="left"><input type="text" placeholder="请输入商品名称" v-model="FromStr"></div>
-                <div class="right" @click="GetGoodList"><text>搜索</text></div>
+    <div class="header">
+        <div class="left"><input type="text" placeholder="请输入商品名称" v-model="FromStr"></div>
+        <div class="right" @click="GetGoodList"><text>搜索</text></div>
+    </div>
+    <!--header end-->
+    <div class="Lsit" v-if="List">
+        <div class="item" v-for='(item,index) in List' :index='index' :key="item" @click="jumpGooddetail(item.id)">
+            <div class="ItemImg"><img :src="item.thumbnail" mode='aspectFit'/></div>
+            <div class="title">
+                <div class="fontHidden">{{item.goodName}}</div>
             </div>
-            <!--header end-->
+            <div class="Price"><text class="Pri">￥{{item.price}}</text><text class="info">销量：{{item.showSales}}</text></div>
+        </div>
 
-            <div class="Lsit" v-if="List">
-                <div class="item" v-for='(item,index) in List' :index='index' :key="item" @click="jumpGooddetail(item.id)">
-                    <div class="ItemImg"><img :src="item.thumbnail" mode='aspectFit'/></div>
-                    <div class="title">
-                        <div class="fontHidden">{{item.goodName}}</div>
-                    </div>
-                    <div class="Price"><text class="Pri">￥{{item.price}}</text><text class="info">销量：{{item.showSales}}</text></div>
-                </div>
-
-                <div class="Tip"  v-show='List.length == 0'>{{tip}}</div>
-            </div>
-            <!--List end-->
-        </blockquote>
+        <div class="Tip"  v-show='List.length == 0'>{{tip}}</div>
+    </div>
+    <!--List end-->
 	</div>
 </template>
 
@@ -30,12 +24,9 @@
 import Search from '@/components/search'
 import API_SEARCH from '@/api/search'
 import Lib from '@/utils/lib'
-import loading from '@/components/loading'
-
 export default { 
     data() {
         return {
-           isLoading:false,
            FromStr:'',
            tip:'请搜索商品~~~~',
            List:[],
@@ -44,8 +35,7 @@ export default {
 
     },
     components: {
-        Search,
-        loading
+        Search
     },
 
     methods: {
@@ -65,7 +55,6 @@ export default {
             }else{
                 Lib.showToast('失败','loading')
             }
-            that.isLoading = true;
             wx.hideLoading()
         },
 

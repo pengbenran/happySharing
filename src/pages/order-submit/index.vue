@@ -157,6 +157,7 @@
 					}	
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
+					params.consumepoint=that.goodDetail.shareWelfare == null ? 0 : that.goodDetail.shareWelfare
 					params.shopsId=that.goodDetail.shopId*1
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalMoney
@@ -169,12 +170,9 @@
 					params.thumbnail=that.goodDetail.thumbnail
 					params.goodName=that.goodDetail.goodName
 					params.price=that.goodDetail.price
-
 					let saveRes=await Api.orderSave(params)
 					if(saveRes.code==0){
 						wx.hideLoading()
-						that.userInfo.balance=util.accSub(that.userInfo.balance,that.useBanlan)
-						store.commit("storeUserInfo",that.userInfo)
 						that.order=saveRes.orderDO
 						that.weixinPay()
 					}	
@@ -230,7 +228,8 @@
 	        	statuParam.orderCode=getQRCode.url
 	        	let payOrder=await Api.payOrder(statuParam)
 	        	if(payOrder.code==0){
-	        		wx.navigateTo({
+	        		util.updateUserInfo()
+	        		wx.redirectTo({
 	        			url: '../order-detail/main?orderId='+that.order.orderId
 	        		})
 	        	}

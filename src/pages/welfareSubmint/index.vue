@@ -58,6 +58,7 @@
 	import Api from '@/api/turntable'
 	import Api_order from '@/api/order'
 	import loading from '@/components/loading'
+	import util from '@/utils/index'
 	export default {
 		components: {
 			goodslist,
@@ -80,7 +81,7 @@
 		methods:{
 			submit_PointOrder(){
 				let that = this;
-				if(that.userInfo.point > that.goodDetail.buyIntegral){
+				if(that.userInfo.point >= that.goodDetail.buyIntegral){
 					wx.showModal({
 						title: '提示',
 						content: '是否消耗'+that.goodDetail.buyIntegral+'兑换',
@@ -167,6 +168,7 @@
                 }
                 Api.submit_ShopOrder(data).then(res => {
 					if(res.code == 0){
+						util.updateUserInfo()
 						lib.showToast('你好兑换成功',"success")
 						wx.switchTab({
 						     url: '../order/main'

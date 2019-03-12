@@ -12,7 +12,7 @@
       <div class="rec-right fr">
         <div class="clr"><div class="make fr">免预约</div></div>
         <!-- <div class="people ">{{item.people}}</div> -->
-        <div class="sell ">已售:{{item.showSales}}</div>
+        <div class="sell ">已售:{{item.sales}}件</div>
       </div>
     </div>
   </div>

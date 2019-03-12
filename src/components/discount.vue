@@ -2,7 +2,8 @@
 	<div class="discount" :style="{display:isflex}">
 		<div class="discount-li" :style="{width:wid,marginLeft:magleft}" v-for="(item , index) in discountList" :key="item.id" @click="jumpGoodDetail(item.id)">	
 			<!-- <day :d="discountList.d" :h="discountList.h" :m="discountList.m" :s="discountList.s"></day> -->
-			<div class="img"><img :src="item.thumbnail" /></div>
+			<div class="img" v-if="wid=='100%'"><img :src="item.p3"/></div>
+			<div class="img" v-else><img :src="item.thumbnail"/></div>
 			<div class="cant">
 				<div class="name-make clr">
 					<div class="name fl fontHidden">{{item.goodName}}</div>
@@ -16,7 +17,7 @@
 				<div class="Present-discounts-sell clr">
 					<div class="Present fl">￥{{item.price}}元</div>
 					<div class="discounts fl">优惠:{{item.saveMoney}}元</div>
-					<div class="sell fr">已售:{{item.showSales}}件</div>
+					<div class="sell fr">已售:{{item.sales}}件</div>
 				</div>
 			</div>
 		</div> 

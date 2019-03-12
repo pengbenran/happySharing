@@ -15,13 +15,13 @@
 							<!-- <div class="make fr">{{goodsDetail.make}}</div> -->
 						</div>
 						<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
-						<div class="Present-discounts-people clr">
+						<div class="preDetail">
 							<div class="preLeft">
 								<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 								<div class="discounts fl">优惠:{{discounts}}元</div>
 							</div>
-							<div class="preRight" v-if="Time">
-								<div class="time">{{TimeStr}}</div>
+							<div class="preRight">
+								购买得{{goodsDetail.buyIntegral}}积分
 							</div>
 							<!-- <div class="people fr">{{item.people}}</div> -->
 						</div>
@@ -31,7 +31,7 @@
 						</div>
 						<div class="original-sell clr">
 							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-							<div class="sell fr">已售:{{goodsDetail.showSales}}件</div>
+							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 						</div>
 						<div class="phone clr">
 							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -68,12 +68,13 @@
 				<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
 			</div>
 		</blockquote>
-		<loginModel ref="loginModel"></loginModel>
+		<loginModel ref="loginModel" @getGoodsInfo="getGoodsInfo"></loginModel>
 	</div>	
 </template>
 
 <script>
 	import Api from '@/api/goods'
+	import Api_home from '@/api/goods'
 	import Api_user from '@/api/userinfo'
 	import util from '@/utils/index'
 	import store from '@/store/store'
@@ -95,8 +96,6 @@
 				shareBool:true,
 				Width:'',
 				userInfo:{},
-				TimeStr:'',
-				Time:'',
 				whetherDistribe:'',
 				UsertagId:'',
 				btnSubmit:false,
@@ -191,7 +190,7 @@
 			},
 			async jumpSaveOrder(){
 				if(this.goodsDetail.inventory > 0){
-					await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
+					// await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					if(!this.Time){ //定时上架
 						wx.navigateTo({url:`../order-submit/main?orderType=1`})
 					}else{
@@ -221,123 +220,45 @@
 				}
 			},
 
-			async getGoodsInfo(params){
+			async getGoodsInfo(){
 				let that=this
+				let params={}  
+				that.userInfo=store.state.userInfo
+				that.whetherDistribe = that.userInfo.whetherDistribe
+				params.goodId=that.goodsId
+				if(that.whetherDistribe!=0){
+					params.memberLv=that.whetherDistribe
+				}
 				let goodsDetailRes=await Api.getGoodDetail(params)
 				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
-				goodsDetailRes.goodbanner.pop()
 				that.goodsDetail=goodsDetailRes
 				that.detailContent = that.goodsDetail.content
 				store.commit("stateGoodDetail",that.goodsDetail)
-				that.Timer(goodsDetailRes.upTime,goodsDetailRes.upType,function(res){
-					if(res != 'NoTime'){
-						that.TimeStr = res;
-					}else{
-						that.TimeStr = '';
-					}	
-				})
+				that.getErCode()
 				that.isLoading=true
 			},
-
-
-
-			Timer(time,timeIndex,fn){
-				var msg = ''
-				var maxtime = (new Date(time) - new Date())/1000;
-				if(timeIndex == 3){
-						if(maxtime >= 0){
-					  	this.btnStr = '暂未上架'
-						}else{
-							that.btnStr = '立即购买'
-							this.Time = true;
-						}
-					 this.Time = setInterval(function(){
-						 maxtime = (new Date(time) - new Date())/1000;
-						if(maxtime >= 0) {
-							var dd = parseInt(maxtime / 60 / 60 / 24, 10);//计算剩余的天数  
-							var hh = parseInt(maxtime / 60 / 60 % 24, 10);//计算剩余的小时数  
-							var mm = parseInt(maxtime / 60 % 60, 10);//计算剩余的分钟数  
-							var ss = parseInt(maxtime % 60, 10);//计算剩余的秒数  
-							hh = lib.checkTime(hh);
-							mm = lib.checkTime(mm);
-							ss = lib.checkTime(ss);
-				
-							msg =  dd + "天" + hh + "时" + mm + "分" + ss + "秒";
-							fn(msg);
-						} else {
-							clearInterval( this.Time );
-							
-							fn("NoTime");
-							// return {msg:msg,maxtime:maxtime};
-						}
-					},1000);
-				
-				}else{
-					clearInterval(this.Time);
-				}
-		},
-
-		closeClick(){
-			let that = this;
-			that.paintOk = false;
-		},
-
-		/**
-		 * 获取用户标签并判断购买限制
-		 * that.btnSubmit：购买限制
-		 * unionid: 用户unionid
-		 */
-		async GetUserLable(unionid){
-			let that = this;
-			wx.showLoading({title: '加载中',})
-			let data = {unionid:unionid}	
-			let res = await Api_user.getUserLable(data).catch(err => {
-				 lib.showToast('没有获取到该用户的标签数据','none')
-			})
-            if(res.code == 0 && res.TagList.length > 0){
-				let arr = []
-				res.TagList.map(v => {
-                     arr.push(v.tagId);
-				})
-				let falg=false
-				if(that.goodsDetail.buyLimit == ''){ //判断商品是否设置了变量限制
-					falg = true;
-				}else{
-					arr.map(v => {
-						if(that.goodsDetail.buyLimit.split(',').indexOf(v.toString()) != -1){
-							falg = true;
-						}	
-					})
-				}
-				if(falg){
-					that.btnSubmit=true
-				}
-				else{
-					that.btnSubmit=false
-				}
+			async getUserInfo(){
+				let that=this
+				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
+				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
+				await that.$refs.loginModel.userLogin()
+			},
+			closeClick(){
+				let that = this;
+				that.paintOk = false;
 			}
-			 wx.hideLoading()
-		},
 		},
 		async mounted(){
 			let that=this
 			that.goodsId =that.$root.$mp.query.goodsId
-			clearInterval(this.Time);
+			that.Width=wx.getSystemInfoSync().windowWidth 	
 			if(that.$root.$mp.query.codeUnionid!=''){
-				store.commit("statecodeUnionid",that.$root.$mp.query.codeUnionid)
-				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
-				await that.$refs.loginModel.userLogin()
-			}	
-			that.Width=wx.getSystemInfoSync().windowWidth
-            let params={}
-            that.userInfo = store.state.userInfo
-			that.whetherDistribe = store.state.userInfo.whetherDistribe
-            params.goodId=that.goodsId
-			if(that.userInfo.whetherDistribe!=0){
-            	params.memberLv=that.userInfo.whetherDistribe
-            }
-			that.getGoodsInfo(params)
-			that.getErCode()
+				that.getUserInfo()
+			}
+			else{
+				that.userInfo = store.state.userInfo
+				that.getGoodsInfo()
+			}		
 		},
 		onUnload(){
 			let that=this
@@ -351,8 +272,8 @@
 			that.shareBool=true
 			that.Width=''
 			that.userInfo={}
-			that.TimeStr=''
-			that.Time=''
+			// that.TimeStr=''
+			// that.Time=''
 			that.whetherDistribe=''
 			that.UsertagId=''
 			that.btnSubmit=false
@@ -445,10 +366,7 @@
 		flex-shrink: 0;
 		position: relative;
 		margin-bottom: 15px;
-		// &:nth-child(1),
-		// &:nth-child(2) {
-		// 	margin: 0;
-		// }
+	
 		.img {
 			width: 100%;
 			height: 200px;
@@ -493,25 +411,32 @@
 					font-size: 12px;
 				}
 			}
-			.Present-discounts-people { display: flex;position: relative;
-			.preRight{position:absolute;top:0px;right: 5px;font-size: 15px;color: #fff;background: #ff0000;}
-			// .preRight .time{width: 120px;}
+			.preDetail{
+				display: flex;
+				justify-content: space-between;
 				margin-top: 10px;
-				.Present {
-					color: #ff0000;
-					font-size: 17px;
+				.preRight{
+					font-size: 12px;color: #999;
+
 				}
-				.discounts {
-					color: #999999;
-					font-size: 12px;
-					margin-left: 6px;
-					line-height: 25px;
-				}
-				.people {
-					color: #999999;
-					font-size: 12px;
+				.preLeft{
+					.Present {
+						color: #ff0000;
+						font-size: 17px;
+					}
+					.discounts {
+						color: #999999;
+						font-size: 12px;
+						margin-left: 6px;
+						line-height: 25px;
+					}
+					.people {
+						color: #999999;
+						font-size: 12px;
+					}
 				}
 			}
+			
 			.phone {
 				width: 100%;
 				height: 37px;

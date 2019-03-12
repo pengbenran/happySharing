@@ -116,29 +116,6 @@
 					url: '../welfare/main',  
 				})
 			},
-			cutTimes: function(i,endtime) {
-				//获取当前时间
-				let that=this
-				var date = new Date();
-				var now = date.valueOf();
-				//设置截止时间
-				var endDate = new Date(endtime).valueOf();
-				//时间差
-				var leftTime = endDate - now;
-				//定义变量 d,h,m,s保存倒计时的时间 
-				if(leftTime >= 0) {
-					var interval = setInterval(function () {
-						that.discount[i].d = parseInt(leftTime / 1000 / 60 / 60 / 24,10);
-						that.discount[i].h = parseInt(leftTime / 1000 / 60 / 60 % 24,10);
-						that.discount[i].m = parseInt(leftTime / 1000 / 60 % 60,10);
-						that.discount[i].s = parseInt(leftTime / 1000 % 60,10);
-						leftTime = leftTime - 1000;
-						if(leftTime<0){
-							clearinterval(interval)
-						}
-     				},1000)	
-				}	
-			},
 			// 获取首页推荐商品
 			async getRecommendGood(pages,limit){
 				let that=this
@@ -185,7 +162,6 @@
 			    that.bannerList=bannerAndMessageRes.data.BannerList
 			    that.message=bannerAndMessageRes.data.messageDOList
 			    that.isLoading=true
-			    wx.showTabBar({})
 				},
 		},
 		onReachBottom:function(){
@@ -204,8 +180,6 @@
 			let that = this;
 			that.getIndex()
 		},
-
-
 	}
 </script>
 

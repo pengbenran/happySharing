@@ -31,7 +31,8 @@
 </template>
 <script>
 	import Api from "@/api/distribe";
-	import store from '@/store/store'
+	import store from '@/store/store';
+	import util from '@/utils/index'
 	export default {
 		data() {
 			return {
@@ -101,9 +102,14 @@
 				    			icon: 'success',
 				    			duration: 1500
 				    		})
-				 			wx.switchTab({
-				 				url:'../index/main'
-				 			})
+							util.updateUserInfo()
+				    		setTimeout(function(){
+				    			wx.switchTab({
+				    				url:'../index/main'
+				    			})
+
+				    		},1000)
+				 			
 				    	}
 				    	
 				    }
