@@ -117,7 +117,6 @@
 				UsertagId:'',
 				btnSubmit:false,
 				detailContent:'',
-				btnStr:'立即购买',
 				userInfo:{},
 				paintOk:false,
 				isLoading:false,
@@ -280,6 +279,7 @@
 						}
 						that.mulLinkageTwoPicker.push(dateArr)
 					}
+					that.getErCode()
 					store.commit("stateGoodDetail",that.goodsDetail)
 					that.isLoading=true
 				}
@@ -305,7 +305,7 @@
     		    let appointmentParam={}
     		    appointmentParam.beginTime=begintimetap
 				appointmentParam.endTime=endtimetap
-				appointmentParam.index = e.index[1]
+				appointmentParam.index = e.value[1]
 				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
     		    store.commit("stateappointment",appointmentParam)
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
@@ -357,7 +357,6 @@
 		    that.UsertagId=''
 		    that.btnSubmit=false
 		    that.detailContent=''
-		    that.btnStr='立即购买'
 		    that.userInfo={}
 		    that.paintOk=false
 		    that.isLoading=false

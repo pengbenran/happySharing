@@ -66,10 +66,9 @@
 	</div>
 </template>
 <script>
-import API from '@/api/myself'
 import distribeApi from '@/api/distribe'
 import store from '@/store/store'
-
+import util from '@/utils/index'
 	export default {
 		data() {
 			return {
@@ -168,7 +167,14 @@ import store from '@/store/store'
 			let that = this
 			that.userInfo = store.state.userInfo
 			that.config = store.state.config
-		}
+		},
+		onPullDownRefresh: function(){
+			let that=this
+   			util.updateUserInfo()	
+   			wx.stopPullDownRefresh()
+   			that.userInfo = store.state.userInfo
+			that.config = store.state.config
+   		},
 	}
 </script>
 
