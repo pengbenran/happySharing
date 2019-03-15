@@ -3,8 +3,7 @@
 		<blockquote v-if="!isLoading">
 			<loading></loading>
 		</blockquote>
-		<blockquote v-else>
-			<div>
+		<blockquote v-else>	
 				<div class="discount-li" :style="{width:wid,marginLeft:magleft}">
 					<swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
 						<swiper-item v-for="(item,index) in goodsDetail.goodbanner" :key='item' :index="index"><img :src="item" mode='widthFix'></swiper-item>
@@ -25,13 +24,13 @@
 							</div>
 							<!-- <div class="people fr">{{item.people}}</div> -->
 						</div>
-						<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-							<span class="Present">{{goodsDetail.returnAmount}}元</span>
-							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
-						</div>
 						<div class="original-sell clr">
 							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+						</div>
+						<div class="disribe clr">推荐师返佣:
+							<span class="Present">{{goodsDetail.returnAmount}}元</span>
+							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
 						</div>
 						<div class="phone clr">
 							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -39,11 +38,11 @@
 						</div>
 					</div>
 				</div>
-		<!--商品详情-->
+				<!--商品详情-->
 				<div class="product-detail centered">
 					<span>商品详情</span>
 				</div>
-				<div style="margin-bottom:55px"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+				<div class="intro"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
 				<!--底下导航-->
 				<div class="nav">
 					<div class="index" @click="jumpIndex">
@@ -66,7 +65,6 @@
 					<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 				</div>
 				<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
-			</div>
 		</blockquote>
 		<loginModel ref="loginModel" @getGoodsInfo="getGoodsInfo"></loginModel>
 	</div>	
@@ -359,7 +357,6 @@
 			color: #fff;
 		}
 	}
-	
 	.discount-li {
 		flex-shrink: 0;
 		position: relative;
@@ -453,7 +450,10 @@
 			}
 		}
 	}
-	
+	.intro{
+		padding-bottom: 55px;
+		box-sizing: border-box;
+	}
 	.product-detail {
 		margin-top: 30px;
 		border-left: 4px solid #ff7d28;

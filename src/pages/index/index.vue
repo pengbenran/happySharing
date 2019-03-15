@@ -162,6 +162,7 @@
 			    that.bannerList=bannerAndMessageRes.data.BannerList
 			    that.message=bannerAndMessageRes.data.messageDOList
 			    that.isLoading=true
+			    wx.stopPullDownRefresh()
 				},
 		},
 		onReachBottom:function(){
@@ -172,10 +173,10 @@
 		onShareAppMessage: function () {
 			withShareTicket: true
 		},
-		// onPullDownRefresh: function(){
-		// 	let that=this
-		// 	that.getIndex()
-		// },
+		onPullDownRefresh: function(){
+			let that=this
+			that.getIndex()
+		},
 		mounted(){
 			let that = this;
 			that.getIndex()

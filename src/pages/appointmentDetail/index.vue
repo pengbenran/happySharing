@@ -20,10 +20,6 @@
 								<div class="Present fl">￥:{{goodsDetail.price}}元</div>
 								<div class="discounts fl">优惠:{{discounts}}元</div>
 							</div>
-							<div class="disribe clr" v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-								<span class="Present">{{goodsDetail.returnAmount}}元</span>
-								<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
-							</div>
 							<div class="preRight" v-if="Time">
 								<div class="time">{{TimeStr}}</div>
 							</div>
@@ -31,6 +27,10 @@
 						<div class="original-sell clr">
 							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+						</div>
+						<div class="disribe clr">
+							推荐师返佣:<span class="Present">{{goodsDetail.returnAmount}}元</span>
+							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
 						</div>
 						<div class="phone clr">
 							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -42,7 +42,7 @@
 				<div class="product-detail centered">
 					<span>图文详情</span>
 				</div>
-				<div> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+				<div class="intro"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
 		
 			<!--底下导航-->
 			<div class="nav">
@@ -54,7 +54,7 @@
 					<div class="img"><span class="iconfont">&#xe62a;</span></div>
 					<div class="text">分享</div>
 				</div>
-				<div v-if='goodsDetail.book==1' class="rush"  @click="showPicker">	
+				<div class="rush"  @click="showPicker">	
 					立即预约
 				</div>
 			</div>
@@ -527,7 +527,10 @@
 			}
 		}
 	}
-	
+	.intro{
+		padding-bottom: 55px;
+		box-sizing: border-box;
+	}
 	.product-detail {
 		margin-top: 30px;
 		border-left: 4px solid #ff7d28;
