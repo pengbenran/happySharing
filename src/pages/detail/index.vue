@@ -55,7 +55,7 @@
 						<div class="text">分享</div>
 					</div>
 					<div @click="jumpSaveOrder(index)" class="rush">
-						{{btnStr}}
+						立即购买
 					</div>
 				</div>
 				<div class="paintImg" v-show="paintOk">
@@ -100,7 +100,6 @@
 				UsertagId:'',
 				btnSubmit:false,
 				detailContent:'',
-				btnStr:'立即购买',
 				posterErcode:''
 			}
 
@@ -202,12 +201,14 @@
 			},
 			share(){
 				let that=this
-				if(that.shareImage=="" && that.posterErcode != ''){
-					that.eventDraw(that.posterErcode)
+				if(that.posterErcode != ''){
+					if(that.shareImage==""){
+						that.eventDraw(that.posterErcode)
+					}
+					else{
+						that.paintOk=true
+					}	
 				}
-				else{
-					that.paintOk=true
-				}	
 			},
 
 			async getErCode(){
@@ -278,7 +279,6 @@
 			that.UsertagId=''
 			that.btnSubmit=false
 			that.detailContent=''
-			that.btnStr='立即购买'
 			that.posterErcode=''
 		}
 	}

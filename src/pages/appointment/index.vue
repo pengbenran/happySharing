@@ -19,10 +19,10 @@
 					<div class="img"><img :src="discountList.p3" /></div>
 					<div class="cant">
 						<div class="name-make clr">
-							<div class="name fl">{{discountList.title}}</div>
+							<!-- <div class="name fl fontHidden" >{{discountList.title}}</div> -->
 							<div class="make fr">需预约</div>
 						</div>
-						<div class="desc">{{discountList.goodName}}</div>
+						<div class="desc fontHidden">{{discountList.goodName}}</div>
 						<div class="original-people clr">
 							<div class="original fl">原价:{{discountList.showPrice}}</div>
 						</div>

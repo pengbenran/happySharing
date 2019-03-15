@@ -8,7 +8,7 @@
 			</div>
 			<!--模块2-->
 			<div class="rec-li " >
-				<div class="rec-li-warp clr">
+				<div class="rec-li-warp clr" @click="jumpShop">
 					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
 					<div class="rec-center fl">
 						<div class="tit fontHidden">{{OrderInfo.goodName}}</div>
@@ -125,7 +125,19 @@
 				wx.switchTab({
 					url:'../index/main'
 				})
-			}
+			},
+			jumpShop(){
+				let that = this;
+				if(that.OrderInfo.orderType == 1){//跳转到普通详情
+					wx.navigateTo({url:`../detail/main?goodsId=${that.OrderInfo.goodsId}`})
+				}else if(that.OrderInfo.orderType == 2){//跳转到预约详情
+					wx.navigateTo({url:`../appointmentDetail/main?goodsId=${that.OrderInfo.goodsId}`})
+				}else{
+					wx.navigateTo({//跳转到积分详情
+					    url: `../welfareDetail/main?goodsId=${that.OrderInfo.goodsId}`　
+					})
+				}
+			},
 		},
 
 		onLoad(options){

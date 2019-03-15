@@ -152,9 +152,20 @@
 			let that=this
 			await that.$refs.loginModel.userLogin()
 			that.isWriteOff(store.state.userInfo.unionid,that.orderId)
+			// that.isWriteOff('oN-X01F3aJVZsIG0p-n-Kcn69lpA',that.orderId)
 		},
+		onShow(){
+			//重置数据
+			this.isWrite = false;
+			this.auditimg = '/static/images/audit.png';
+			this.OrderInfo = {};
+			this.isSubmit = false;
+			this.orderId = '';
+		},
+		
 		onLoad(options){
 			var that = this 
+			console.log("你好参数",options)
             that.orderId=decodeURIComponent(options.scene)
 		},
 		computed: {

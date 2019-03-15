@@ -57,6 +57,8 @@
 					params.unionid=that.userInfo.unionid;
 					params.money=that.inp;
 					let widthdrawRes=await Api.withdrawal(params)
+					that.isSubmit=false
+					that.isOn=false
 					if(widthdrawRes.code==0){
 						wx.hideLoading()
 						wx.showToast({
@@ -66,6 +68,14 @@
 						that.userInfo.balance=util.accSub(that.userInfo.balance,that.inp)
 						store.commit("storeUserInfo",that.userInfo)
 						wx.navigateTo({ url:'../myself-detail/main'});
+					}
+					else if(widthdrawRes.code==500){
+						wx.hideLoading()
+						wx.showToast({
+							title:'平台余额不足,请联系客服',
+							duration:1500,
+							icon:'none'
+						})
 					}
 					
 				}
