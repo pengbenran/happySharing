@@ -193,7 +193,7 @@
 					// await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
 					if(!this.Time){ //定时上架
 						wx.navigateTo({url:`../order-submit/main?orderType=1`})
-					}else{
+					}else{		
 						lib.showToast('该商品还未上架','none')
 					}
 				}else{
@@ -202,7 +202,7 @@
 			},
 			share(){
 				let that=this
-				if(that.shareImage==""){
+				if(that.shareImage=="" && that.posterErcode != ''){
 					that.eventDraw(that.posterErcode)
 				}
 				else{
