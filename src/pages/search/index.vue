@@ -6,14 +6,13 @@
     </div>
     <!--header end-->
     <div class="Lsit" v-if="List">
-        <div class="item" v-for='(item,index) in List' :index='index' :key="item" @click="jumpGooddetail(item.id)">
+        <div class="item" v-for='(item,index) in List' :index='index' :key="item" @click="jumpGooddetail(item.id,item.book)">
             <div class="ItemImg"><img :src="item.thumbnail" mode='aspectFit'/></div>
             <div class="title">
                 <div class="fontHidden">{{item.goodName}}</div>
             </div>
-            <div class="Price"><text class="Pri">￥{{item.price}}</text><text class="info">销量：{{item.showSales}}</text></div>
+            <div class="Price"><text class="Pri">￥{{item.price}}</text><text class="info">销量：{{item.sales}}</text></div>
         </div>
-
         <div class="Tip"  v-show='List.length == 0'>{{tip}}</div>
     </div>
     <!--List end-->
@@ -59,11 +58,19 @@ export default {
         },
 
         //点击跳转
-        jumpGooddetail(goodsId){
+        jumpGooddetail(goodsId,book){
             let that = this;
-            wx.navigateTo({
-              url: '../detail/main?goodsId='+goodsId
-            })
+            if(book==2){
+              wx.navigateTo({
+                url: '../detail/main?goodsId='+goodsId
+              })
+            }
+            else{
+              wx.navigateTo({
+                url: '../appointmentDetail/main?goodsId='+goodsId
+              })
+            }
+            
         }
     
     },
