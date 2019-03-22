@@ -1,65 +1,70 @@
 <template>
 	<div>
-		<div class="order-detail" v-if="isWrite">
-			<!--模块1-->
-			<div class="title">
-				<span>{{OrderInfo.status}}</span>
-				<span v-if="OrderInfo.orderType==1">下单时间:{{OrderInfo.createTime}}</span>
-				<span v-else>过期时间:{{OrderInfo.endTime}}</span>
-			</div>
-			<!--模块2-->
-			<div class="rec-li ">
-				<div class="rec-li-warp clr">
-					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
-					<div class="rec-center fl">
-						<div class="tit">{{OrderInfo.goodName}}</div>
-						<div class="name"></div>
-						<div class="present "><span>￥{{OrderInfo.goodsAmount}}</span></div>
-					</div>
-					<div class="rec-right fr">
-						<div class="clr">
-							<div class="make fr" v-if='OrderInfo.orderType==1'>免预约</div>
-							<div class="make fr" v-else>需预约</div>
+		<blockquote v-if="!isLoading">
+			<loading></loading>
+		</blockquote>
+		<blockquote v-else>
+			<div class="order-detail" v-if="isWrite">
+				<!--模块1-->
+				<div class="title">
+					<span>{{OrderInfo.status}}</span>
+					<span v-if="OrderInfo.orderType==1">下单时间:{{OrderInfo.createTime}}</span>
+					<span v-else>过期时间:{{OrderInfo.endTime}}</span>
+				</div>
+				<!--模块2-->
+				<div class="rec-li ">
+					<div class="rec-li-warp clr">
+						<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
+						<div class="rec-center fl">
+							<div class="tit">{{OrderInfo.goodName}}</div>
+							<div class="name"></div>
+							<div class="present "><span>￥{{OrderInfo.goodsAmount}}</span></div>
 						</div>
-						<div class="people "></div>
-						<div class="sell "></div>
+						<div class="rec-right fr">
+							<div class="clr">
+								<div class="make fr" v-if='OrderInfo.orderType==1'>免预约</div>
+								<div class="make fr" v-else>需预约</div>
+							</div>
+							<div class="people "></div>
+							<div class="sell "></div>
+						</div>
+					</div>
+					<!--总价-->
+					<div class="prices">
+						<div class="price1">
+							<span>商品总价: </span>
+							<span> ¥ {{OrderInfo.goodsAmount}}</span>
+						</div>
+						<div class="price2">
+							<span>推荐师优惠：</span>
+							<span> ¥ {{OrderInfo.recommend}}</span>
+						</div>
+						<div class="price3">
+							<span>订单总价：</span>
+							<span> ¥ {{OrderInfo.orderAmount}}</span>
+						</div>
+						<div class="price4">
+							<span>实付金额：</span>
+							<span> ¥ {{OrderInfo.needPayMoney}}</span>
+						</div>
 					</div>
 				</div>
-				<!--总价-->
-				<div class="prices">
-					<div class="price1">
-						<span>商品总价: </span>
-						<span> ¥ {{OrderInfo.goodsAmount}}</span>
-					</div>
-					<div class="price2">
-						<span>推荐师优惠：</span>
-						<span> ¥ {{OrderInfo.recommend}}</span>
-					</div>
-					<div class="price3">
-						<span>订单总价：</span>
-						<span> ¥ {{OrderInfo.orderAmount}}</span>
-					</div>
-					<div class="price4">
-						<span>实付金额：</span>
-						<span> ¥ {{OrderInfo.needPayMoney}}</span>
-					</div>
+				<!--订单详情-->
+		
+
+				<!--按钮-->
+				<div class="dele" >
+					<span @click='writeOff(OrderInfo.orderId)' v-if="OrderInfo.status=='待核销'">立即核销</span>
+					<span v-else>已核销</span>
+					<span @click='jumpIndex'>返回首页</span>
 				</div>
 			</div>
-			<!--订单详情-->
-	
-
-			<!--按钮-->
-			<div class="dele" >
-				<span @click='writeOff(OrderInfo.orderId)' v-if="OrderInfo.status=='待核销'">立即核销</span>
-				<span v-else>已核销</span>
+			<div v-else class="audit">
+				<span>您不是核销员哦,无法核销</span>
+				<span><img :src="auditimg"></span> 
 				<span @click='jumpIndex'>返回首页</span>
 			</div>
-		</div>
-		<div v-else class="audit">
-			<span>您不是核销员哦,无法核销</span>
-			<span><img :src="auditimg"></span> 
-			<span @click='jumpIndex'>返回首页</span>
-		</div>
+		</blockquote>
 		<loginModel ref="loginModel"></loginModel> 
 	</div>
 </template>
@@ -67,6 +72,7 @@
 <script>
 	import goodslist from '@/components/goodslist'
 	import loginModel from "@/components/loginModel"; 
+	import loading from '@/components/loading'
 	import store from '@/store/store'
 	import Api from '@/api/order'
 	import Index_Lib from '@/utils/index'
@@ -74,11 +80,13 @@
 	export default {
 		components: {
 			goodslist,
-			loginModel
+			loginModel,
+			loading
 		},
 
 		data() {
 			return {
+				isLoading:false,
 				isWrite:false,
 				auditimg:'/static/images/audit.png',
 				OrderInfo:{},
@@ -91,6 +99,7 @@
 			async isWriteOff(unionId,orderId){
 				let that=this
 				let params={}
+
 				params.unionId=unionId
 				params.orderId=orderId
 				let isWriteOffRes=await Api.isWriteOff(params)
@@ -100,6 +109,7 @@
 				}
 				else{
 					that.isWrite=false
+					that.isLoading = true;
 				}
 			},
 			// 核销
@@ -141,6 +151,7 @@
 					}
 					that.OrderInfo = OrderInfo
 				};
+				that.isLoading = true;
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -154,19 +165,16 @@
 			that.isWriteOff(store.state.userInfo.unionid,that.orderId)
 			// that.isWriteOff('oN-X01F3aJVZsIG0p-n-Kcn69lpA',that.orderId)
 		},
-		onShow(){
-			//重置数据
+
+		onLoad(options){
+			var that = this 
+			this.isLoading = false;
 			this.isWrite = false;
 			this.auditimg = '/static/images/audit.png';
 			this.OrderInfo = {};
 			this.isSubmit = false;
-			this.orderId = '';
-		},
-		
-		onLoad(options){
-			var that = this 
-			console.log("你好参数",options)
-            that.orderId=decodeURIComponent(options.scene)
+			// this.orderId=''
+			that.orderId=decodeURIComponent(options.scene)
 		},
 		computed: {
 		},	
