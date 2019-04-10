@@ -24,7 +24,7 @@
 						<div class="rec-center fl">
 							<div class="tit fontHidden">{{orderItem.goodName}}</div>
 							<div class="name fontHidden1">{{orderItem.goodName}}</div>
-							<div class="present ">￥:{{orderItem.needPayMoney}}</div>
+							<div class="present ">￥:{{orderItem.goodsAmount}}</div>
 
 						</div>
 						<div class="rec-right fr">
@@ -45,7 +45,7 @@
 						<div class="line fr"></div>
 					</div>
 					<div class="rec-bottom">
-						订单总额:{{orderItem.orderAmount}} 
+						实际支付金额:{{orderItem.orderAmount}} 
 						<span>{{orderItem.orderType == 3? '分':'元'}}</span>
 					</div>
 				</div>

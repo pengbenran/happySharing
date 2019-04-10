@@ -28,8 +28,10 @@
 							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
 							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 						</div>
-						<div class="disribe clr">推荐师返佣:
-							<span class="Present">{{goodsDetail.returnAmount}}元</span>
+						<div class="disribe clr">
+							<blockquote v-if="userInfo.whetherDistribe!=0">推荐师返佣:
+								<span class="Present">{{goodsDetail.returnAmount}}元</span>
+							</blockquote>
 							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
 						</div>
 						<div class="phone clr">
@@ -167,6 +169,19 @@
 		   			width: 50,
 		   			height:50
 		   		},
+	   		    {
+		   			type: 'text',
+		   			content:that.userInfo.name,
+		   			fontSize: 13,
+		   			color: '#000',
+		   			textAlign: 'left',
+		   			breakWord: true,
+		   			top: that.Width-55,
+		   			left:210,
+		   			width:90,
+		   			MaxLineNumber:2,
+		   			isCenter:false
+			   	},
 
 		   		]
 		   	}
@@ -201,7 +216,20 @@
 				let that=this
 				if(that.posterErcode != ''){
 					if(that.shareImage==""){
-						that.eventDraw(that.posterErcode)
+					    let shareRight=that.goodsDetail.shareRight.split(',')
+					    let tagMemberDOList=that.userInfo.tagMemberDOList
+					    let flag=false
+					    for(var i in tagMemberDOList){
+					    	if(shareRight.includes(tagMemberDOList[i].tagId.toString())){
+					    		flag=true
+					    	}
+					    }
+					    if(flag){
+							lib.showToast('您暂无分享权限','none')
+					    }
+					    else{
+					    	that.eventDraw(that.posterErcode)
+					    }	
 					}
 					else{
 						that.paintOk=true

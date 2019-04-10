@@ -36,6 +36,10 @@ isWriteOff:params=>{
 // 核销订单
 writeOff:params=>{
 	return API.PUT('/api-order/api/order/cancel',params)
+},
+// 预约订单
+orderBook:params=>{
+	return API.POST('/api-order/api/order/orderBook', params)
 }
 
 }      
