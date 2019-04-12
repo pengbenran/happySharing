@@ -147,7 +147,7 @@
 
 
             //扣除积分
-            delete_point(){
+            delete_point(qrCodeData){
 				let that = this;
 				wx.hideLoading()
                 let data = {
@@ -157,7 +157,7 @@
                 Api.submit_ShopOrder(data).then(res => {
 
 				if(res.code == 0){
-                    that.ponitOrderSuccess(); //扣除用户的积分
+                    that.ponitOrderSuccess(qrCodeData); //扣除用户的积分
 				}else{
 					lib.showToast('抱歉支付失败！',"none")
 				}
@@ -167,13 +167,10 @@
 			},
 
 			//支付成功
-			async ponitOrderSuccess(){
+			async ponitOrderSuccess(qrCodeData){
 				let that = this;
 				wx.showLoading({title: '加载中'})
-				let data = {
-					orderId:that.orderDO.orderId
-				}
-				let res = await Api.submint_OrderSuccess(data).catch(err => {
+				let res = await Api.submint_OrderSuccess(qrCodeData).catch(err => {
 					lib.showToast('抱歉网络开了小差',"none")
 				})
 				if(res.code == 0){

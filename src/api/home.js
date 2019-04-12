@@ -8,7 +8,7 @@ export default {
 
 	},
 	// 获取用户信息并且注册会员  
-	weCatLogin(params){
+	weCatLogin(params){	
 		return API.getLogin('http://192.168.0.114:8013/api/login/weChatLogin',params)
 		// return API.getLogin('https://nadou.guqinet.com/api/login/weChatLogin',params)
 	},
