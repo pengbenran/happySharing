@@ -72,7 +72,8 @@
 				isSubmit:false,
 				goodDetail:{},
 				userInfo:{},
-				useBanlan:0
+				useBanlan:0,
+				orderDO:{}
 			}
 		},
 		computed: {
@@ -89,7 +90,7 @@
 							if (res.confirm) {
 								that.savaPointOrder()
 							} else if (res.cancel) {
-							console.log('用户点击取消')
+							    console.log('用户点击取消')
 							}
 						}
 					})
@@ -117,6 +118,7 @@
 					lib.showToast('抱歉网络开了小差',"none")
 				})
 				if(res.code == 0){
+					that.orderDO = res.orderDO
 					that.GetQRCode(res.orderDO); //生成二维码
 				}else{
 			     	lib.showToast('抱歉网络开了小差',"none")
@@ -137,23 +139,9 @@
 				   let data = {}
 				   data.orderId = orderDO.orderId;
 				   data.orderCode = getQRCode.url
-				   that.ponitOrderSuccess(data); //支付成功
+				   that.delete_point(data); //支付成功
 				}else{
 					lib.showToast('抱歉未生成！',"none")
-				}
-			},
-
-			//支付成功
-			async ponitOrderSuccess(params){
-				let that = this;
-				wx.showLoading({title: '加载中'})
-				let res = await Api.submint_OrderSuccess(params).catch(err => {
-					lib.showToast('抱歉网络开了小差',"none")
-				})
-				if(res.code == 0){
-                    that.delete_point(); //扣除用户的积分
-				}else{
-					lib.showToast('抱歉支付失败！',"none")
 				}
 			},
 
@@ -167,19 +155,38 @@
                     point:that.goodDetail.buyIntegral
                 }
                 Api.submit_ShopOrder(data).then(res => {
-					if(res.code == 0){
+
+				if(res.code == 0){
+                    that.ponitOrderSuccess(); //扣除用户的积分
+				}else{
+					lib.showToast('抱歉支付失败！',"none")
+				}
+                }).catch(err => {
+                  lib.showToast('抱歉网络开了小差',"none")
+                })
+			},
+
+			//支付成功
+			async ponitOrderSuccess(){
+				let that = this;
+				wx.showLoading({title: '加载中'})
+				let data = {
+					orderId:that.orderDO.orderId
+				}
+				let res = await Api.submint_OrderSuccess(data).catch(err => {
+					lib.showToast('抱歉网络开了小差',"none")
+				})
+				if(res.code == 0){
 						util.updateUserInfo()
 						lib.showToast('你好兑换成功',"success")
 						wx.switchTab({
 						     url: '../order/main'
 						})
-					}else{
+				}else{
 						 lib.showToast('你好兑换失败',"success")
-					}
-                }).catch(err => {
-                  lib.showToast('抱歉网络开了小差',"none")
-                })
-            },
+				}
+			},
+
 	
 
 		},

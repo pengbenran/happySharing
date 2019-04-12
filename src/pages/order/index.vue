@@ -52,7 +52,7 @@
 				<div class="bottom" v-if="SelectIndex == 0">
 					<div v-if="orderItem.status == 0" class="bottomCase">
 						<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-						<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+						<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)" >立即付款</botton>
 					</div>
 					<div v-if="orderItem.status == 1" class="bottom">
 						<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
@@ -70,7 +70,8 @@
 
 				<div class="bottom" v-if="SelectIndex == 1">
 					<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+					<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPayPoint(orderItem.orderType)" v-if="orderItem.orderType == 3">积分付款</botton>
+					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)" v-else>立即付款</botton>
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 2">
@@ -260,6 +261,10 @@ import Config from '@/config'
 				 wx.navigateTo({
 					url: '../order-detail/main?orderId='+orderId
 				})
+			},
+			wxPayPoint(){
+				let that = this;
+
 			},
 
 			//立即付款

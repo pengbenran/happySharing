@@ -60,8 +60,8 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
-let base='https://zhifenxiang.guqinet.com'
-// let base='http://192.168.2.112:8012'
+// let base='https://zhifenxiang.guqinet.com'
+let base='http://192.168.0.116:8012'
 // export default {
 //     fly: fly
 // }
