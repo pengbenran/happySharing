@@ -12,11 +12,12 @@
 							<div class="rec-center fl">
 								<div class="tit fontHidden">{{BookItem.goodName}}</div>
 								<div class="name fontHidden1">{{BookItem.goodName}}</div>
-								<div class="present ">￥:{{BookItem.orderAmount}}</div>
-								<div class="time ">预约时间：{{BookItem.endTime}}</div>
+								<div class="present ">￥:{{BookItem.goodsAmount}}</div>
+								<div class="time" v-if="BookItem.endTime!=null">预约结束时间:{{BookItem.endTime}}</div>
+								<div class="time" v-else>暂未预约</div>
 							</div>
 							<div class="rec-right fr">
-								<div class="use">待使用</div>
+								<div class="use">{{BookItem.statusType}}</div>
 								<div class="num ">数量 : {{BookItem.goodsNum}}</div>
 							</div>
 						</div>
@@ -55,7 +56,7 @@ import loading from '@/components/loading'
 				isLoading:false,
 			};
 		},
-			components: {
+		components: {
             nomoreTip,
             loading
 		},
@@ -75,7 +76,18 @@ import loading from '@/components/loading'
 
 				if(res.code == 0){
 					let book = res.pageUtils.rows.map(v => {
-						v.endTime = Index_Lib.formatTime(v.endTime)
+						if(v.endTime!=null){
+							v.endTime = Index_Lib.formatTime(v.endTime)
+						}
+						if(v.status==1){
+							v.statusType='待核销'
+						}
+						else if(v.status==2){
+							v.statusType='已核销'
+						}
+						else{
+							v.statusType='已取消'
+						}
 						return v;
 					})
 					that.BookList = that.BookList.concat(book)

@@ -117,6 +117,7 @@
 				let that=this
 				let params={}
 				params.orderId=orderId
+				params.memberName=store.state.userInfo.name
 				if(!that.isSubmit){
 					that.isSubmit=true
 					let writeOffRes=await Api.writeOff(params)

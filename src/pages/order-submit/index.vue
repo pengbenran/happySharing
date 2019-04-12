@@ -147,14 +147,7 @@
 					else{
 						params.paymentId=1
 					}
-					params.orderType=that.orderType	
-					if(that.orderType==2){
-						params.beginTime=store.state.appointment.beginTime
-						params.endTime=store.state.appointment.endTime
-						params.index=store.state.appointment.index
-						params.goodBookId=store.state.appointment.goodBookId
-						params.memberId = that.userInfo.id;
-					}	
+					params.orderType=that.orderType		
 					params.unionId=that.userInfo.unionid
 					params.paymentType=1
 					params.consumepoint=that.goodDetail.shareWelfare == null ? 0 : that.goodDetail.shareWelfare

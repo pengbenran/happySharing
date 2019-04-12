@@ -5,6 +5,7 @@ export default {
 	//  return API.GetCode('https://nadou.guqinet.com/api/login/byCode',{code:code})
 	 return API.GetCode('http://192.168.0.114:8013/api/login/byCode',{code:code})
 
+
 	},
 	// 获取用户信息并且注册会员  
 	weCatLogin(params){

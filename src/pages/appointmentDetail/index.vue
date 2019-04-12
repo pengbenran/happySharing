@@ -29,7 +29,7 @@
 							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
 						</div>
 						<div class="disribe clr">
-							推荐师返佣:<span class="Present">{{goodsDetail.returnAmount}}元</span>
+							<blockquote v-if="userInfo.whetherDistribe!=0">推荐师返佣:<span class="Present">{{goodsDetail.returnAmount}}元</span></blockquote>
 							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
 						</div>
 						<div class="phone clr">
@@ -54,7 +54,7 @@
 					<div class="img"><span class="iconfont">&#xe62a;</span></div>
 					<div class="text">分享</div>
 				</div>
-				<div class="rush"  @click="showPicker">	
+				<div class="rush"  @click="onConfirm">	
 					立即预约
 				</div>
 			</div>
@@ -65,10 +65,7 @@
 				</div>
 				<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
 			</div>
-			<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>
-			<div style="margin-bottom:55px">
-				<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
-			</div>	
+			<canvasdrawer :painting="painting"   @getImage="eventGetImage" ref="canvas"/>	
 		</div>
 
 
@@ -84,7 +81,6 @@
 	import store from '@/store/store'
 	import lib from '@/utils/lib'
 	import Api_user from '@/api/userinfo'
-	import mpvuePicker from '@/components/mpvuePick'
 	import canvasdrawer from '@/components/canvasdrawer'
 	import loginModel from "@/components/loginModel"; 
 	import wxParse from 'mpvue-wxparse'
@@ -95,18 +91,6 @@
 				wid: "100%",
 				magleft: "0",
 				goodsDetail:{},
-				multiIndex: [0,0],
-				multiArray:[],
-				dataArray: [],
-				allBulletin: [],
-				mode: 'selector',
-			    deepLength: 0, // 几级联动
-			    pickerValueDefault: [], // 初始化值
-			    pickerValueArray: [], // picker 数组值
-			    pickerText: '',
-			    mulLinkageTwoPicker: [],
-			    pickerValueDefault: [0,0],
-			    goodBooks:[],
 			    painting:{},
 				shareImage:'',
 				Width:'',
@@ -114,17 +98,15 @@
 				Time:'',
 				TimeStr:'',
 				whetherDistribe:'',
-				UsertagId:'',
 				btnSubmit:false,
-				detailContent:'',
 				userInfo:{},
 				paintOk:false,
 				isLoading:false,
+				posterErcode:''
 			}
 
 		},
 		components: {
-			mpvuePicker,
 			canvasdrawer,
 			wxParse,
 			loginModel,
@@ -193,6 +175,19 @@
 		   			width: 50,
 		   			height:50
 		   		},
+		   	    {
+		   			type: 'text',
+		   			content:that.userInfo.name,
+		   			fontSize: 13,
+		   			color: '#000',
+		   			textAlign: 'left',
+		   			breakWord: true,
+		   			top: that.Width-55,
+		   			left:210,
+		   			width:90,
+		   			MaxLineNumber:2,
+		   			isCenter:false
+			   	},
 		   		]
 		   	}
 		   	this.$refs.canvas.readyPigment()
@@ -207,11 +202,26 @@
 			},
 			share(){
 				let that=this
-				if(that.shareImage==""){
-					that.eventDraw(that.posterErcode)
-				}
-				else{
-					that.paintOk=true
+				if(that.posterErcode != ''){
+					if(that.shareImage==""){
+						let shareRight=that.goodsDetail.shareRight.split(',')
+						let tagMemberDOList=that.userInfo.tagMemberDOList
+						let flag=false
+						for(var i in tagMemberDOList){
+							if(shareRight.includes(tagMemberDOList[i].tagId.toString())){
+								flag=true
+							}
+						}
+						if(flag){
+							lib.showToast('您暂无分享权限','none')
+						}
+						else{
+							that.eventDraw(that.posterErcode)
+						}	
+					}
+					else{
+						that.paintOk=true
+					}
 				}
 			},
 			async getErCode(){
@@ -223,18 +233,7 @@
 					that.posterErcode=QrcodeRes.url
 				}
 			},
-			showPicker() {
-				if(this.goodsDetail.inventory > 0){		
-					this.pickerValueArray = this.mulLinkageTwoPicker;
-					this.mode = 'multiLinkageSelector';
-					this.deepLength = 2;
-					this.pickerValueDefault = [1, 0];
-					this.$refs.mpvuePicker.show();
-				}else{
-				    lib.showToast('该商品库存为空','none')
-				}
-
-			},
+	
 			jumpIndex(){
 				wx.switchTab({
 					url:'../index/main'
@@ -259,57 +258,13 @@
 					goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
 					that.goodsDetail=goodsDetailRes.good
 					that.detailContent = that.goodsDetail.content
-					that.goodBooks=goodsDetailRes.goodBooks
-					let dateArr=[]
-					for(var i in goodsDetailRes.goodBooks){
-						let dateArr={}
-						dateArr.label=that.timeFormat(goodsDetailRes.goodBooks[i].dateTime)
-						dateArr.value=i
-						dateArr.children=[]
-						let str=goodsDetailRes.goodBooks[i].detail
-						let resArry=JSON.parse(str)
-						for(let j in resArry){
-							let multiArr={}
-							let resdataArry=resArry[j].split('/')
-							if(resdataArry[2]>0){
-								multiArr.label=resdataArry[1]
-								multiArr.value=resdataArry[0]
-								dateArr.children.push(multiArr)
-							}	
-						}
-						that.mulLinkageTwoPicker.push(dateArr)
-					}
 					that.getErCode()
 					store.commit("stateGoodDetail",that.goodsDetail)
 					that.isLoading=true
 				}
 			},
-			timeFormat(timestamp){
-				var time = new Date(timestamp);
-				var month = time.getMonth()+1;
-    		    var date = time.getDate();
-    		    return `${month}月${date}日`
-    		}, 
-    		onConfirm(e) {
-    			let that=this
-    			let goodBooksItem=that.goodBooks[e.index[0]]
-    			let dateTime=goodBooksItem.dateTime
-    			let endtime=e.label.split('-')[2]
-    			let begintime=e.label.split('-')[1]
-    			let endtimehour=endtime.split(':')[0]
-    			let endtimemintution=endtime.split(':')[1]
-    			let begintimehour=begintime.split(':')[0]
-    			let begintimemintution=begintime.split(':')[1]
-    			let begintimetap=begintimehour*60*60*1000+begintimemintution*60*1000+dateTime*1
-    			let endtimetap=endtimehour*60*60*1000+endtimemintution*60*1000+dateTime*1
-    		    let appointmentParam={}
-    		    appointmentParam.beginTime=begintimetap
-				appointmentParam.endTime=endtimetap
-				appointmentParam.index = e.value[1]
-				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
-    		    store.commit("stateappointment",appointmentParam)
+    		onConfirm() {
     		    wx.navigateTo({url:'../order-submit/main?orderType=2'})
-
 			},
 			async getUserInfo(){
 				let that=this
@@ -335,18 +290,7 @@
 			that.wid= "100%"
 			that.magleft= "0"
 			that.goodsDetail={}
-			that.multiIndex= [0,0]
-			that.multiArray=[]
-			that.dataArray=[]
-			that.allBulletin= []
-			that.mode= 'selector'
-		    that.deepLength= 0 // 几级联动
-		    that.pickerValueDefault= [] // 初始化值
-		    that.pickerValueArray= []// picker 数组值
 		    that.pickerText= ''
-		    that.mulLinkageTwoPicker= []
-		    that.pickerValueDefault=[0,0]
-		    that.goodBooks=[]
 		    that.painting={}
 		    that.shareImage=''
 		    that.Width=''
@@ -354,12 +298,11 @@
 		    that.Time=''
 		    that.TimeStr=''
 		    that.whetherDistribe=''
-		    that.UsertagId=''
 		    that.btnSubmit=false
-		    that.detailContent=''
 		    that.userInfo={}
 		    that.paintOk=false
 		    that.isLoading=false
+		    that.posterErcode=''
 		}
 	}
 </script>

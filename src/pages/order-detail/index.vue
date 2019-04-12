@@ -4,7 +4,7 @@
 			<!--模块1-->
 			<div class="title">
 				<span></span>
-				<span>{{OrderInfo.status}}</span>
+				<span>{{OrderInfo.statusType}}</span>
 			</div>
 			<!--模块2-->
 			<div class="rec-li " >
@@ -12,13 +12,13 @@
 					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
 					<div class="rec-center fl">
 						<div class="tit fontHidden">{{OrderInfo.goodName}}</div>
-						<div class="name">{{OrderInfo.status}}</div>
-						<div class="present "><span>￥:{{OrderInfo.needPayMoney}}</span> <span>原价:{{OrderInfo.goodsAmount}}</span></div>
+						<div class="name">{{OrderInfo.goodName}}</div>
+						<div class="present "><span>￥:{{OrderInfo.goodsAmount}}</span></div>
 						<!-- <div v-if="goodlist.isshow" class="dianzhan">点赞:{{goodlist.dianzhan}}</div> -->
 					</div>
 					<div class="rec-right fr">
 						<div class="clr">
-							<div class="make fr">{{OrderInfo.status}}</div>
+							<div class="make fr">{{OrderInfo.statusType}}</div>
 						</div>
 						<div class="people ">{{OrderInfo.goodsNum}}</div>
 						<!-- <div class="sell ">已售:{{goodlist.sell}}</div> -->
@@ -27,9 +27,13 @@
 				<!--总价-->
 				<div class="prices">
 					<div class="price1">
-						<span>商品总价: </span>
+						<span>商品价格: </span>
 						<span> ¥ {{OrderInfo.goodsAmount}}</span>
 					</div>
+					<div class="price1">
+						<span>佣金抵扣: </span>
+						<span> ¥ {{OrderInfo.balance}}</span>
+					</div>	
 					<div class="price2" v-if="OrderInfo.orderType != 3">
 						<span>推荐师：</span>
 						<span> ¥ {{OrderInfo.recommend}}</span>
@@ -47,9 +51,12 @@
 			<!--模板3-->
 			<div class="code">
 				<div class="code-center">
-					<div class="txt-img">
+					<div class="txt-img" v-if="OrderInfo.status!=3">
 						<div class="txt">电子码</div>
 						<div class="img"><img :src="OrderInfo.orderCode" /></div>
+					</div>
+					<div class="txt-img" v-else>
+						<div class="img">订单已过期</div>
 					</div>
 					<div class="number clr"> <span class="fl"> 订单编号：</span> <span class="fl">{{OrderInfo.orderId}}</span></div>
 				</div>
@@ -60,20 +67,33 @@
 				<div class="tit">订单详情</div>
 				<div  class="detail-order-li">
 					<div v-if="OrderInfo.orderType != 3">
-						<span>积分:</span>
+						<span>获得积分:</span>
 						<span>{{OrderInfo.gainedpoint}}</span>
 					</div>
 					<div>
 						<span>下单时间:</span>
 						<span>{{OrderInfo.createTime}}</span>
 					</div>
+					<div  v-if="OrderInfo.orderType==2">
+						<span>预约开始时间:</span>
+						<span v-if="OrderInfo.beginTime!=null">{{OrderInfo.beginTime}}</span>
+						<span v-else>暂未预约</span>
+					</div>
+					<div v-if="OrderInfo.orderType==2">
+						<span>预约结束时间:</span>
+						<span v-if="OrderInfo.endTime!=null">{{OrderInfo.endTime}}</span>
+						<span v-else>暂未预约</span>
+					</div>
 				</div>
 			</div>
 
 			<!--按钮-->
 			<div class="dele">
-				<!-- <span>删除订单</span> -->
-				<span @click='jumpHome'>回到首页</span>
+				<span v-if="OrderInfo.orderType==2&&OrderInfo.endTime==null" @click="showPicker">立即预约</span>
+				<span @click='jumpHome' class="jumpHomebtn">回到首页</span>
+			</div>
+			<div style="margin-bottom:55px">
+				<mpvue-picker :mode="mode" :deepLength=deepLength ref="mpvuePicker" :pickerValueArray="pickerValueArray" :pickerValueDefault="pickerValueDefault" @onConfirm="onConfirm"></mpvue-picker>
 			</div>
 		</div>
 	</div>
@@ -84,22 +104,101 @@
 	import Index_Lib from '@/utils/index'
 	import API_ord from '@/api/order'
 	import Lib from '@/utils/lib'
+	import mpvuePicker from '@/components/mpvuePick'
+	import Api from '@/api/goods'
+	import store from '@/store/store'
 	export default {
 		components: {
-			goodslist
+			goodslist,
+			mpvuePicker
 		},
 
 		data() {
 			return {
 				orderId:'',
 				OrderInfo:{},
+				mode: 'multiLinkageSelector',
+			    deepLength: 2, // 几级联动
+			    pickerValueDefault: [1,0], // 初始化值
+			    pickerValueArray: [], // picker 数组值
+			    pickerText: '',
+			    mulLinkageTwoPicker: [],
+			    pickerValueDefault: [0,0],
+			    goodBooks:[],
+			    userInfo:{}
 			}
 		},
-		computed: {
 	
-
-		},
 		methods:{
+			async showPicker() {
+				console.log(11111);
+				let that=this
+				that.mulLinkageTwoPicker=[]
+				await that.getGoodsInfo()	
+				that.pickerValueArray = that.mulLinkageTwoPicker;
+				that.$refs.mpvuePicker.show();
+			},
+			onConfirm(e) {
+    			let that=this
+    			let goodBooksItem=that.goodBooks[e.index[0]]
+    			let dateTime=goodBooksItem.dateTime
+    			let endtime=e.label.split('-')[2]
+    			let begintime=e.label.split('-')[1]
+    			let endtimehour=endtime.split(':')[0]
+    			let endtimemintution=endtime.split(':')[1]
+    			let begintimehour=begintime.split(':')[0]
+    			let begintimemintution=begintime.split(':')[1]
+    			let begintimetap=begintimehour*60*60*1000+begintimemintution*60*1000+dateTime*1
+    			let endtimetap=endtimehour*60*60*1000+endtimemintution*60*1000+dateTime*1
+    		    let appointmentParam={}
+    		    appointmentParam.beginTime=begintimetap
+				appointmentParam.endTime=endtimetap
+				appointmentParam.index = e.value[1]
+				appointmentParam.orderId=that.orderId
+				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
+				appointmentParam.memberId=that.userInfo.id
+				appointmentParam.orderType=2
+    		    API_ord.orderBook(appointmentParam).then(function(res){
+    		    	if(res.code==0){
+    		    		Lib.showToast('预约成功','success')
+    		    		that.getOnList()
+    		    	}else{
+    		    		Lib.showToast('预约失败','none')	
+    		    	}
+    		    })
+			},
+			async getGoodsInfo(){
+				let that=this
+				let params={}  
+				params.goodId=that.OrderInfo.goodsId
+				if(that.whetherDistribe!=0){
+					params.memberLv=that.userInfo.whetherDistribe
+				}
+				let goodsDetailRes=await Api.getBookGoodDetail(params)
+				if(goodsDetailRes.code==0){
+					that.goodsDetail=goodsDetailRes.good
+					that.goodBooks=goodsDetailRes.goodBooks
+					let dateArr=[]
+					for(var i in goodsDetailRes.goodBooks){
+						let dateArr={}
+						dateArr.label=that.timeFormat(goodsDetailRes.goodBooks[i].dateTime)
+						dateArr.value=i
+						dateArr.children=[]
+						let str=goodsDetailRes.goodBooks[i].detail
+						let resArry=JSON.parse(str)
+						for(let j in resArry){
+							let multiArr={}
+							let resdataArry=resArry[j].split('/')
+							if(resdataArry[2]>0){
+								multiArr.label=resdataArry[1]
+								multiArr.value=resdataArry[0]
+								dateArr.children.push(multiArr)
+							}	
+						}
+						that.mulLinkageTwoPicker.push(dateArr)
+					}
+				}
+			},
             async getOnList(){
 				let that = this;
 				let data = {orderId:that.orderId};
@@ -107,18 +206,22 @@
 					Lib.showToast('失败','loading')
 				});
 				if(res.code == 0){
-					let OrderInfo = res.pageUtils.rows[0]
-						if(OrderInfo.status == 0){
-                           OrderInfo.status = '待支付'
-						}else if (OrderInfo.status == 1) {
-							OrderInfo.status = '待核销'
-						}else if (OrderInfo.status == 2) {
-							OrderInfo.status = ' 已核销'
-						}else if (OrderInfo.status == 3) {
-							OrderInfo.status = '已取消'
+						if(res.pageUtils.rows[0].status == 0){
+                           res.pageUtils.rows[0].statusType = '待支付'
+						}else if (res.pageUtils.rows[0].status == 1) {
+							res.pageUtils.rows[0].statusType = '待核销'
+						}else if (res.pageUtils.rows[0].status == 2) {
+							res.pageUtils.rows[0].statusType = ' 已核销'
+						}else if (res.pageUtils.rows[0].status == 3) {
+							res.pageUtils.rows[0].statusType = '已取消'
 						}
-					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)	
-					that.OrderInfo = OrderInfo
+					res.pageUtils.rows[0].createTime = Index_Lib.formatTime(res.pageUtils.rows[0].createTime)
+					if(res.pageUtils.rows[0].beginTime!=null&&res.pageUtils.rows[0].endTime!=null){
+						res.pageUtils.rows[0].beginTime=Index_Lib.formatTime(res.pageUtils.rows[0].beginTime)
+					    res.pageUtils.rows[0].endTime=Index_Lib.formatTime(res.pageUtils.rows[0].endTime)
+					}
+						
+					that.OrderInfo = res.pageUtils.rows[0]
 				};
 			},
 			jumpHome(){
@@ -126,6 +229,12 @@
 					url:'../index/main'
 				})
 			},
+			timeFormat(timestamp){
+				var time = new Date(timestamp);
+				var month = time.getMonth()+1;
+    		    var date = time.getDate();
+    		    return `${month}月${date}日`
+    		}, 
 			jumpShop(){
 				let that = this;
 				if(that.OrderInfo.orderType == 1){//跳转到普通详情
@@ -142,8 +251,9 @@
 
 		onLoad(options){
 			 let that = this;
+			 that.userInfo=store.state.userInfo
 			 that.orderId = options.orderId;
-			  that.getOnList();
+			 that.getOnList();
 		},
 
 	}
@@ -366,7 +476,7 @@
 						color: #666666;
 						margin-top: 10px;
 						&:nth-child(1) {
-							width: 65px;
+							width: 100px;
 							margin-top: 0;
 						}
 						&:nth-child(2) {
@@ -396,11 +506,11 @@
 				font-size: 14px;
 				display: block;
 				margin-right: 12px;
-				&:nth-child(1) {
-					color: #fff;
-					background-color: #ff7d28;
-					border: 1px solid #ff7d28;
-				}
+			}
+			.jumpHomebtn{
+				color: #fff;
+				background-color: #ff7d28;
+				border: 1px solid #ff7d28;
 			}
 		}
 	}
