@@ -167,17 +167,29 @@
 					if(saveRes.code==0){
 						wx.hideLoading()
 						that.order=saveRes.orderDO
-						that.weixinPay()
+						that.getQRCode()
 					}	
 				}
 				
 			},
-			weixinPay(){
+			// 生成二维码
+			async getQRCode(){
+				let QRparams={}
+	        	let that=this
+	            QRparams.params=that.order.orderId
+	            QRparams.page='pages/order-cancel/main'
+	        	let getQRCode=await Api.getQRCode(QRparams)
+	        	if(getQRCode.code==0){
+	        		that.weixinPay(getQRCode.url)
+	        	} 	
+			},
+			weixinPay(codeUrl){
 				let params={}
 				let that=this
 				params.sn = that.order.sn
 				params.openid=that.userInfo.xopenid
 	            params.total_fee = that.order.needPayMoney*100
+	            params.orderCode=codeUrl
 	            // params.total_fee=1
 	            Api.prepay(params).then(function(parRes){
 	            	wx.requestPayment({
@@ -211,14 +223,9 @@
 	        },
 	        async payOrder(){
 	        	// 订单支付成功之后修改订单状态
-	        	let QRparams={}
 	        	let that=this
-	            QRparams.params=that.order.orderId
-	            QRparams.page='pages/order-cancel/main'
-	        	let getQRCode=await Api.getQRCode(QRparams)
 	        	let statuParam={}
 	        	statuParam.orderId=that.order.orderId
-	        	statuParam.orderCode=getQRCode.url
 	        	let payOrder=await Api.payOrder(statuParam)
 	        	if(payOrder.code==0){
 	        		util.updateUserInfo()

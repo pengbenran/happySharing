@@ -70,7 +70,7 @@
 
 				<div class="bottom" v-if="SelectIndex == 1">
 					<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId,orderItem.balance)">立即付款</botton>
 				</div>
 
 				<div class="bottom" v-if="SelectIndex == 2">
@@ -238,14 +238,12 @@ import Config from '@/config'
 							wx.showLoading({title: '加载中',})
 							let data = {orderId:orderId,status:3}
 							API_ORDER.quxiaoOrder(data).then(res =>{
+								wx.hideLoading()
 								if(res.code == 0){
 									that.goodList.splice(index,1); //删除下标的指定数组  
 									Lib.showToast('成功','success')
 										wx.hideLoading()
 								}
-							}).catch(err => {
-								Lib.showToast('失败','loading')
-								wx.hideLoading()
 							})
 						} else if (res.cancel) {
 
@@ -263,19 +261,20 @@ import Config from '@/config'
 			},
 
 			//立即付款
-			async wxPay(Ordersn,needPayMoney,orderId){
+			async wxPay(Ordersn,needPayMoney,orderId,balance){
 				let that = this;
 				let params={}
+				if(that.userInfo.balance<balance){
+					Lib.showToast('余额不足','none')
+				}
+				else{
 				wx.showLoading({ title: '加载中',})
-
 				that.disabledBtn = true;
 				params.sn = Ordersn
 				params.openid=that.userInfo.xopenid
 	            params.total_fee = needPayMoney*100
 	            // params.total_fee=1
-				let parRes = await API_ORDER.prepay(params).catch(err => {
-					Lib.showToast('付款失败','loading')
-				})
+				let parRes = await API_ORDER.prepay(params)
 					wx.requestPayment({
 	            		timeStamp: parRes.timeStamp,
 	            		nonceStr: parRes.nonceStr,
@@ -287,8 +286,7 @@ import Config from '@/config'
 	            				title: '支付成功',
 	            				icon: 'success',
 	            				duration: 2000
-							})
-							
+							})		
 	            			that.payOrder(orderId)
 	            		},
 	            		fail: function (res) {
@@ -305,21 +303,21 @@ import Config from '@/config'
 		                       	that.disabledBtn = false;
 		                    }
 		            })
+				}
 			},
 
 			async payOrder(OrderId){
 	        	// 订单支付成功之后修改订单状态
-	        	let QRparams={}
-	        	let that=this
-	            QRparams.orderId=OrderId
-	            QRparams.page='pages/order-cancel/main'
-	        	let getQRCode=await API_ORDER.getQRCode(QRparams)
+	        	let that=this  
 	        	let statuParam={}
 	        	statuParam.orderId=OrderId
-	        	statuParam.orderCode=getQRCode.msg
 	        	let payOrder=await API_ORDER.payOrder(statuParam)
-				 this.hasMore = true;
-				 this.onload();
+				if(payOrder.code==0){
+	        		Index_Lib.updateUserInfo()
+	        		wx.redirectTo({
+	        			url: '../order-detail/main?orderId='+OrderId
+	        		})
+	        	}
 			},
 			
 			//删除订单
