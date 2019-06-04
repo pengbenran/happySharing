@@ -15,8 +15,8 @@
 			</div>
 			<!--列表-->
 			<div class="discount-wrap">
-				<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.id)">
-					<div class="img"><img :src="discountList.p3" /></div>
+				<div class="discount-li centered" v-for="(discountList,index) in bookItem" @click="jumpGoodDetail(discountList.goodId)">
+					<div class="img"><img :src="discountList.thumbnail" /></div>
 					<div class="cant">
 						<div class="name-make clr">
 							<!-- <div class="name fl fontHidden" >{{discountList.title}}</div> -->
@@ -29,7 +29,7 @@
 						<div class="Present-discounts-sell clr">
 							<div class="Present fl">￥:{{discountList.price}}</div>
 							<div class="discounts fl">优惠:{{discountList.saveMoney}}元</div>
-							<div class="sell fr">已售:{{discountList.sales}}</div>
+							<div class="sell fr">已售:{{discountList.showSales}}</div>
 						</div>
 					</div>
 				</div>
@@ -74,7 +74,7 @@
 			kindChang(index) {
 				let that=this
 				that.timeindex = index;
-				that.goodCatId=that.goodCart[index].id
+				that.goodCatId=that.goodCart[index].catId
 				if(that.bookList[that.timeindex].length==0){
 					that.getBookGood(1,3,that.goodCatId)
 				}		
@@ -89,15 +89,17 @@
 				let that=this
 				if(that.hasMore[that.timeindex]){
 					let params={}
-					params.goodCatId=goodCatId
-					let bookRes=await Api.getBookGood(pageNum,pageSize,params)
-					bookRes.rows.map(item=>{
+					params.catId=goodCatId
+					params.page=pageNum
+					params.limit=pageSize
+					let bookRes=await Api.getBookGood(params)
+					bookRes.page.rows.map(item=>{
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 					})
-					if(bookRes.rows.length<pageSize){
+					if(bookRes.page.rows.length<pageSize){
 						that.hasMore[that.timeindex]=false
 					}
-					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(bookRes.rows)
+					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(bookRes.page.rows)
 					
 				}
 				else{
@@ -119,7 +121,7 @@
 			let that=this
 			let goodCartRes=await apiKind.getGoodCart()
 			that.goodCart=goodCartRes.goodCats
-			that.goodCatId=that.goodCart[0].id
+			that.goodCatId=that.goodCart[0].catId
 			for(var i in that.goodCart){
 				that.hasMore[i]=true
 				that.bookList[i]=[]
@@ -150,7 +152,9 @@
 		width: 100%;
 		overflow-x: auto;
 		overflow-y: hidden;
+		justify-content: space-around;
 		.product-list-li {
+			width: 25%;
 			margin-bottom: 16px;
 			.title {
 				color: #111111;
@@ -221,7 +225,7 @@
 	.discount-li {
 		position: relative;
 		flex-shrink: 0;
-		margin-bottom: 164px;
+		height:728rpx; 
 		border-radius: 5px;
 		// &:nth-child(1),
 		// &:nth-child(2) {
@@ -239,7 +243,7 @@
 		}
 		.cant {
 			box-sizing: border-box;position: absolute;
-			bottom: -139px;left: 50%;margin-left: -165px; background-color: #ffffff;
+			bottom: 25px;left: 3%; background-color: #ffffff;
 			padding: 0 10px;border: 1px solid #cccccc;
 			width: 331px;height: 168px;
 			border-radius: 6px;

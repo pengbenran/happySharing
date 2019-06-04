@@ -29,7 +29,6 @@ export default {
            FromStr:'',
            tip:'请搜索商品~~~~',
            List:[],
-           total:5
         }
 
     },
@@ -42,21 +41,15 @@ export default {
         async GetGoodList(){
             let that = this;
             wx.showLoading({title: '加载中',})
-            let data = {pageNum:1, pageSize:20,condition:that.FromStr}
+            let data = {page:1, limit:100,searchParam:that.FromStr}
             let res = await API_SEARCH.get_SearchGoods(data).catch(err => {
                 Lib.showToast('失败','loading')
             })
-            if(res != undefined){
-                // Lib.showToast('成功','success')
-                that.List = res.rows
-                that.total = res.total
-                that.tip = '抱歉暂无该商品'
-            }else{
-                Lib.showToast('失败','loading')
+            if(res.code == 0){
+              that.List = res.page.rows
             }
             wx.hideLoading()
         },
-
         //点击跳转
         jumpGooddetail(goodsId,book){
             let that = this;

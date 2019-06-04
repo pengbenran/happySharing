@@ -1,7 +1,7 @@
 <template>
 	<div>
    <swiper class="swiper" indicator-dots='true' autoplay='true' indicator-color="rgba(255, 255, 255, .6)" indicator-active-color="#fff" >
-    <swiper-item v-for="(item,index) in banner" :key='item' :index="index" ><img :src="item.banners" @click="jump(item.goodsIds)"></swiper-item>
+    <swiper-item v-for="(item,index) in banner" :key='item' :index="index" ><img :src="item.url" @click="jump(item.goodId)"></swiper-item>
   </swiper>
 	</div>	 
 </template>

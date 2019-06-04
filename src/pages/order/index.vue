@@ -2,7 +2,7 @@
 	<!--类目-->
 	<div class="container">
 		<div class="order-nav">
-			<div @click="change(index)" v-for="(item,index) in nav" class="order-nav-li" :class="item.isSelect? 'active':''">
+			<div @click="change(index)" v-for="(item,index) in recommendList" class="order-nav-li" :class="listcurr==index?'active':''">
 				{{item.name}}
 			</div>
 		</div>
@@ -15,12 +15,12 @@
 						订单编号:{{orderItem.orderId}}
 					</div>
 					<div>
-						下单时间:{{orderItem.createTime}}
+						<!-- 下单时间:{{orderItem.createTime}} -->
 					</div>
 				</div>
 				<div class="center">
 					<div class="cant clr">
-						<div class="img fl"><img :src="orderItem.thumbnail" /></div>
+						<div class="img fl"><img :src="orderItem.goodThumbnail" /></div>
 						<div class="rec-center fl">
 							<div class="tit fontHidden">{{orderItem.goodName}}</div>
 							<div class="name fontHidden1">{{orderItem.goodName}}</div>
@@ -28,16 +28,24 @@
 
 						</div>
 						<div class="rec-right fr">
-							<div class="time" v-if="orderItem.orderType == 3">
+							<div class="time" v-if="orderItem.goodType == 2">
+                                 <span >预约订单</span>
+							</div>
+							<div class="time" v-if="orderItem.goodType == 3">
                                  <span >积分订单</span>
 							</div>
-
+							<div class="time" v-if="orderItem.goodType == 4">
+                                 <span >秒杀订单</span>
+							</div>
+							<div class="time" v-if="orderItem.goodType == 1">
+                                 <span >普通订单</span>
+							</div>
 							<div class="num ">数量 : {{orderItem.goodsNum}}</div>
 								<span class="time ">
-								   <span v-show="orderItem.status == 0">待付款</span>
-								   <span v-show="orderItem.status == 1">待核销</span>
-								   <span v-show="orderItem.status == 2">已核销</span>
-								   <span v-show="orderItem.status == 3">已取消</span>
+								   <span v-if="orderItem.status == 0">待付款</span>
+								   <span v-if="orderItem.status == 1">待核销</span>
+								   <span v-if="orderItem.status == 2">已核销</span>
+								   <span v-if="orderItem.status == 3">已取消</span>
 								</span>
 						</div>
 					</div>
@@ -46,52 +54,46 @@
 					</div>
 					<div class="rec-bottom">
 						实际支付金额:{{orderItem.orderAmount}} 
-						<span>{{orderItem.orderType == 3? '分':'元'}}</span>
+						<span>{{orderItem.orderType == 4? '分':'元'}}</span>
 					</div>
 				</div>
-				<div class="bottom" v-if="SelectIndex == 0">
+				<div class="bottom" v-if="listcurr == 0">
 					<div v-if="orderItem.status == 0" class="bottomCase">
 						<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-						<botton  class="queBtn"  :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId)">立即付款</botton>
+						<botton  class="queBtn"  @click="Pay(orderItem.orderId,orderItem.needPayMoney,orderItem.balance,index)" >立即付款</botton>
 					</div>
 					<div v-if="orderItem.status == 1" class="bottom">
 						<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
 					</div>
 					<div v-if="orderItem.status == 2" class="bottom">
-						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+						<botton  class="queBtn" @click="removeOrder(orderItem.orderId,index)">删除订单</botton>
 						<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
 					</div>
 
 					<div v-if="orderItem.status == 3" class="bottom">
-						<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+						<botton  class="queBtn" @click="removeOrder(orderItem.orderId,index)">删除订单</botton>
 					</div>
 				</div>
 				<!--全部订单-->
 
-				<div class="bottom" v-if="SelectIndex == 1">
+				<div class="bottom" v-if="listcurr == 1">
 					<botton plain='true' class="closeBtn" @click="removeOrder(orderItem.orderId,index)">取消订单</botton>
-					<botton  class="queBtn" :disabled='disabledBtn' @click="wxPay(orderItem.sn,orderItem.needPayMoney,orderItem.orderId,orderItem.balance)">立即付款</botton>
+					<botton  class="queBtn"  @click="Pay(orderItem.orderId,orderItem.needPayMoney,orderItem.balance,index)">立即付款</botton>
 				</div>
 
-				<div class="bottom" v-if="SelectIndex == 2">
+				<div class="bottom" v-if="listcurr == 2">
 					<botton   class="queBtn"  @click="orderDetail(orderItem.orderId)">立即使用</botton>
 				</div>
 
-				<div class="bottom" v-if="SelectIndex == 3">
-					<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
+				<div class="bottom" v-if="listcurr == 3">
+					<botton  class="queBtn" @click="removeOrder(orderItem.orderId,index)">删除订单</botton>
 					<botton class="queBtn" @click="orderDetail(orderItem.orderId)">查看订单</botton>
 				</div>
-
-				
-				<div class="bottom" v-if="SelectIndex == 4">
-					<botton  class="queBtn" @click="deleteorder(orderItem.orderId,index)">删除订单</botton>
-				</div>
-					
+				<div class="bottom" v-if="listcurr == 4">
+					<botton  class="queBtn" @click="removeOrder(orderItem.orderId,index)">删除订单</botton>
+				</div>			
 			</div>			
 		</div>
-
-
-		
 		<!--空空如也-->
 		<div class="not" v-else><img :src="imgList.not"/></div>
 		<nomoreTip v-if="!hasMore"></nomoreTip>
@@ -100,7 +102,7 @@
 </template>
 
 <script>
-import API_ORDER from '@/api/order'
+import API from '@/api/order'
 import Store from '@/store/store'
 import Lib from '@/utils/lib'
 import Index_Lib from '@/utils/index'
@@ -110,139 +112,160 @@ import Config from '@/config'
 		data() {
 			return {
 				unionid:'',
-				disabledBtn:false,
+				isSubmit:false,
 				imgList:{not:Config.imgurl+'/not.png'},
-				SelectIndex:0,
-				hasMore:true,
-				listQuery: {
-					page: 1,
-					limit: 3,
-				},
-				nav: [{
+				listcurr:0,
+				recommendList: [{
 						name: "全部",
-						isSelect:true
-					}, {
+						options: [],
+						page: 1,
+						limit: 10,
+						flag: true,
+					},
+					{
 						name: "待付款",
-						isSelect:false
-					}, {
+						options: [],
+						page: 1,
+						limit: 10,
+						flag: true,
+						status: 0,
+						expiredStatus: 2
+					},
+					{
 						name: "待使用",
-						isSelect:false
-					}, {
+						options: [],
+						page: 1,
+						limit: 10,
+						flag: true,
+						status: 1,
+						expiredStatus: 2
+					},
+					{
 						name: "已使用",
-						isSelect:false
-					},{
-						name: "已取消",
-						isSelect:false
-					}
-					],
+						options: [],
+						page: 1,
+						limit: 10,
+						flag: true,
+						status: 2,
+						expiredStatus: 2
+					},
+					{
+						name: "已过期",
+						options: [],
+						page: 1,
+						limit: 10,
+						flag: true,
+						status: 3,
+						expiredStatus: 1
+					},
+				],
 				userInfo:{},
-				goodList:[]
 			}
 		},
-
+		computed:{
+			goodList(){
+				let that=this
+				return that.recommendList[that.listcurr].options
+			}
+		},
 		components: {
             nomoreTip
 		},
 	   onReachBottom:function(){
 			let that = this;
-			// that.nowPage+=1
-			// that.getRecommendGood(that.nowPage,3)
-            that.listQuery.page += 1
-			if(that.SelectIndex == 0){
-				that.onload();
-			}else{
-                that.PayOrderList(that.SelectIndex - 1)
-			}
+            that.recommendList[that.listcurr].page += 1
+            let data = {
+            	unionId: that.userInfo.unionid,
+            	page: that.recommendList[that.listcurr].page,
+            	limit: that.recommendList[that.listcurr].limit,
+            	status: that.recommendList[that.listcurr].status,
+            	expiredStatus: that.recommendList[that.listcurr].expiredStatus
+            }
+			that.GetOrderListData(data,that.listcurr)
 			
 		},
 		methods: {
-			//获取全部订单
-			async onload(){
+			//请求数据
+			GetOrderListData(data, index) {
 				let that = this;
-				let data = Object.assign({},{unionId:Store.state.userInfo.unionid},that.listQuery) 
-				// console.log()
-				
-				that.Get_Order(data)
-			},
-
-			//获取不同状态的订单
-			async PayOrderList(status){
-					let that = this;
-					 let data = Object.assign({},{unionId:Store.state.userInfo.unionid,status:status},that.listQuery) 
-					that.Get_Order(data)
-			},
-
-			//getOrder
-			async Get_Order(data){
-				let that= this;
-				if(that.hasMore){
-					wx.showLoading({title: '加载中',})
-					let res = await API_ORDER.getOrderList(data).catch(err => {
-						Lib.showToast('失败','loading')
-					})
-					if(res != undefined && res.code == 0){
-						let goodLists = res.pageUtils.rows.map(v => {
-							v.createTime = Index_Lib.formatTime(v.createTime);
-							return v;
-						});
-						if(goodLists.length < that.listQuery.limit){
-							that.hasMore=false
+				if(that.recommendList[index].flag){
+					API.GetOrderList(data).then(res => {
+						if(res.code == 0) {
+							if(res.orderList.length < data.limit){
+								that.recommendList[index].flag = false
+							}
+							that.recommendList[index].options = that.recommendList[index].options.concat(res.orderList);
+						} else {
+							wx.showToast({
+								title: '网络错误',
+								icon: 'none',
+								duration: 2000
+							})
 						}
-						that.goodList = that.goodList.concat(goodLists)
-					}else{
-						that.goodList = [];
-					}
-
-					// setTimeout(function () {
-					//   wx.hideLoading()
-					// }, 1500)
+					}).catch(err => {
+						wx.showToast({
+							title: '网络错误',
+							icon: 'none',
+							duration: 2000
+						})
+					})
 				}
-
+				else{
+					wx.showToast({
+						title: '没有更多数据了',
+						icon: 'none',
+						duration: 2000
+					})
+				}
+				
 			},
-
 			change(index) {
-				let that=this;
-				that.SelectIndex = index; //确定编号
-
-				// 重置一遍分页数据
-				that.hasMore = true;
-				that.listQuery.page = 1;
-				that.listQuery.limit = 3;
-				that.goodList = [];
-
-				that.nav.map(item=>{
-					item.isSelect=false
-					return item
-				})
-				that.nav[index].isSelect=true
-				if(index == 0){ //获取全部订单
-                    that.onload();  
-				}else if(index == 1){ //获取未付款订单
-					that.PayOrderList(0)
-				}else if (index == 2) { //获取待核销的订单
-					that.PayOrderList(1)
-				}else if (index == 3) { //获取已核销的订单
-					that.PayOrderList(2)
-				}else if(index == 4){ //获取已取消的订单
-					that.PayOrderList(3)
+				let that = this
+				that.listcurr = index
+				that.recommendList[index].options=[]
+				that.recommendList[index].page=1
+				that.recommendList[index].flag=true
+				let data={}
+				if(that.listcurr==0){
+					data.unionId=that.userInfo.unionid
+					data.page=that.recommendList[that.listcurr].page
+					data.limit=that.recommendList[that.listcurr].limit
 				}
+				else{
+					data.unionId=that.userInfo.unionid
+					data.page=that.recommendList[that.listcurr].page
+					data.limit=that.recommendList[that.listcurr].limit
+					data.status=that.recommendList[that.listcurr].status
+					data.expiredStatus=that.recommendList[that.listcurr].expiredStatus
+				}
+				
+				that.GetOrderListData(data, that.listcurr)
 			},
 			//取消订单
-			async removeOrder(orderId,index){
+			removeOrder(orderId,index){
+				let that = this;
 				wx.showModal({
 					title: '提示',
 					content: '是否取消订单?',
 					success(res) {
-						if (res.confirm) {
-							let that = this;
+						if (res.confirm) {		
 							wx.showLoading({title: '加载中',})
-							let data = {orderId:orderId,status:3}
-							API_ORDER.quxiaoOrder(data).then(res =>{
-								wx.hideLoading()
-								if(res.code == 0){
-									that.goodList.splice(index,1); //删除下标的指定数组  
-									Lib.showToast('成功','success')
-										wx.hideLoading()
+							API.deleteOrder({
+								orderId: orderId
+							}).then(res => {
+								if(res.code == 0) {
+									that.goodList.splice(index, 1)
+									wx.showToast({
+										title: '取消成功',
+										icon: 'none',
+										duration: 2000
+									})
+								} else {
+									wx.showToast({
+										title: '取消失败',
+										icon: 'none',
+										duration: 2000
+									})
 								}
 							})
 						} else if (res.cancel) {
@@ -259,99 +282,102 @@ import Config from '@/config'
 					url: '../order-detail/main?orderId='+orderId
 				})
 			},
+			Pay(orderId,needPayMoney,balance,index){
+				let that = this;
+				if(!that.isSubmit) {
+					that.isSubmit = true
+					that.weixinPay(orderId,needPayMoney,balance)
+				}
+			},
 
 			//立即付款
-			async wxPay(Ordersn,needPayMoney,orderId,balance){
+			weixinPay(orderId,needPayMoney,balance,index){
 				let that = this;
 				let params={}
 				if(that.userInfo.balance<balance){
 					Lib.showToast('余额不足','none')
+					that.isSubmit = false
 				}
 				else{
 				wx.showLoading({ title: '加载中',})
-				that.disabledBtn = true;
-				params.sn = Ordersn
-				params.openid=that.userInfo.xopenid
-	            params.total_fee = needPayMoney*100
+				params.orderId = orderId
+				params.openId = that.userInfo.xopenid
+				// params.total_fee = needPayMoney*100
+				params.payAmount = 1
 	            // params.total_fee=1
-				let parRes = await API_ORDER.prepay(params)
-					wx.requestPayment({
-	            		timeStamp: parRes.timeStamp,
-	            		nonceStr: parRes.nonceStr,
-	            		package: parRes.package,
-	            		signType: parRes.signType, 
-	            		paySign: parRes.paySign,
-	            		success: function (res) {
-	            			wx.showToast({
-	            				title: '支付成功',
-	            				icon: 'success',
-	            				duration: 2000
-							})		
-	            			that.payOrder(orderId)
-	            		},
-	            		fail: function (res) {
-		                        // fail
-		                        wx.showToast({
-		                        	title: '支付失败',
-		                        	icon: 'success',
-		                        	duration: 2000
-		                        })
-		                    },
-		                    complete: function (complete) {
-								// complete   
-								wx.hideLoading()
-		                       	that.disabledBtn = false;
-		                    }
-		            })
-				}
-			},
-
-			async payOrder(OrderId){
-	        	// 订单支付成功之后修改订单状态
-	        	let that=this  
-	        	let statuParam={}
-	        	statuParam.orderId=OrderId
-	        	let payOrder=await API_ORDER.payOrder(statuParam)
-				if(payOrder.code==0){
-	        		Index_Lib.updateUserInfo()
-	        		wx.redirectTo({
-	        			url: '../order-detail/main?orderId='+OrderId
-	        		})
-	        	}
-			},
-			
-			//删除订单
-			deleteorder(orderId,index){
-				let that = this;
-				wx.showModal({
-				title: '提示',
-				content: '是否删除该条订单？',
-				success(res) {
-					if (res.confirm) {
-					//   let data = {orderId:orderId}
-					  API_ORDER.deleteOrder(orderId).then(res => {
-						  Lib.showToast('删除成功','success')
-						that.goodList.splice(index,1); //删除下标的指定数组  
-					  }).catch(err => {
-						  Lib.showToast('删除失败','loading')
-					  })
-
-					} else if (res.cancel) {
+				API.prepay(params).then(function(parRes) {
+					if(parRes.code==500){
+						that.isSubmit=false
+						wx.showToast({
+								title: '网络错误请重试',
+								icon: 'none',
+								duration: 2000
+							})
+					}else{
+						wx.requestPayment({
+							timeStamp: parRes.Map.timeStamp,
+							nonceStr: parRes.Map.nonceStr,
+							package: parRes.Map.package,
+							signType: parRes.Map.signType,
+							paySign: parRes.Map.paySign,
+							success: function(res) {
+								wx.showToast({
+									title: '支付成功',
+									icon: 'success',
+									duration: 2000
+								})
+								that.goodList.splice(index,1)
+								that.payOrder(orderId)
+							},
+							fail: function(res) {
+							// fail
+							wx.showToast({
+								title: '支付失败',
+								icon: 'success',
+								duration: 2000
+							})
+						},
+						complete: function(complete) {
+							// complete   
+							that.isSubmit = false
+						}
+					})
 					}
-				}
+					
 				})
+				}
 			},
-			
+			async payOrder(orderId) {
+				// 订单支付成功之后修改订单状态
+				let that = this
+				let statuParam = {}
+				statuParam.orderId = orderId
+				let payOrder = await API.payOrder(statuParam)
+				if(payOrder.code == 0) {
+					utils.updateUserInfo()
+					wx.redirectTo({
+						url: '../myself-order-detail/main?orderId=' + orderId
+					})
+				}
+			}		
 		},
-		onLoad(){
-			let that=this
-			that.unionid = Store.state.userInfo.unionid
-			that.userInfo = Store.state.userInfo
-			that.hasMore = true;
-			that.listQuery.page = 1;
-			that.listQuery.limit = 3;
-			that.goodList = [];
-            that.onload();
+		onShow() {
+			let that = this
+			that.recommendList.map(Mres => {
+				Mres.options = [];
+				Mres.flag=true
+				return Mres
+			})
+
+			//重置
+			that.listcurr = 0;
+			that.userInfo = Store.state.userInfo;
+			that.GetOrderListData(Object.assign({}, {
+				unionId: that.userInfo.unionid
+			}, {
+				page: 1,
+				limit: 10
+			}), 0)
 		},
 
 		created() { // 调用应用实例的方法获取全局数据

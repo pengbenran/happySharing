@@ -8,7 +8,7 @@
 			<div class="cant">
 				<div class="weixin">
 					<span>微 信 号:</span>
-					<span> <input @click="togg" class="inp" type="text" placeholder="请输入微信号" v-model='distribeInfo.wechatId'/></span>
+					<span> <input @click="togg" class="inp" type="text" placeholder="请输入微信号" v-model='distribeInfo.wechat'/></span>
 				</div>
 				<div class="weixin">
 					<span>手 机 号:</span>
@@ -16,7 +16,7 @@
 				</div>
 				<div class="weixin">
 					<span>真实姓名:</span>
-					<span> <input @click="togg" class="inp" type="text" placeholder="请输入真实姓名" v-model='distribeInfo.uname'/></span>
+					<span> <input @click="togg" class="inp" type="text" placeholder="请输入真实姓名" v-model='distribeInfo.name'/></span>
 				</div>
 				<!--按钮·-->
 			<button class="btn" :disabled='isSubmit' @click='distribeApply'>提交审核</button>
@@ -42,7 +42,7 @@
 				isApply:false,
 				config:{},
 				distribeInfo:{
-					uname:'',
+					wechat:'',
 					name:'',
 					mobile:'',
 				}
@@ -56,7 +56,7 @@
 			},
 			async distribeApply(){
 				let that=this
-				if(that.distribeInfo.wechatId==''){
+				if(that.distribeInfo.wechat==''){
 					wx.showToast({
 						title: '微信号不能为空',
 						icon: 'none',
@@ -71,7 +71,7 @@
 						duration: 1500
 					})
 				}
-				else if(that.distribeInfo.uname==''){
+				else if(that.distribeInfo.name==''){
 					wx.showToast({
 						title: '真实姓名不能为空',
 						icon: 'none',
@@ -82,10 +82,8 @@
 					wx.showLoading({
 						title: '请稍等',
 					})
-					that.distribeInfo.tjunionid=store.state.userInfo.tjUnionid
-					that.distribeInfo.type=store.state.config.auditWay
 					that.distribeInfo.memberId=that.memberId
-				    let submitApplyRes=	await Api.submitApply(JSON.stringify(that.distribeInfo))
+				    let submitApplyRes=	await Api.submitApply(that.distribeInfo)
 				    if(submitApplyRes.code==0){
 				    	wx.hideLoading()
 				    	if(store.state.config.auditWay==2){
@@ -124,15 +122,14 @@
 		async mounted(){
 			// 判断是否已经提交过申请
 			let that=this
-			that.memberId=wx.getStorageSync("memberId")
+			that.memberId=store.state.userInfo.memberId
 			let params={}
 			params.memberId=that.memberId
 			let isApplyRes=await Api.judgeApply(params)
-			if(isApplyRes.status=='未提交申请'){
-				that.isApply=false
-			}
-			else{
+			if(isApplyRes.code == 0){
 				that.isApply=true
+			}else{
+				that.isApply=false
 			}
 		}
 	};

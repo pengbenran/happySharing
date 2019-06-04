@@ -1,31 +1,27 @@
 import * as API from './base'
 export default {
- myTeamIndex:params=>{
- 	return API.GET('/api-member/api/distribe/myTeamIndex',params)
- },
-  myTeamList:params=>{
- 	return API.GET('/api-member/clouddomember/member/getlist',params)
- },
  // 判断是否提交过申请
  judgeApply:params=>{
- 	return API.GET('/api-member/api/distribe/judgeApply',params)
+ 	return API.GET('/api/distributor/apply',params)
  },
  //提交申请
  submitApply:params=>{
- 	return API.POST('/api-member/api/distribe/submitApply',{params:params})
+ 	return API.POST('/api/distributor/apply',params)
  },
  //提现
  withdrawal:params=>{
- 	return API.POST('/api-member/api/distribe/withdrawal',params)
+ 	return API.POST('/api/distributor/withdrawal/apply ',params)
  },
- getCommissionList:params=>{
-	return API.GET('/api-member/distribe/commission/list',params)
+ // 获取推荐师奖金列表
+ distributorLog:params=>{
+ 	return API.GET('/api/distributor/distributorLog',params)
  },
-getWithdrawList:params=>{
-	return API.GET('/api-member/distribe/withdraw/list',params)
+ // 积分日志
+ poinLog:params=>{
+ 	return API.GET('/api/point/pointLog',params)
  },
- // 判断还能否生成推荐师二维码
- canGetCode:params=>{
- 	return API.GET('/api-member/api/distribe/generateCode',params)
- }
+  //获取所有分享师的等级
+  GetDistributorData:params => {
+  	return API.GET('/api/distributor/lvs',params)
+  },
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id"  @click="topage(item)">
+    <div class="rec-li clr" v-for="(item , index) in catGoodRecommend"  :key="item.id"  @click="topage(item.goodId)">
       <div class="img fl"><img :src="item.thumbnail" /></div>
       <div class="rec-center fl">
         <!-- <div class="tit">{{item.title}}</div> -->
@@ -12,7 +12,7 @@
       <div class="rec-right fr">
         <div class="clr"><div class="make fr">免预约</div></div>
         <!-- <div class="people ">{{item.people}}</div> -->
-        <div class="sell ">已售:{{item.sales}}件</div>
+        <div class="sell ">已售:{{item.showSales}}件</div>
       </div>
     </div>
   </div>
@@ -31,9 +31,9 @@
     },
 
     methods: {
-      topage(item){
+      topage(goodId){
       let that = this;
-        wx.navigateTo({url:`../detail/main?goodsId=${item.id}&codeUnionid=`})
+        wx.navigateTo({url:`../detail/main?goodsId=${goodId}&codeUnionid=`})
       }
     },
 

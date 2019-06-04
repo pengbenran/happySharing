@@ -1,6 +1,6 @@
 <template>
 	<div class="kind centered">
-		<div class="kindList" v-for="(item,index) in kind_item" @click="jumpKind(item.id)">		
+		<div class="kindList" v-for="(item,index) in kind_item" @click="jumpKind(item.catId)">		
 			<!-- <div class="kindIntro">
 				<div class="tipIcon">{{item.name}}</div>
 				<div class="kindname oneover">{{item.description}}</div>
@@ -10,7 +10,6 @@
 			</div>
 		</div>
 	</div>
-
 </template>
 <script>
 	export default {

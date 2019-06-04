@@ -60,17 +60,11 @@ fly.interceptors.response.use(
         // Do something with response error
     }
 )
-// let base='https://zhifenxiang.guqinet.com'
-let base='http://192.168.0.116:8012'
+let base='https://zhifenxiang.guqinet.com'
+// let base='http://192.168.2.111:8090'
 // export default {
 //     fly: fly
 // }
-export const GetCode=(url, params)=>{
-   return fly.get(`${url}`,params).then(res => res.data)  
-}
-export const getLogin=(url,params)=>{
-  return fly.get(`${url}`,params).then(res => res.data)
-}
 export const POST = (url, params) => {
   return fly.post(`${base}${url}`, params,{headers: {
       'Content-Type': 'application/x-www-form-urlencoded'

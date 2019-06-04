@@ -1,155 +1,330 @@
-<template>	
+<template>
 	<div class="container">
-		<blockquote v-if="!isLoading">
-			<loading></loading>
-		</blockquote>
-		<blockquote v-else>
-		<!--佣金-->
-		<div class="myselfdetails">
-			<div class="myselfdetail">
-				<div class="myselfdetail-left">
-					<span>累计佣金（元）</span>
-					<span>{{userInfo.total}}</span>
-				</div>
-				<div class="myselfdetail-right">
-					<span>可提佣金（元）</span>
-					<span>{{userInfo.balance}}</span>
-					<span class="cashBtn" @click="jumpCash">提现</span>
-				</div>
+		<!--积分-->
+		<div class="jf">
+			<div class="left">
+				<span>累计积分</span>
+				<span>{{totalPoint}}</span>
+			</div>
+			<div class="right">
+				<span>可用积分</span>
+				<span>{{userInfo.point}}</span>
+				<span @click="jumpGood">去使用</span>
 			</div>
 		</div>
-
-		<div class="flowbill">
-			<!--流水信息栏-->
-			<div class="flowbill-cate">
-
-				<div class="tit">
-					流水信息
-				</div>
-				<div class="type" @click="btnShow">
-					类型-{{type}}<span class="iconfont" style="color: #666666;">&#xe600;</span>
-				</div>
-				<div class="day">
-					<!-- 2018-12-30<span class="iconfont" style="color: #666666;">&#xe600;</span> -->
+		<!--奖金-->
+		<!--未开通-->
+		<div class="ojjin" v-if="userInfo.distributorStatus==2">
+			<div class="tit">开通分享师身份可赚取奖金噢~</div>
+			<div class="kt" @click="jumpkt">去开通</div>
+		</div>
+		<!--已开通-->
+		<div class="jjin" v-else>
+			<div class="left">
+				<span>累计佣金（元）</span>
+				<span>{{distribInfo.total}}</span>
+			</div>
+			<div class="right">
+				<span>可提佣金（元）</span>
+				<span>{{distribInfo.balance}}</span>
+				<span @click="jumptx">去提现</span>
+			</div>
+		</div>
+		<!--收支-->
+		<div class="expenditure">
+			<div class="expenditure-tit">
+				<div class="tit1">流水记录</div>
+				<div class="tit2" @click="btntrue">
+					<span>{{tit}}</span>
+					<span class="iconfont" style="color: #666666;">&#xe600;</span>
 				</div>
 			</div>
-
-			<!--流水列表 -->
-			<div class="flowbill-list" v-if="current==0">
-				<div v-for="(item,index) in commissionList" class="flowbill-list-li" >
-					<div class="top">
-						<div class="img"> <img :src="item.face" /></div>
-						<div class="name">
-							<span class="oneover">{{item.name}} - {{item.stauname}}</span>
-							<span class="oneover">购买商品-{{item.goodName}}</span>
-							<span>{{item.time}}</span>
+			<!--弹窗-->
+			<div class="pop" v-if="isPop">
+				<div class="tit">选择流水类型</div>
+				<div class="list">
+					<div @click="btnList(index)" class="list-li" :class="curr==index?'list-li-on':''" v-for="(item,index) in expenditure">{{item.name}}</div>
+				</div>
+				<div class="btn" @click="btnfalse">取消</div>
+			</div>
+			<div class="list-lis"> 
+				<!--奖金收入-->
+				<blockquote v-for="(item,index) in distributorLogData" :key="item.distributorLogId" :index="index" v-if="!isPoint">
+				<!-- 分享师佣金 -->
+				<div  class="list-li1" v-if="item.type==1">
+					<div class="left">
+						<div class="img"><img :src="item.face" /></div>
+					</div>
+					<div class="right">
+						<div class="cant"> 
+							<span>购买商品-分享师佣金</span>
+							<span>{{item.addTime}}</span>
 						</div>
-						<div class="num">
-							<p>商品返佣<span>+{{item.commission}}</span></p> 
-							<p>上下线佣金<span>+{{item.rankMoney}}</span></p>
+						<div class="pic">+{{item.amount}}元</div>
+					</div>
+				</div>
+				<!-- 上下线佣金 -->
+				<div  class="list-li1" v-if="item.type==2">
+					<div class="left">
+						<div class="img"><img :src="item.face" /></div>
+					</div>
+					<div class="right">
+						<div class="cant"> 
+							<span>购买商品-上下线佣金</span>
+							<span>{{item.addTime}}</span>
+						</div>
+						<div class="pic">+{{item.amount}}元</div>
+					</div>
+				</div>
+				<!-- 购买商品抵扣 -->
+				<div  class="list-li2" v-if="item.type==3">
+					<div class="left">
+						<div class="img iconfont">&#xe62f;</div>
+					</div>
+					<div class="right">
+						<div class="cant">
+							<span>购买商品抵扣</span>
+							<span>{{item.addTime}}</span>
+						</div>
+						<div class="pic">-{{item.amount}}元</div>
+					</div>
+				</div>
+				<!--奖金提现支出-->
+				<div class="list-li2" v-if="item.type==4">
+					<div class="left">
+						<div class="img iconfont">&#xe630;</div>
+					</div>
+					<div class="right">
+						<div class="cant">
+							<span>提现到银行卡</span>
+							<span>{{item.addTime}}</span>
+						</div>
+						<div class="pic">-{{item.amount}}元</div>
+					</div>
+				</div>
+				</blockquote>
+				<!--积分收入-->
+				<blockquote v-for="(item,index) in pointLogEntities" :key="item.pointLogId" :index="index" v-if="isPoint">	
+					<div  class="list-li4" v-if="item.type==3">
+						<div class="left">
+							<div class="img iconfont">&#xe62f;</div>
+						</div>
+						<div class="right">
+							<div class="cant">
+								<span>购买商品抵扣积分</span>
+								<span>{{item.addTime}}</span>
+							</div>
+							<div class="pic">-{{item.point}}</div>
 						</div>
 					</div>
-					<div class="xian"></div>
-				</div>
-				<nomoreTip v-if="!hasMore[0]"></nomoreTip>
-			</div>
-			<div class="flowbill-list" v-else>
-				<div v-for="(item,index) in withdeawList" class="flowbill-list-li" >
-					<div class="top">
-						<div class="img"> <img :src="item.face" /></div>
-						<div class="name">
-							<span>{{item.name}} - {{item.stauname}}</span>
-							<span></span>
-							<span>{{item.time}}</span>
+					<div  class="list-li3" v-if="item.type==1"> 
+						<div class="left">
+							<div class="img"><img :src="item.face" /></div>
 						</div>
-						<div class="num" style="line-height:80px">-{{item.withdraw}}</div>
+						<div class="right">
+							<div class="cant">
+								<span>{{item.name}}-购买商品获得积分</span>
+								<span>{{item.addTime}}</span>
+							</div>
+							<div class="pic">+{{item.point}}</div>
+						</div>
 					</div>
-					<div class="xian"></div>
-				</div>
-				<nomoreTip v-if="!hasMore[1]"></nomoreTip>
+					<div  class="list-li3" v-if="item.type==2"> 
+						<div class="left">
+							<div class="img"><img :src="item.face" /></div>
+						</div>
+						<div class="right">
+							<div class="cant">
+								<span>{{item.name}}-分享商品获得积分</span>
+								<span>{{item.addTime}}</span>
+							</div>
+							<div class="pic">+{{item.point}}</div>
+						</div>
+					</div>
+					<!--积分支出-->
+				</blockquote>	
 			</div>
 		</div>
-		<!--弹窗-->
-		<div class="popup" v-if="isShow">
-			<div class="popup-wp">
-				<div class="popup-header">选择流水类型</div>
-				<div class="popup-cant">
-					<span v-for="(item,index) in popup" @click="addClass(index)" :class="{on:index == current}">{{item.name}}</span>
-				</div>
-				<div @click="btnHide" class="popup-footer">取消</div>
-			</div>
-		</div>
-	</blockquote>
 	</div>
 </template>
-
 <script>
 	import store from '@/store/store'
 	import Api from '@/api/distribe'
-	import nomoreTip from "@/components/nomoreTip"
+	import utils from '@/utils/index'
 	import loading from '@/components/loading'
 	export default {
 		data() {
 			return {
-				type:'',
+				isPop: false,
+				curr: 3,
 				userInfo:{},
-				popup: [{
-					name: "返佣详情",
-				},
-				{
-					name: "提现详情"
-				},	
+				distribInfo:{},
+				expenditure: [{
+						name: "全部奖金",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "奖金收入",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "奖金支出",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "全部积分",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "积分收入",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "积分支出",
+						page:1,
+						limit:10,
+						hasMore:true
+					}
 				],
-				commissionList:[],
-				withdeawList:[],
-				isShow: false,
-				current: 0,
-				nowPage:[0,0],
-				hasMore:[true,true],
-				isLoading:false,
+				tit: "全部积分",
+				distributorLogData:[],
+				pointLogEntities:[]
 			}
 		},
-
-		components: {
-			nomoreTip,
-			loading
-		},
-		async mounted() {
-			let that=this
-			that.userInfo = store.state.userInfo
-			this.type = this.popup[0].name;
-			await that.getCommissionList(0,6,that.userInfo.unionid)
-			that.isLoading=true
-		},
+        computed:{
+        	isPoint(){
+        		let that=this
+        		return that.tit.indexOf('积分')!=-1
+        	},
+        	totalPoint(){
+				let that=this
+				return utils.accAdd(that.userInfo.point,that.userInfo.consumePoint)
+			}
+        },
+        components:{
+        	loading
+        },
 		methods: {
-			btnShow() {
-				this.isShow = true;
+			btntrue() {
+				this.isPop = true
 			},
-			jumpCash(){
-				wx.navigateTo({url:`../myself-cash/main`})
+			btnfalse() {
+				this.isPop = false
 			},
-			btnHide() {
-				this.isShow = false;
+			jumpGood(){
+				wx.switchTab({
+				   url:"../classify/main"
+				})
 			},
-			// 获取返佣列表
-			async getCommissionList(pagesNum,pageSize,unionid){
+			btnList(index) {
+				let that = this
+				that.dataUpdate()
+				that.curr = index
+				that.isPop = false
+				that.tit = that.expenditure[index].name
+				if(that.tit.indexOf("奖金")!=-1){
+					that.distributorLog()
+				}
+				else if(that.tit.indexOf("积分")!=-1){
+					that.poinLog()
+				}
+			},
+			jumpkt(){
+				wx.navigateTo({
+				   url:"../myself-kt/main"
+				})			
+			},
+			// 获取所有奖金明细
+			distributorLog(){
 				let that=this
-				if(that.hasMore[0]){
-					let params={}
-					params.offset=pagesNum*pageSize
-					params.limit=pageSize
-					// params.tjUnionid=unionid
-					params.tjUnionid=unionid
-					let commissionRes=await Api.getCommissionList(params)
-					wx.hideLoading();
-					commissionRes.rows.map(item=>{
-						item.stauname=item.type==1?'已红包返佣':item.type==2?'返佣失败':'返佣已加余额'
-						return item
+				let params={}
+				let expenditureItem=that.expenditure[that.curr]
+				if(that.tit=="全部奖金"){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit
+				}
+				else if(that.tit=='奖金支出'){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit
+					params.consumeBalance=1
+				}
+				else if(that.tit=="奖金收入"){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit
+					params.gainBalance=1
+				}
+				params.distributorId=that.distribInfo.distributorId
+				if(expenditureItem.hasMore){
+					Api.distributorLog(params).then(function(res){
+						if(res.code==0){
+							if(res.distributorLogEntities.length < expenditureItem.limit){
+								that.expenditure[that.curr].hasMore = false
+							}
+							that.distributorLogData = that.distributorLogData.concat(res.distributorLogEntities)
+							if(that.distributorLogData.length==0){
+								wx.showToast({
+									title:'暂无数据',
+									icon:"none",
+									duration:1500
+								})
+							}
+						}
 					})
-					if(commissionRes.rows.length<pageSize){
-						that.hasMore[0]=false
-					}
-					that.commissionList=that.commissionList.concat(commissionRes.rows)
+				}
+				else{
+					wx.showToast({
+						title:'没有更多数据了',
+						icon:"none",
+						duration:1500
+					})
+				}	
+			},
+			// 获取积分明细
+			poinLog(){
+				let that=this
+				let params={}
+				let expenditureItem=that.expenditure[that.curr]
+				if(that.tit=='全部积分'){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit	
+				}
+				else if(that.tit=='积分收入'){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit
+					params.gainPoint=1
+				}
+				else if(that.tit=='积分支出'){
+					params.page=expenditureItem.page
+					params.limit=expenditureItem.limit
+					params.type=3
+				}
+				params.memberId=that.userInfo.memberId
+				if(expenditureItem.hasMore){
+					Api.poinLog(params).then(function(res){
+						if(res.code==0){
+							if(res.pointLogEntities.length < expenditureItem.limit){
+								that.expenditure[that.curr].hasMore = false
+							}
+							that.pointLogEntities = that.pointLogEntities.concat(res.pointLogEntities)
+							if(that.pointLogEntities.length==0){
+								wx.showToast({
+									title:'暂无数据',
+									icon:"none",
+									duration:1500
+								})
+							}
+						}
+					})
 				}
 				else{
 					wx.showToast({
@@ -158,251 +333,347 @@
 						duration:1500
 					})
 				}
+				
 			},
-			async getWithdrawList(pagesNum,pageSize,unionid){
+			dataUpdate(){
 				let that=this
-				if(that.hasMore[1]){
-					wx.showLoading({
-						title: '加载中',
-					})
-					let params={}
-					params.offset=pagesNum*pageSize
-					params.limit=pageSize
-					params.unionid=unionid
-					let withdeawRes=await Api.getWithdrawList(params)
-					wx.hideLoading();
-					withdeawRes.rows.map(item=>{
-						item.stauname=item.status==1?'提现成功':'提现失败'
-						return item
-					})
-					if(withdeawRes.rows.length<pageSize){
-						that.hasMore[1]=false
+				that.isLoading=false
+				that.distributorLogData=[]
+				that.pointLogEntities=[]
+				that.curr=3
+				that.tit="全部积分"
+				that.isPop=false
+				that.expenditure=[{
+						name: "全部奖金",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "奖金收入",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "奖金支出",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "全部积分",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "积分收入",
+						page:1,
+						limit:10,
+						hasMore:true
+					},
+					{
+						name: "积分支出",
+						page:1,
+						limit:10,
+						hasMore:true
 					}
-					that.withdeawList=that.withdeawList.concat(withdeawRes.rows)
-				}
-				else{
-					wx.showToast({
-						title:'没有更多数据了',
-						icon:"none",
-						duration:1500
-					})
-				}
+				]
 			},
-			// 获取提现列表
-			addClass(index) {
-				let that=this
-				that.current = index;
-				that.isShow = false;
-				that.type = that.popup[index].name;
-				if(that.withdeawList.length==0){
-					that.getWithdrawList(0,6,that.userInfo.unionid)
-				}
-
+			jumptx(){
+				wx.navigateTo({url:`../myself-cash/main`})		
 			}
+
 		},
 		onReachBottom:function(){
-			let that = this;		
-			if(that.type=="返佣详情"){
-				that.nowPage[0]+=1
-				that.getCommissionList(that.nowPage[0],6,that.userInfo.unionid)	
+			let that = this;
+			if(that.expenditure[that.curr].hasMore){
+				that.expenditure[that.curr].page += 1; 
+				if(that.tit.indexOf("奖金")!=-1){
+					that.distributorLog()
+				}
+				else if(that.tit.indexOf("积分")!=-1){
+					that.poinLog()
+				}
 			}
-			else{
-				that.nowPage[1]+=1
-				that.getWithdrawList(that.nowPage[1],6,that.userInfo.unionid)
-			}
-			
+			// that.GetGoodsList(Item.catId);
 		},
-		onUnload(){
-			let that=this
-			that.type=''
-			that.userInfo={}
-			that.commissionList=[]
-			that.withdeawList=[]
-			that.isShow= false
-			that.current= 0
-			that.nowPage=[0,0]
-			that.hasMore=[true,true]
-			that.isLoading=false
-		}
-	
+		onShow(){
+			let that = this
+			that.userInfo=store.state.userInfo
+			if(that.userInfo.distributorStatus==1){
+				that.distribInfo=store.state.distribInfo
+			}
+		},
+		mounted() {
+			//重置
+			let that = this
+			that.dataUpdate()
+			that.poinLog()
+		},
+
 	}
 </script>
 
 <style scoped lang="less">
-.container {
-	width: 100%;
-	background-color: #f9f9f9;
-}
-.myselfdetails {
-	background-color: #fff;
-	.myselfdetail {
-		display: flex;
-		justify-content: space-between;
-		width: 283px;
-		margin: 0 auto;
-		padding: 20px 0;
-		.myselfdetail-left {
-			text-align: center;
-			span {
-				display: block;
-				&:nth-child(1) {
-					color: #111111;
-					font-size: 15px;
-				}
-				&:nth-child(2) {
-					color: #111111;
-					font-size: 33px;
-					font-family: "roboto";
-					padding: 30px 0;
-				}
-			}
-		}
-		.myselfdetail-right {
-			text-align: center;
-			span {
-				display: block;
-				&:nth-child(1) {
-					color: #111111;
-					font-size: 15px;
-				}
-				&:nth-child(2) {
-					color: #32a1ff;
-					font-size: 33px;
-					font-family: "roboto";
-					padding: 30px 0;
-				}
-			}
-			.cashBtn {
-				width: 80px;
-				height: 33px;
-				background-color: #32a1ff;
-				color: #fff;
-				font-size: 14px;
-				line-height: 33px;
-				border-radius: 3px;
-				margin: 0 auto;
-				text-align: center;
-				span {
-					color: #fff;
-				}
-			}
-		}
-	}
-}
-.flowbill{
-	margin-top:8px;
-	background: #fff;
-	width: 100%;
-	padding: 0 12px;
-	box-sizing: border-box;
-	.flowbill-cate{
-		margin-bottom: 10px;
+	.container {
+		background: #f4f4f4;
 		width: 100%;
-		height: 60px;
-		line-height: 60px;
-		display: flex;
-		justify-content: space-between;
-		.tit {
-			color: 111111;
-			font-size: 18px;
-			font-weight: bold;
-		}.type {color: #666666;font-size: 14px;}
-		.day {font-size: 14px;color: #111111;}
-	}
-}
-.flowbill-list {
-	.flowbill-list-li{
-		.top{
-			display: flex;
-			justify-content: space-around;
-			.img{
-				width: 44px;
-				height: 44px;
-				border-radius: 50%;
-				overflow: hidden;
-				margin-top: 11px;
-			}
-			.name{
-				flex-grow: 1;	
-				padding: 4px 0 4px 12px;
-				box-sizing: border-box;
-				span {
-					max-width: 200px;
-					display: block;
-					height: 22px;
-					line-height:22px;
-					font-size: 12px;
-					color: #999999;
-					&:nth-child(1) {
-						font-size: 14px;
-						color: #111111;	
-					}
-				}
-			}
-			.num{
-				p{
-					font-size: 11px;
-					font-family: "roboto";
-					line-height: 30px;
-					span{
-						color:red;
-						font-size: 18px;
-					}
-				}
-			
-			}
-
-		}
-		.xian {
-			height: 1px;
-			background-color: #DEDEDE;
-			width: 297px;
-		}
-	}
-}
-.popup {
-	position: fixed;
-	bottom: 0;
-	width: 100%;
-	background-color: #f9f9f9;
-	.popup-wp {
-		padding: 20px 12px;
-		.popup-header {
-			padding-bottom: 20px;
-			border-bottom: 1px solid #DEDEDE;
-			font-size: 14px;
-			color: #111111;
-			text-align: center;
-		}
-		.popup-cant {
+		.jf,
+		.jjin {
+			background: #FFFFFF;
+			width: 100%;
 			display: flex;
 			justify-content: space-between;
-			flex-wrap: wrap;
-			padding: 10px 8px 20px 8px;
+			box-sizing: border-box;
+			height: 172px;
+			text-align: center;
 			span {
 				display: block;
-				color: #666666;
-				font-size: 14px;
-				text-align: center;
-				width: 105px;
-				height: 66px;
-				line-height: 66px;
-				background-color: #fff;
-				border-radius: 5px;
-				margin-top: 10px;
 			}
-			.on {
-				color: #fff;
-				background-color: #32A1FF;
+			.left {
+				width: 50%;
+				line-height: 1;
+				span {
+					&:nth-child(1) {
+						font-size: 15px;
+						color: #333333;
+						padding: 26px 0 18px 0;
+					}
+					&:nth-child(2) {
+						font-size: 33px;
+						color: #333333;
+						font-weight: bold;
+					}
+				}
+			}
+			.right {
+				width: 50%;
+				line-height: 1;
+				span {
+					&:nth-child(1) {
+						font-size: 15px;
+						color: #333333;
+						padding: 26px 0 18px 0;
+					}
+					&:nth-child(2) {
+						font-size: 33px;
+						color: #ff6e6e;
+						font-weight: bold;
+					}
+					&:nth-child(3) {
+						border: 1px solid #FF6E6E;
+						background: #FFFFFF;
+						color: #ff6e6e;
+						font-size: 14px;
+						width: 80px;
+						height: 33px;
+						border-radius: 16.5px;
+						margin: 0 auto;
+						line-height: 33px;
+						margin-top: 28px;
+					}
+				}
 			}
 		}
-		.popup-footer {
-			padding-top: 20px;
-			border-top: 1px solid #DEDEDE;
+		.jjin {
+			margin-top: 8px;
+			.right {
+				span {
+					&:nth-child(2) {
+						color: #26acff;
+					}
+					&:nth-child(3) {
+						border: 1px solid #26acff;
+						background: #26acff;
+						color: #FFFFFF;
+						font-size: 14px;
+					}
+				}
+			}
+		}
+		/*未开通*/
+		.ojjin{
+			line-height: 1;
+			background: #FFFFFF;
+			width: 100%;
+			height: 172px;
 			text-align: center;
-			font-size: 14px;
-			color: #111111;
+			margin-top: 8px;
+			.tit{
+				text-align: center;
+				font-size: 16px;
+				color: #333333;
+				padding: 46px 0 28px 0;
+			}
+			.kt{
+				width: 160px;
+				height: 33px;
+				background: #26acff;
+				line-height: 33px;
+				text-align: center;
+				margin: 0 auto;
+				color: #f9f9f9;
+				font-size: 14px;
+				border-radius: 16.5px;
+			
+			}
+		}
+		.expenditure {
+			margin-top: 8px;
+			background: #FFFFFF;
+			.expenditure-tit {
+				width: 100%;
+				height: 54px;
+				display: flex;
+				align-items: center;
+				.tit1 {
+					font-size: 18px;
+					color: #333333;
+					margin-left: 12px;
+					font-weight: bold;
+				}
+				.tit2 {
+					font-size: 16px;
+					color: #333333;
+					margin-left: 53px;
+					font-weight: bold;
+					span {
+						&:nth-child(2) {
+							font-size: 12px;
+							margin-left: 6px;
+						}
+					}
+				}
+			}
+			.pop {
+				position: fixed;
+				bottom: 0;
+				z-index: 99;
+				background: #F4F4F4;
+				.tit {
+					width: 100%;
+					height: 50px;
+					padding: 0 12px;
+					box-sizing: border-box;
+					border-bottom: 1px solid #dedede;
+					text-align: center;
+					line-height: 50px;
+				}
+				.list {
+					padding: 0 12px 12px 12px;
+					display: flex;
+					flex-flow: wrap;
+					justify-content: space-between;
+					.list-li {
+						width: 109px;
+						height: 80px;
+						background: #FFFFFF;
+						text-align: center;
+						line-height: 80px;
+						margin-top: 12px;
+					}
+					.list-li-on {
+						background: #999999;
+						color: #ffffff;
+					}
+				}
+				.btn {
+					width: 100%;
+					height: 50px;
+					padding: 0 12px;
+					box-sizing: border-box;
+					border-top: 1px solid #dedede;
+					text-align: center;
+					line-height: 50px;
+				}
+			}
+			.list-lis {
+				padding: 0 12px;
+				box-sizing: border-box;
+				width: 100%;
+				.list-li1,.list-li2,.list-li3,.list-li4 {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					width: 100%;
+					box-sizing: border-box;
+					.left {
+						.img {
+							width: 46px;
+							height: 46px;
+							border-radius: 50%;
+							overflow: hidden;
+						}
+					}
+					.right {
+						border-bottom: 1px solid #DEDEDE;
+						padding: 18px 0;
+						flex-grow: 1;
+						margin-left: 12px;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						box-sizing: border-box;
+						width: 100%;
+						flex-wrap: nowrap;
+						.cant {
+							line-height: 22px;
+							span {
+								display: block;
+								&:nth-child(1) {
+									font-size: 14px;
+									color: #333333;
+								}
+								&:nth-child(2) {
+									font-size: 12px;
+									color: #999999;
+								}
+							}
+						}
+						.pic {
+							font-size: 18px;
+							color: #26acff;
+						}
+					}
+				}
+				.list-li2{
+					.left{
+						.img{
+							text-align: center;
+							line-height: 46px;
+							font-size: 20px;
+							color: #FFFFFF;
+							background: #26acff;
+						}
+					}
+				}
+				.list-li3{
+					.right{
+						.pic{
+							color: #ff6e6e;
+						}
+					}
+				}
+				.list-li4{
+					.left{
+						.img{
+							text-align: center;
+							line-height: 46px;
+							font-size: 20px;
+							color: #FFFFFF;
+							background: #ff6e6e;
+						}
+					}
+					.right{
+						.pic{
+							color: #ff6e6e;
+						}
+					}
+				}
+				
+			}			
 		}
 	}
-}
 </style>

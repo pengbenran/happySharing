@@ -26,13 +26,19 @@
 						</div>
 						<div class="original-sell clr">
 							<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
-							<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+							<div class="sell fr">已售:{{goodsDetail.sales}}件/还剩{{goodsDetail.inventory}}件</div>
 						</div>
-						<div class="disribe clr">
-							<blockquote v-if="userInfo.whetherDistribe!=0">推荐师返佣:
-								<span class="Present">{{goodsDetail.returnAmount}}元</span>
+						<div class="disribe">
+							<blockquote v-if="userInfo.distributorStatus==1">推荐师返佣:
+								<span class="Present">{{goodsDetail.commission}}元</span>
 							</blockquote>
-							<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+							<div class="sell" style="color:#ff0000" v-if="goodsDetail.goodType==4&&status==0">
+								距活动开始还剩{{day}}天{{hours}}时{{minute}}分{{second}}秒
+							</div>
+							<div class="sell" style="color:#ff0000" v-if="goodsDetail.goodType==4&&status==1">
+								距活动结束还剩{{day}}天{{hours}}时{{minute}}分{{second}}秒
+							</div>
+							
 						</div>
 						<div class="phone clr">
 							<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
@@ -44,9 +50,14 @@
 				<div class="product-detail centered">
 					<span>商品详情</span>
 				</div>
-				<div class="intro"> <wxParse :content="detailContent" @preview="preview" @navigate="navigate" /></div>
+				<div class="intro"> <wxParse :content="goodsDetail.content" @preview="preview" @navigate="navigate" /></div>
+				<!-- 保存图片分享好友 -->
+				<div class="footer" v-if="isPoster">
+					<div class="saveImg" @click="eventSave">保存图片</div>
+					<div class="shareFriend">分享好友</div>
+				</div>
 				<!--底下导航-->
-				<div class="nav">
+				<div class="nav" v-else>
 					<div class="index" @click="jumpIndex">
 						<div class="img"><img src="/static/images/home.png" /></div>
 						<div class="text">首页</div>
@@ -55,34 +66,32 @@
 						<div class="img"><span class="iconfont">&#xe62a;</span></div>
 						<div class="text">分享</div>
 					</div>
-					<div @click="jumpSaveOrder(index)" class="rush">
+					<div @click="jumpOrder()" class="rush" v-if="goodsDetail.goodType==4">
+						{{btnTxt}}
+					</div>
+					<div @click="jumpSaveOrder()" class="rush" v-else>
 						立即购买
 					</div>
-				</div>
-				<div class="paintImg" v-show="paintOk">
-					<div class="bcg" @click="closeClick"></div>
-					<div class="img" :style="{width:Width+'px',height:Width+'px'}">
-						<img :src="shareImage">
-					</div>
-					<div class="saveImgBtn" @click="saveImg">保存图片到本地</div>
-				</div>
-				<canvasdrawer :painting="painting"  @getImage="eventGetImage" ref="canvas"/>
+				</div>	
 		</blockquote>
+		<!-- 分享海报 -->
+		<goodPoster ref="goodPoster" @closePoster='closePoster' @paintOk='paintOk' :goodDetail='goodsDetail'></goodPoster>
+
 		<loginModel ref="loginModel" @getGoodsInfo="getGoodsInfo"></loginModel>
 	</div>	
 </template>
 
 <script>
 	import Api from '@/api/goods'
-	import Api_home from '@/api/goods'
 	import Api_user from '@/api/userinfo'
 	import util from '@/utils/index'
 	import store from '@/store/store'
 	import lib from '@/utils/lib'
 	import wxParse from 'mpvue-wxparse'
 	import loginModel from "@/components/loginModel"; 
-	import canvasdrawer from '@/components/canvasdrawer'
-	import loading from '@/components/loading'
+	import canvasdrawer from '@/components/canvasdrawer';
+	import loading from '@/components/loading';
+	import goodPoster from '@/components/goodPoster'
 	export default {
 		data() {
 			return {
@@ -91,16 +100,18 @@
 				magleft: "0",
 				paintOk:false,
 				goodsDetail:{},
-				painting:{},
 				shareImage:'',
-				shareBool:true,
 				Width:'',
 				userInfo:{},
-				whetherDistribe:'',
 				UsertagId:'',
 				btnSubmit:false,
-				detailContent:'',
-				posterErcode:''
+				isPoster: false,
+				day:'',
+				hours:'',
+				minute:'',
+				second:'',
+				status:0,
+				btnTxt:'活动未开始'
 			}
 
 		},
@@ -108,7 +119,8 @@
 			canvasdrawer,
 			wxParse,
 			loginModel,
-			loading
+			loading,
+			goodPoster
 		},
 		computed:{
 			discounts(){
@@ -119,18 +131,9 @@
 		},
 
 		methods: {
-			saveImg(){
-				let that=this
-				wx.saveImageToPhotosAlbum({
-					filePath: that.shareImage,
-					success(res) {
-						wx.showToast({
-							title: '保存图片成功',
-							icon: 'success',
-							duration: 2000
-						})
-					}
-				})
+			closePoster() {
+				let that = this
+				that.isPoster = false
 			},
 			// 拨打电话
 			makePhone(){
@@ -139,129 +142,133 @@
 				  phoneNumber:that.goodsDetail.shopPhone//仅为示例，并非真实的电话号码
 				})
 			},
-			//点击生成海报
-		   async eventDraw(codeUrl){
-		   	let that = this;
-		   	wx.showLoading({
-		   		title:'推广码绘制中'
-			   })	
-		   	let ImgArr = []
-		   	ImgArr[0]=that.goodsDetail.posterImg
-		   	ImgArr[1]=codeUrl
-		   	that.painting={
-		   		width: that.Width,
-		   		height: that.Width,
-		   		clear: true,
-		   		views: [
-		   		{
-		   			type: 'image',
-		   			url: ImgArr[0],
-		   			top: 0,
-		   			left: 0,
-		   			width: that.Width,
-		   			height: that.Width
-		   		},
-		   		{
-		   			type: 'image',
-		   			url: ImgArr[1],
-		   			top: that.Width-60,
-		   			left: 155,
-		   			width: 50,
-		   			height:50
-		   		},
-	   		    {
-		   			type: 'text',
-		   			content:that.userInfo.name,
-		   			fontSize: 13,
-		   			color: '#000',
-		   			textAlign: 'left',
-		   			breakWord: true,
-		   			top: that.Width-55,
-		   			left:210,
-		   			width:90,
-		   			MaxLineNumber:2,
-		   			isCenter:false
-			   	},
-
-		   		]
-		   	}
-		   	this.$refs.canvas.readyPigment()
-		   },
-		   eventGetImage(event) {
-		   	wx.hideLoading()
-		   	const { tempFilePath, errMsg } = event
-		   	if (errMsg === 'canvasdrawer:ok') {
-		   		this.paintOk=true
-		   		this.shareImage=tempFilePath
-		    }
-			},
 			jumpIndex(){
 				wx.switchTab({
 					url:'../index/main'
 				})
 			},
 			async jumpSaveOrder(){
+				let that=this
 				if(this.goodsDetail.inventory > 0){
 					// await this.GetUserLable(store.state.userInfo.unionid) //判断用户标签
-					if(!this.Time){ //定时上架
-						wx.navigateTo({url:`../order-submit/main?orderType=1`})
-					}else{		
-						lib.showToast('该商品还未上架','none')
-					}
-				}else{
-                        lib.showToast('该商品库存为空','none')
+					that.canBuy()		
 				}
+			},
+			jumpOrder(){
+				let that=this
+				if(this.goodsDetail.inventory > 0 && that.btnTxt=='立即抢'){
+					that.canBuy()
+				}
+			},
+			canBuy(){
+				let params={}
+				let that=this
+				params.goodId=that.goodsDetail.goodId
+				params.memberId=that.userInfo.memberId
+				Api.canBuy(params).then(function(res){
+					if(res.code!=500){
+						if(that.btnTxt=='立即购买')
+						{
+							wx.navigateTo({url:`../order-submit/main?orderType=1`})
+						}
+						else{
+							wx.navigateTo({url:`../order-submit/main?orderType=5`})
+						}	
+					}
+					else{
+						lib.showToast('该商品您暂无购买权限','none')
+					}
+				})
 			},
 			share(){
 				let that=this
-				if(that.posterErcode != ''){
-					if(that.shareImage==""){
-					    let shareRight=that.goodsDetail.shareRight.split(',')
-					    let tagMemberDOList=that.userInfo.tagMemberDOList
-					    let flag=false
-					    for(var i in tagMemberDOList){
-					    	if(shareRight.includes(tagMemberDOList[i].tagId.toString())){
-					    		flag=true
-					    	}
-					    }
-					    if(flag){
-							lib.showToast('您暂无分享权限','none')
-					    }
-					    else{
-					    	that.eventDraw(that.posterErcode)
-					    }	
+				if(that.shareImage==""){
+					// let shareRight=that.goodsDetail.shareRight.split(',')
+					// let tagMemberDOList=that.userInfo.tagMemberDOList
+					// let flag=false
+					// for(var i in tagMemberDOList){
+					// 	if(shareRight.includes(tagMemberDOList[i].tagId.toString())){
+					// 		flag=true
+					// 	}
+					// }
+					// if(flag){
+					// 	lib.showToast('您暂无分享权限','none')
+					// }
+					// else{
+					// 	that.$refs.goodPoster.getErCode(that.goodDetail.id)
+					// }
+					that.$refs.goodPoster.getErCode(that.goodsDetail.goodId)	
+				}
+				else{
+					that.isPoster=true
+				}	
+			},
+			// 绘制好了触发事件
+			paintOk(shareImg) {
+				let that = this
+				that.isPoster = true
+				that.shareImg = shareImg
+			},
+			timeOut(stopTime){
+				let that=this
+				var timer = null;
+				timer = setInterval(function(){
+					var today=new Date()//当前时间
+					var shenyu=stopTime-today.getTime()//倒计时毫秒数
+					if(shenyu>0){
+						var shengyuD=parseInt(shenyu/(60*60*24*1000)),//转换为天
+					    D=parseInt(shenyu)-parseInt(shengyuD*60*60*24*1000),//除去天的毫秒数
+					    shengyuH=parseInt(D/(60*60*1000)),//除去天的毫秒数转换成小时
+					    H=D-shengyuH*60*60*1000,//除去天、小时的毫秒数
+					    shengyuM=parseInt(H/(60*1000)),//除去天的毫秒数转换成分钟
+					    M=H-shengyuM*60*1000,//除去天、小时、分的毫秒数
+					    S=parseInt((shenyu-shengyuD*60*60*24*1000-shengyuH*60*60*1000-shengyuM*60*1000)/1000)//除去天、小时、分的毫秒数转化为秒
+					    that.day=shengyuD
+					    that.hours=shengyuH
+					    that.minute=shengyuM
+					    that.second=S
 					}
 					else{
-						that.paintOk=true
-					}	
-				}
+						clearInterval(timer);
+						that.day=0
+					    that.hours=0
+					    that.minute=0
+					    that.second=0
+					}
+				  
+				},1000)
+			    // setTimeout("clock()",500);
 			},
-
-			async getErCode(){
-				let that=this
-				let params={}
-				params.params=store.state.userInfo.unionid+','+that.goodsId+','+1
-				let QrcodeRes=await Api.GetQrcode(params)
-				if(QrcodeRes.code==0){
-					that.posterErcode=QrcodeRes.url
-				}
-			},
-
 			async getGoodsInfo(){
 				let that=this
 				let params={}  
 				that.userInfo=store.state.userInfo
-				that.whetherDistribe = that.userInfo.whetherDistribe
+				params.memberId = that.userInfo.memberId
 				params.goodId=that.goodsId
-				if(that.whetherDistribe!=0){
-					params.memberLv=that.whetherDistribe
-				}
 				let goodsDetailRes=await Api.getGoodDetail(params)
-				goodsDetailRes.goodbanner=goodsDetailRes.images.split(',')
-				that.goodsDetail=goodsDetailRes
-				that.detailContent = that.goodsDetail.content
+				goodsDetailRes.good.goodbanner=goodsDetailRes.good.images.split(',')
+				if(goodsDetailRes.good.goodType==4){
+					// 获取当前时间戳
+					let today=(new Date()).getTime()
+					let seckillEnd=(new Date(goodsDetailRes.good.seckillEnd)).getTime()
+					let seckillStart=(new Date(goodsDetailRes.good.seckillStart)).getTime()
+					if(today<seckillStart){
+						that.timeOut(seckillStart)
+						that.status=0
+						that.btnTxt='活动未开始'
+					}
+					else if(seckillStart<today&&today<seckillEnd){
+						that.timeOut(seckillEnd)
+						that.status=1
+						that.btnTxt='立即抢'
+					}
+					else{
+						that.status=2
+						that.btnTxt='活动已结束'
+					}
+				}
+				that.goodsDetail=goodsDetailRes.good
 				store.commit("stateGoodDetail",that.goodsDetail)
-				that.getErCode()
 				that.isLoading=true
 			},
 			async getUserInfo(){
@@ -270,10 +277,6 @@
 				store.commit("stategoodsid",that.$root.$mp.query.goodsId)
 				await that.$refs.loginModel.userLogin()
 			},
-			closeClick(){
-				let that = this;
-				that.paintOk = false;
-			}
 		},
 		async mounted(){
 			let that=this
@@ -292,20 +295,13 @@
 			that.isLoading=false
 			that.wid= "100%"
 			that.magleft= "0"
-			that.paintOk=false
+			that.isPoster=false
 			that.goodsDetail={}
-			that.painting={}
 			that.shareImage=''
-			that.shareBool=true
 			that.Width=''
 			that.userInfo={}
-			// that.TimeStr=''
-			// that.Time=''
-			that.whetherDistribe=''
 			that.UsertagId=''
 			that.btnSubmit=false
-			that.detailContent=''
-			that.posterErcode=''
 		}
 	}
 </script>
@@ -317,6 +313,8 @@
 		height: 190px;
 	}
 	.disribe{
+		display: flex;
+		justify-content:space-between;
 		color: #999999;
 		font-size: 12px;
 		.Present{
@@ -336,26 +334,6 @@
 		bottom: 80px;
 		left: 10%;
  	}
-	.paintImg{
-		position: fixed;
-		top:0;
-		left: 0;
-		bottom:0;
-		right: 0;
-		z-index: 5;
-		.bcg{
-		width: 100%;
-	    height: 100%;
-    	background: rgba(0,0,0,.5);
-		}		
-		.img{
-			overflow: hidden;
-			z-index: 10;
-			position: absolute;
-			top: 80px;
-		}
-		}
-
 	.nav {
 		position: fixed;
 		bottom: 0px;

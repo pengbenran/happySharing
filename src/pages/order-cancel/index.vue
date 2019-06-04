@@ -4,17 +4,18 @@
 			<loading></loading>
 		</blockquote>
 		<blockquote v-else>
-			<div class="order-detail" v-if="isWrite">
+			<div class="order-detail" v-if="canCancel">
 				<!--模块1-->
 				<div class="title">
-					<span>{{OrderInfo.status}}</span>
-					<span v-if="OrderInfo.orderType==1">下单时间:{{OrderInfo.createTime}}</span>
-					<span v-else>过期时间:{{OrderInfo.endTime}}</span>
+					<span v-if="OrderInfo.status==1">待核销</span>
+					<span v-if="OrderInfo.status==2">已核销</span>
+					<span v-if="OrderInfo.status==3">已过期</span>
+					<span>下单时间:{{OrderInfo.createTime}}</span>
 				</div>
 				<!--模块2-->
 				<div class="rec-li ">
 					<div class="rec-li-warp clr">
-						<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
+						<div class="img fl"><img :src="OrderInfo.goodThumbnail" /></div>
 						<div class="rec-center fl">
 							<div class="tit">{{OrderInfo.goodName}}</div>
 							<div class="name"></div>
@@ -25,7 +26,7 @@
 								<div class="make fr" v-if='OrderInfo.orderType==1'>免预约</div>
 								<div class="make fr" v-else>需预约</div>
 							</div>
-							<div class="people "></div>
+							<div class="people"></div>
 							<div class="sell "></div>
 						</div>
 					</div>
@@ -50,11 +51,9 @@
 					</div>
 				</div>
 				<!--订单详情-->
-		
-
 				<!--按钮-->
 				<div class="dele" >
-					<span @click='writeOff(OrderInfo.orderId)' v-if="OrderInfo.status=='待核销'">立即核销</span>
+					<span @click='orderCancel(OrderInfo.orderId)' v-if="OrderInfo.status==1">立即核销</span>
 					<span v-else>已核销</span>
 					<span @click='jumpIndex'>返回首页</span>
 				</div>
@@ -87,7 +86,7 @@
 		data() {
 			return {
 				isLoading:false,
-				isWrite:false,
+				canCancel:true,
 				auditimg:'/static/images/audit.png',
 				OrderInfo:{},
 				isSubmit:false,
@@ -96,63 +95,62 @@
 		},
 		methods:{
 			// 判断能否核销
-			async isWriteOff(unionId,orderId){
-				let that=this
+			memberCancel(orderId){
 				let params={}
-
-				params.unionId=unionId
+				let that=this
+				params.unionId=store.state.userInfo.unionid
 				params.orderId=orderId
-				let isWriteOffRes=await Api.isWriteOff(params)
-				if(isWriteOffRes.code==0){
-					that.isWrite=true
-					that.getOnList(that.orderId)
-				}
-				else{
-					that.isWrite=false
-					that.isLoading = true;
-				}
+				Api.memberCancel(params).then(function(res){
+					that.isLoading=true
+					if(res.code==0){
+						that.canCancel=true
+						that.OrderInfo=res.orderEntity
+					}
+					else{
+						that.canCancel=false
+					}
+				})
 			},
 			// 核销
-			async writeOff(orderId){
+			orderCancel(orderId){	
+				let that=this
+				if(that.OrderInfo.goodType==2){
+					if(that.OrderInfo.beginTime!=null){
+						let nowDate=(new Date()).getTime()
+						if(nowDate<that.OrderInfo.beginTime){
+							Lib.showToast('未到核销时间','none')
+						}
+						else if(nowDate>that.OrderInfo.endTime){
+							Lib.showToast('超过核销时间','none')
+						}
+						else{
+							that.Cancel(orderId)
+						}
+					}
+					else{
+						Lib.showToast('订单未预约','none')
+					}	
+				}else{
+					that.Cancel(orderId)
+				}
+			},
+			Cancel(orderId){
 				let that=this
 				let params={}
-				params.orderId=orderId
-				params.memberName=store.state.userInfo.name
 				if(!that.isSubmit){
 					that.isSubmit=true
-					let writeOffRes=await Api.writeOff(params)
-					if(writeOffRes.code==0){
-						Lib.showToast('核销成功','success')
-						that.getOnList(orderId)
-					}
-				}
-
-			},
-			async getOnList(orderId){
-				let that = this;
-				let data = {};
-				data.orderId=orderId
-				let res = await Api.getOrderList(data).catch(err => {
-					Lib.showToast('失败','loading')
-				});
-				if(res.code == 0){
-					let OrderInfo = res.pageUtils.rows[0]
-						if(OrderInfo.status == 0){
-                           OrderInfo.status = '待支付'
-						}else if (OrderInfo.status == 1) {
-							OrderInfo.status = '待核销'
-						}else if (OrderInfo.status == 2) {
-							OrderInfo.status = ' 已核销'
-						}else if (OrderInfo.status == 3) {
-							OrderInfo.status = '已取消'
+					params.unionId=store.state.userInfo.unionid
+					params.orderId=orderId
+					Api.orderCancel(params).then(function(res){
+						if(res.code==0){
+							that.OrderInfo.status=2
+							Lib.showToast('核销成功','success')
 						}
-					OrderInfo.createTime = Index_Lib.formatTime(OrderInfo.createTime)
-					if(OrderInfo.orderType==2){
-						OrderInfo.endTime=Index_Lib.formatTime(OrderInfo.endTime)
-					}
-					that.OrderInfo = OrderInfo
-				};
-				that.isLoading = true;
+						else{
+
+						}
+					})
+				}
 			},
 			jumpIndex(){
 				wx.switchTab({
@@ -163,7 +161,7 @@
 		async mounted(){
 			let that=this
 			await that.$refs.loginModel.userLogin()
-			that.isWriteOff(store.state.userInfo.unionid,that.orderId)
+			that.memberCancel(that.orderId)
 			// that.isWriteOff('oN-X01F3aJVZsIG0p-n-Kcn69lpA',that.orderId)
 		},
 
@@ -171,15 +169,11 @@
 			var that = this 
 			this.isLoading = false;
 			this.isWrite = false;
-			this.auditimg = '/static/images/audit.png';
 			this.OrderInfo = {};
 			this.isSubmit = false;
 			// this.orderId=''
 			that.orderId=decodeURIComponent(options.scene)
 		},
-		computed: {
-		},	
-
 	}
 </script>
 

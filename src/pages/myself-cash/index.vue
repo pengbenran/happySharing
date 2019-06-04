@@ -2,7 +2,7 @@
 	<div>
 		<div class="myselfcash">
 			<span>可提佣金   (元)</span>
-			<span>{{userInfo.balance}}</span>
+			<span>{{distribInfo.balance}}</span>
 			<span>我要提取  ¥  <input v-model="inp" :input="changeCss()"  type="digit" class="inp" placeholder="请输入提取金额" placeholder-style="color:#999999;font-size: 14px;"/> 元</span>
 			<span>提取的佣金将会以红包的形式发送到公众号，记得查看哦</span>
 			<span class="tip">{{tip}}</span>
@@ -21,7 +21,8 @@
 				inp: "",
 				tip:'',
 				isSubmit:false,
-				userInfo:{}
+				userInfo:{},
+				distribInfo:{}
 			};
 		},
 		methods: {
@@ -30,7 +31,7 @@
 				if(that.inp==''){
 					that.isOn=false
 				}
-				else if(that.inp>that.userInfo.balance){
+				else if(that.inp>that.distribInfo.balance){
 					that.isOn=false
 					that.tip="余额不足"
 				}
@@ -54,7 +55,7 @@
 					that.isSubmit=true
 					that.isOn=false
 					let params={}
-					params.unionid=that.userInfo.unionid;
+					params.distributorId=that.distribInfo.distributorId;
 					params.money=that.inp;
 					let widthdrawRes=await Api.withdrawal(params)
 					that.isSubmit=false
@@ -65,7 +66,7 @@
 							title:'提现成功',
 							duration:1500
 						})
-						that.userInfo.balance=util.accSub(that.userInfo.balance,that.inp)
+						that.userInfo.balance=util.accSub(that.distribInfo.balance,that.inp)
 						store.commit("storeUserInfo",that.userInfo)
 						wx.navigateTo({ url:'../myself-detail/main'});
 					}
@@ -85,7 +86,10 @@
 		},
 		mounted(){
 		  let that=this
-		  that.userInfo = store.state.userInfo
+		  that.userInfo=store.state.userInfo
+		  if(that.userInfo.distributorStatus==1){
+		  	that.distribInfo=store.state.distribInfo
+		  }
 		}
 	};
 </script>

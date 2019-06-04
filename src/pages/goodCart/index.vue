@@ -8,10 +8,11 @@
 				<!--搜索-->
 				<Search></Search>
 				<!--轮播-->
+				<Banner :banner='bannerImg'></Banner>
 				<!--类目-->
 				<div class="cate centered">
 					<div v-for="(item , index) in addressItem" :key="item.id" class="cate-li" @click="jumpgoodCartList(item.id,item.name)">
-							<div class="img"><img :src="item.img" /></div>
+							<div class="img"><img :src="item.value" /></div>
 							<div class="name">{{item.name}}</div>
 					</div>
 				</div>
@@ -25,7 +26,7 @@
 				<!--超赞推荐-->
 				<div class="rec-wrap centered">
 					<div class="title ">超值优惠</div>
-					<!-- <div class="image"><img src="/static/images/rec-banner.png" /></div> -->
+					<!-- <div class="image"><img :src="kindImg" /></div> -->
 					<goodslist :catGoodRecommend='catGoodRes'></goodslist>
 					<nomoreTip v-if="!hasMore"></nomoreTip>
 				</div>
@@ -59,6 +60,7 @@
 				hasMore:true,
 				bannerImg:[],
 				isLoading:false,
+				kindImg:''
 			}
 		},
 
@@ -77,17 +79,19 @@
 				wx.navigateTo({url:`../auro-list/main?goodCatId=${that.goodCatId}&catname=${that.goodCatName}&regionname=${regionname}&regionId=${regionId}`})
 			},
 			async getKindGoods(pageNum,pageSize,goodCatId){
-				// 获取地区分类下的商品(非推荐)
+				// 获取地区分类下的商品(推荐)
 				let that=this
 				if(that.hasMore){
 					let params={}
-					params.goodCatId=goodCatId
-					let catGoodRes=await Api.getkindGood(pageNum,pageSize,params)	
+					params.catId=goodCatId
+					params.page=pageNum
+					params.limit=pageSize
+					let catGoodRes=await Api.getRegionGood(params)	
 					wx.hideLoading();
-					if(catGoodRes.rows.length<pageSize){
-						that.hasMore=false
+					if(catGoodRes.recommendGood.rows.length<pageSize){
+						that.hasMore=false 
 					}
-					that.catGoodRes=that.catGoodRes.concat(catGoodRes.rows)
+					that.catGoodRes=that.catGoodRes.concat(catGoodRes.recommendGood.rows)
 				}
 				else{
 					wx.showToast({
@@ -113,22 +117,27 @@
 				title:options.goodCatName,		
 			})
 			// 获取地区分类下的广告
-			let typeImgRes=await Api.getTypeImg(3,options.goodCatId)
-			that.bannerImg=typeImgRes.data.imgs
+			let kindImgParams={}
+			kindImgParams.catId=options.goodCatId
+			let kindImgRes=await Api.getKindImg(kindImgParams)
+			that.bannerImg=JSON.parse(kindImgRes.goodCats.banner) 
+			// that.kindImg=kindImgRes.goodCats.img
 			// 获取地区分类下的商品分类
 			let reginRes=await kindApi.getRegin()
-			that.addressItem=reginRes
+			that.addressItem=reginRes.region
 
 			that.getKindGoods(1,3,that.goodCatId)
 			let params={}
-			params.goodCatId=that.goodCatId
-			//获取地区分类项的商品(推荐)
-			params.recommend=1
-			let catGoodRecommendRes=await Api.getkindGood(1,6,params)
-			catGoodRecommendRes.rows.map(item=>{
+			params.catId=that.goodCatId
+			//获取二级分类项的商品(非推荐)
+			params.page=1
+			params.limit=6
+			let catGoodRecommendRes=await Api.getRegionGoods(params)
+			catGoodRecommendRes.offerGood.rows.map(item=>{
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 			})
-			that.catGoodRecommend=catGoodRecommendRes.rows
+			that.catGoodRecommend=catGoodRecommendRes.offerGood.rows
+
 			that.isLoading=true
 
 		},
@@ -155,7 +164,6 @@
 	
 	.cate {
 		display: flex;
-		justify-content: space-between;
 		flex-wrap: wrap;
 		text-align: center;
 		.cate-li {

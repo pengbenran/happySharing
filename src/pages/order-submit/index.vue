@@ -6,8 +6,8 @@
 				<div class="rec-li-warp clr">
 					<div class="img fl"><img :src="goodDetail.thumbnail" /></div>
 					<div class="rec-center fl">
-						<div class="tit fontHidden">{{goodDetail.title}}</div>
-						<div class="name fontHidden1">{{goodDetail.goodName}}</div>
+						<!-- <div class="tit fontHidden">{{goodDetail.title}}</div> -->
+						<div class="name fontHidden">{{goodDetail.goodName}}</div>
 						<div class="present "><span>￥:{{goodDetail.price}}</span> <span>原价:{{goodDetail.showPrice}}</span></div>
 					</div>
 					<div class="rec-right fr">
@@ -39,8 +39,8 @@
 					</div>
 					<div class="price3">
 						<p>推荐师优惠：</p>
-						<p v-if="userInfo.whetherDistribe==0"> <span>(非推荐师优惠0元)</span></p>
-						<p v-else> {{goodDetail.returnAmount}}元</p>	
+						<p v-if="userInfo.distributorStatus==2"> <span>(非推荐师优惠0元)</span></p>
+						<p v-else> {{goodDetail.commission}}元</p>	
 					</div>
 					<!--<div class="price6">
 						<p>预约时间</p>
@@ -49,13 +49,13 @@
 				</div>
 			</div>
 			<!--支付-->		
-			<div class="payment">
+			<div class="payment" v-if="userInfo.distributorStatus==1">
 				<div class="payment-commission">
 					<checkbox-group @change="useBanlance" class="inp">
 						<div>
 							<checkbox  :value="isChoose"  />佣金抵扣
 						</div>
-						<div>还有{{userInfo.balance}}元可用佣金</div>
+						<div>还有{{distribInfo.balance}}元可用佣金</div>
 					</checkbox-group>
 					<!-- <div class="inp">
 						<span><input type="checkbox" value="佣金抵扣" @change="useBanlance"/></span><span>佣金抵扣</span>
@@ -91,13 +91,14 @@
 				userInfo:{},
 				order:{},
 				orderType:'',
-				useBanlan:0
+				useBanlan:0,
+				distribInfo:{}
 			
 			}
 		},
 		computed: {
 			make(){
-				return this.goodDetail.book==2?'免预约':'需预约'
+				return this.orderType==3?'需预约':'免预约'
 			},
 			discountPrice(){
 				let that=this
@@ -105,8 +106,8 @@
 			},
 			totalPay(){
 				let that=this
-				if(that.userInfo.whetherDistribe!=0){
-					return util.accSub(that.discountPrice,that.goodDetail.returnAmount)
+				if(that.userInfo.distributorStatus==1){
+					return util.accSub(that.discountPrice,that.goodDetail.commission)
 				}else{
 					return util.accSub(that.discountPrice,0)
 				}
@@ -121,8 +122,8 @@
 			useBanlance(e){
 				let that=this
 			   if(e.mp.detail.value.length!=0){
-			   		if(that.userInfo.balance<that.totalPay){
-			   			that.useBanlan=that.userInfo.balance
+			   		if(that.distribInfo.balance<that.totalPay){
+			   			that.useBanlan=that.distribInfo.balance
 			   		}
 			   		else{
 						that.useBanlan=util.accSub(that.totalPay,0.01)
@@ -140,64 +141,60 @@
 				let params={}
 				if(!that.isSubmit){
 					that.isSubmit=true
-					if(store.state.codeUnionid!=''&&store.state.goodsId==that.goodDetail.id){
-						params.paymentId=2
-						params.codeUnionid=store.state.codeUnionid
+					if(store.state.codeUnionid!=''&&store.state.goodsId==that.goodDetail.goodId){
+						params.orderType=2
+						params.shareIntegration=that.goodDetail.shareIntegral
+						params.codeunionid=store.state.codeUnionid
 					}
 					else{
-						params.paymentId=1
+						params.orderType=1
+						params.shareIntegration=0
 					}
-					params.orderType=that.orderType		
+					if(that.useBanlan==0){
+						// 未使用余额抵扣
+						params.paymentType=1
+					}
+					else{
+						// 使用余额抵扣
+						params.paymentType=2
+					}
 					params.unionId=that.userInfo.unionid
-					params.paymentType=1
-					params.consumepoint=that.goodDetail.shareWelfare == null ? 0 : that.goodDetail.shareWelfare
-					params.shopsId=that.goodDetail.shopId*1
+					params.consumepoint= 0
+					params.shopId=that.goodDetail.shopId
 					params.goodsAmount=that.goodDetail.price
 					params.orderAmount=that.totalMoney
 					params.gainedpoint=that.goodDetail.buyIntegral == null ? 0 : that.goodDetail.buyIntegral
 					params.discount=that.userInfo.discount
 					params.needPayMoney=that.totalMoney
 					params.balance=that.useBanlan
-					params.recommend=that.goodDetail.returnAmount == null ? 0 : that.goodDetail.returnAmount
-					params.goodsId=that.goodDetail.id
-					params.thumbnail=that.goodDetail.thumbnail
-					params.goodName=that.goodDetail.goodName
+					params.recommend=that.goodDetail.commission
+					params.goodsId=that.goodDetail.goodId
+					params.buyName=that.userInfo.name
 					params.price=that.goodDetail.price
+					params.lineCommission=that.goodDetail.lineCommission
 					let saveRes=await Api.orderSave(params)
 					if(saveRes.code==0){
 						wx.hideLoading()
-						that.order=saveRes.orderDO
-						that.getQRCode()
+						that.order=saveRes.OrderEntity
+						that.weixinPay()
 					}	
 				}
 				
 			},
-			// 生成二维码
-			async getQRCode(){
-				let QRparams={}
-	        	let that=this
-	            QRparams.params=that.order.orderId
-	            QRparams.page='pages/order-cancel/main'
-	        	let getQRCode=await Api.getQRCode(QRparams)
-	        	if(getQRCode.code==0){
-	        		that.weixinPay(getQRCode.url)
-	        	} 	
-			},
+			
 			weixinPay(codeUrl){
 				let params={}
 				let that=this
-				params.sn = that.order.sn
-				params.openid=that.userInfo.xopenid
-	            params.total_fee = that.order.needPayMoney*100
-	            params.orderCode=codeUrl
-	            // params.total_fee=1
+				params.orderId = that.order.orderId
+				params.openId=that.userInfo.xopenid
+	            params.payAmount=1
 	            Api.prepay(params).then(function(parRes){
 	            	wx.requestPayment({
-	            		timeStamp: parRes.timeStamp,
-	            		nonceStr: parRes.nonceStr,
-	            		package: parRes.package,
-	            		signType: parRes.signType, 
-	            		paySign: parRes.paySign,
+	            		timeStamp: parRes.Map.timeStamp,
+	            		nonceStr: parRes.Map.nonceStr,
+	            		package: parRes.Map.package,
+	            		signType: parRes.Map.signType, 
+	            		paySign: parRes.Map.paySign,
 	            		success: function (res) {
 	            			wx.showToast({
 	            				title: '支付成功',
@@ -237,14 +234,13 @@
 		},
 		mounted(){
 			let that=this
-			that.goodDetail = store.state.goodDetail
-			that.userInfo = store.state.userInfo
-		},
-		
-		onLoad(options){
-			// 1为普通订单2为预约订单
 			this.useBanlan=0
-			this.orderType=options.orderType
+			that.goodDetail = store.state.goodDetail
+			that.orderType=that.$root.$mp.query.orderType;
+			that.userInfo = store.state.userInfo
+			if(that.userInfo.distributorStatus==1){
+				that.distribInfo=store.state.distribInfo
+			}
 		}
 	}
 </script>

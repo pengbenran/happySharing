@@ -18,6 +18,14 @@ export function formatTime (dates) {
 
   return `${t1} ${t2}`
 }
+ export function accAdd(arg1, arg2) { 
+    var r1, r2, m, n; 
+    try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 } 
+    try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 } 
+    m = Math.pow(10, Math.max(r1, r2)); 
+    n = (r1 >= r2) ? r1 : r2; 
+    return ((arg1 * m + arg2 * m) / m).toFixed(n); 
+  }
 export function accSub(arg1, arg2) { 
     var r1, r2, m, n; 
     try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 } 
@@ -51,10 +59,10 @@ export function accSub(arg1, arg2) {
         success: function (res) {
           if (res.code) {
             Api.getCode(res.code).then(function(memberRes){
-              wx.setStorageSync('needLoad',false)  
-              if(memberRes.code!=500){
-                store.commit("storeUserInfo",memberRes.memberDo)         
-              }
+               if(memberRes.memberEntity.distributorStatus==1){
+                  store.commit("storeDistribInfo",memberRes.distributorInfo)
+                }
+                store.commit("storeUserInfo",memberRes.memberEntity)
             })
           }
         }
@@ -98,6 +106,7 @@ export default {
   formatNumber,
   formatTime,
   accSub,
+  accAdd,
   getImageInfo,
   updateUserInfo
 }

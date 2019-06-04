@@ -78,34 +78,34 @@
 				}	
 				// that.bookList=bookGoodRes.rows
 			},
-			getbannerMessage(typeId){
+			getbannerMessage(){
 				// 获取地区分类下的广告
 				let that=this
-				Api.getTypeImg(4,typeId).then(function(typeImgRes){
-					that.bannerImg=typeImgRes.data.imgs
-				})
-				
+				kindApi.getbannerAndMessage().then(function(bannerAndMessageRes){
+					that.bannerImg=bannerAndMessageRes.indexBanner
+				})	
 			},
            async getKindGood(pageNum,pageSize,goodCatId){
 				let that=this
-				console.log(that.hasMore[that.timeindex])
 				if(that.hasMore[that.timeindex]){
 					let params={}
 					wx.showLoading({
 						title: '加载中',
 					})
-					params.goodCatId=goodCatId
-					let goodKindRes=await Api.getkindGood(pageNum,pageSize,params)
-					goodKindRes.rows.map(item=>{
+					params.catId=goodCatId
+					params.page=pageNum
+					params.limit=pageSize
+					let goodKindRes=await Api.getRegionGoods(params)
+					goodKindRes.offerGood.rows.map(item=>{
 						item.saveMoney=util.accSub(item.showPrice,item.price)	
 					})
 					wx.hideLoading();
 
-					if(goodKindRes.rows.length<pageSize){
+					if(goodKindRes.offerGood.rows.length<pageSize){
 						that.hasMore[that.timeindex]=false
 					}
 					
-					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(goodKindRes.rows)
+					that.bookList[that.timeindex]=that.bookList[that.timeindex].concat(goodKindRes.offerGood.rows)
 
 				}
 				else{
@@ -127,9 +127,9 @@
 		async onLoad(options) {
 			let that=this
 			let params={}
-			params.parentId=options.parentId
-			that.getbannerMessage(options.parentId)
-			let childKindRes=await Api.getChild(params)
+			params.catId=options.parentId
+			that.getbannerMessage()
+			let childKindRes=await Api.getGoodCart(params)
 			if(childKindRes.goodCats.length>0){
 				that.kindItem=childKindRes.goodCats
 				for(var i in that.kindItem){
@@ -137,7 +137,7 @@
 					that.bookList[i]=[]
 					that.nowPage[i]=1
 				}
-				that.goodCatId=that.kindItem[0].id
+				that.goodCatId=that.kindItem[0].catId
 				that.isLoading = true;
 				that.getKindGood(that.nowPage[0],3,that.goodCatId)
 			}else{

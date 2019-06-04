@@ -5,241 +5,133 @@
 			<div class="img"><img :src="userInfo.face" /></div>
 			<div class="cant">
 				<span>{{userInfo.name}}</span>
-				<span>ID : {{userInfo.id}}</span>
+				<span>ID : {{userInfo.memberId}}</span>
 			</div>
 
 		</div>
-		<!--切换-->
-		<div class="switchs">
-			<div class="switchs-li" v-for="item in switchs">
-				<span @click="tab(index)" :class="index===curr?'on':''">{{item.tab}}</span>
-			</div>
-		</div>
-		<!--会员队友-->
-		<div class="tamemate" v-if="isO">
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="showTotal">
-					<span :class=" isIocn?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xeb2b;</span>
-					<span class="fl">全部会员</span>
-					<span class="fr">{{memberCount}}人</span>
-				</div>
-				<div class="data" v-if="isTotal">
-					<div class="data-li clr" v-for="(item1,index) in memberTotaList">
-						<div class="img fl"><img :src="item1.face" /></div>
-						<div class="name fl">
-							<span>{{item1.name}}</span>
-							<span>消费金额： {{item1.consumeAmount}}</span>
-						</div>
-						<div class="day fr">{{item1.time}}</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="tamemate-li" v-for="(memberLvitem,memberLvindex) in memberLvDOList" :key="memberLvitem.id" :index="memberLvindex">
-				<div class="tamemate-tit clr" @click="showList(memberLvindex)">
-					<span :class="memberLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">{{memberLvitem.name}}</span>
-					<span class="fr">{{memberLvitem.lvCount}}人</span>
-				</div>
-				<div class="data" v-if="memberLvitem.isSelect">
-					<div class="data-li clr" v-for="(item,index) in memberLvitem.list">
-						<div class="img fl"><img :src="item.face" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额：{{item.consumeAmount}}</span>
-						</div>
-						<div class="day fr">{{item.time}}</div>
-					</div>
-				</div>
-			</div>
-
-		</div>
-
-		<!--推荐师队友-->
-		<div class="tamemate" v-if="isR">
-			<div class="tamemate-li">
-				<div class="tamemate-tit clr" @click="showTotal1">
-					<span :class="isIocn1?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span style="color: #2bc24b;" class="iconfont fl">&#xeb2b;</span>
-					<span class="fl">全部推荐师</span>
-					<span class="fr">{{distribeCount}}人</span>
-				</div>
-				<div class="data" v-if="isTotal1">
-					<div class="data-li clr" v-for="(item1,index) in DistribeTotalList">
-						<div class="img fl"><img :src="item1.face" /></div>
-						<div class="name fl">
-							<span>{{item1.name}}</span>
-							<span>消费金额： {{item1.consumeAmount}}</span>
-						</div>
-						<div class="day fr">{{item1.time}}</div>
-					</div>
-				</div>
-			</div>
-			<div class="tamemate-li" v-for="(distribeLvitem,distribeLvindex) in distribeLvDOList" :key="distribeLvitem.id" :index="distribeLvindex">
-				<div class="tamemate-tit clr" @click="showList1(distribeLvindex)">
-					<span :class=" distribeLvitem.isSelect?'icon':''" class="iconfont fl">&#xe65c;</span>
-					<span class="iconfont fl">&#xe608;</span>
-					<span class="fl">{{distribeLvitem.name}}</span>
-					<span class="fr">{{distribeLvitem.lvCount}}人</span>
-				</div>
-				<div class="data">
-					<div class="data-li clr" v-for="(item,index) in distribeLvitem.list" v-if="distribeLvitem.isSelect">
-						<div class="img fl"><img :src="item.face" /></div>
-						<div class="name fl">
-							<span>{{item.name}}</span>
-							<span>消费金额：{{item.consumeAmount}}</span>
-						</div>
-						<div class="day fr">{{item.time}}</div>
-					</div>
+		<div class="recommend-list">
+			<div class="recommend-list-li" v-for="(item,index) in recommendList" @click="listTab(index)" :class="listcurr==index?'list-on':''">
+				<div class="name">
+					{{item.name}}
 				</div>
 			</div>
 		</div>
+		<swiper style="height:100vh" duration='350' :current="listcurr" @change="changeTab">
+			<blockquote v-for="(item,index) in recommendList" :key="item" :index="index">
+				<swiper-item style="overflow: scroll;">
+					<div v-if="item.total!==0" class="list">
+						<div class="tatil">{{item.total}}人</div>
+						<div class="list-li" v-for="(itemc,ind) in item.options" :key="itemc">
+							<div class="left">
+								<div class="img"><img :src="itemc.face" /></div>
+								<div class="name">
+									<p>{{itemc.memberName}}</p>
+									<p>消耗积分 : {{itemc.consumePoint}}</p>
+								</div>
+							</div>
+							<div class="right">{{itemc.boundTime}}</div>
+						</div>
+					</div>
+					<!--空-->
+					<div v-if="item.total==0" class="kong">
+						<div class="text">暂无队友，快去邀请吧~</div>
+						<div class="btn">去邀请</div>
+					</div>
+
+				</swiper-item>
+			</blockquote>
+		</swiper>
 	</div>
 </template>
 <script>
-	import Api from "@/api/distribe";
+	import API_D from '@/api/distribe'
+	import API_M from '@/api/userinfo'
 	import store from '@/store/store'
 	export default {
 		data() {
 			return {
-				isTotal: false,
-				isIocn: false,
-				isTotal1: false,
-				isIocn1: false,
-				isO: true,
-				isR: false,
-				curr: 0,
-				aaa: [],
-				distribeLvDOList: [],
-				distribeCount: 0,
-				memberCount: 0,
-				memberLvDOList: [],
-				memberTotaList: [],
-				DistribeTotalList: [],
-				config: {},
-				userInfo: {},
-				switchs: [{
-						tab: "会员队友"
-					},
-					{
-						tab: "推荐师队友"
-					}
-				]
+				listcurr: 0,
+				recommendList: [],
+				userInfo:{}
 			};
 		},
 		methods: {
-			tab(index) {
-				let that=this
-				that.curr = index
-				if(index == 0) {
-					that.isO = true;
-					that.isR = false;
-				}
-				if(index == 1) {
-					that.isO = false;
-					that.isR = true;
-					that.getDistribe()
-				}
+			listTab(e) {
+				this.listcurr = e
 			},
-			async getmemberList(){
+			changeTab(e) {
 				let that = this
-				let params = {}
-				params.whetherDistribe = 0
-				params.tjUnionid = that.userInfo.unionid
-				let myTeamRes=await Api.myTeamList(params)
-				that.memberLvDOList.map((item)=>{
-					let lvId=item.lvId
-					let list=myTeamRes.rows.filter(item=>{
-						if(item.lvId==lvId){
-							return item
-						} 
-					})
-					item.list=list
-					return item
-				})
-				that.memberTotaList = myTeamRes.rows
+				that.listcurr = e.mp.detail.current
+				this.recommendList[that.listcurr].type == 1 ?
+						this.GetList(that.listcurr,{tjUnionid:this.userInfo.unionid,lvId:this.recommendList[that.listcurr].id}):
+						this.GetList(that.listcurr,{tjUnionid:this.userInfo.unionid,distributorLvId:this.recommendList[that.listcurr].id,distributorStatus:1})
 			},
-			async getDistribe(){
-				let that = this
-				let params = {}
-				params.column30 = 1
-				params.tjUnionid = that.userInfo.unionid
-				let distribeRes=await Api.myTeamList(params)
-				that.distribeLvDOList.map((item)=>{
-					let id=item.id
-					let list=distribeRes.rows.filter(item=>{
-						if(item.whetherDistribe==id){
-							return item
-						} 
-					})
-					item.list=list
-					return item
-				})
-				that.DistribeTotalList = distribeRes.rows
-			},
-			//点击显示 会员队友
-			showTotal(index) {
-				let that=this
-				that.isTotal = !that.isTotal
-				that.isIocn = !that.isIocn	
-				that.memberLvDOList.map(item=>{
-					item.isSelect=false
-				})		
-			},
-			showList(memberLvindex) {
+			//拿到所有会员等级
+			async GetMenberLv(){
 				let that = this;
-				that.isTotal = false
-				that.isIocn = false	
-				that.memberLvDOList.map(item=>{
-					item.isSelect=false
-					return item
+				let arr = []
+				let res = await API_M.GetMenberLvData().catch(err => {
+					console.log("报错的数据",err)
 				})
-				that.memberLvDOList[memberLvindex].isSelect=true		
+				if(res.code == 0){
+						// that.recommendList = res.lvs
+						res.lvs.map(Mres => {
+						   let _Data = {}
+						   _Data.name = Mres.name;
+						   _Data.id = Mres.lvId;
+						   _Data.type = 1;
+						   _Data.options = [];
+						   _Data.total = 0;
+						   arr.push(_Data)
+						})
+						that.recommendList = that.recommendList.concat(arr)
+				}
 			},
 
-			//			点击显示 推荐师队友
-			showTotal1(index) {
-				let that=this
-				that.isTotal1 = !that.isTotal1
-				that.isIocn1 = !that.isIocn1
-				that.distribeLvDOList.map(item=>{
-					item.isSelect=false
-				})
-			},
-			showList1(distribeLvindex) {
+			//获取分享师的等级
+			async GetDistributor(){
 				let that = this;
-				that.isTotal1 = false
-				that.isIocn1 = false	
-				that.distribeLvDOList.map(item=>{
-					item.isSelect=false
+				let arr = []
+				let res = await API_D.GetDistributorData().catch(err => {
+					console.log("报错的数据",err)
 				})
-				that.distribeLvDOList[distribeLvindex].isSelect=true
+				if(res.code == 0){
+						res.distributorLvs.map(Mres => {
+							let _Data = {}
+						   _Data.name = Mres.name;
+						   _Data.id = Mres.distributorLvId;
+						   _Data.type = 2;
+						   _Data.options = [];
+						   _Data.total = 0;
+						   arr.push(_Data)
+						})
+						that.recommendList = that.recommendList.concat(arr)
+				}
 			},
 
+			GetList(index,data){
+				let that = this;
+				API_M.GetLvDtaLits(data).then(res => {
+					if(res.code == 0){
+						that.recommendList[index].options = res.page.rows
+						that.recommendList[index].total =  res.page.total
+					}
+				}).catch(err => {
+				   
+				})
+			},
 		},
-		async mounted() {
+		async onLoad() {
 			let that = this
-			let params = {}
-			that.userInfo = store.state.userInfo
-			params.unionid = that.userInfo.unionid
-			let memberRes=await Api.myTeamIndex(params)
-			if(memberRes.code==0){
-				memberRes.data.distribeLvDOList.map(item => {
-					item.isSelect = false
-					return item
-				})
-				memberRes.data.memberLvDOList.map(item => {
-					item.isSelect = false
-					return item
-				})
-				that.distribeLvDOList = memberRes.data.distribeLvDOList
-				that.distribeCount = memberRes.data.distribeCount
-				that.memberLvDOList = memberRes.data.memberLvDOList
-				that.memberCount = memberRes.data.memberCount
-			}
-			that.getmemberList()
+			that.recommendList = [];
+			that.userInfo=store.state.userInfo
+			//重置
+			that.listcurr = 0
+			await that.GetMenberLv();
+			await that.GetDistributor();
+			this.recommendList[0].type == 1 ?
+			this.GetList(0,{tjUnionid:this.userInfo.unionid,lvId:this.recommendList[0].id}):
+			this.GetList(0,{tjUnionid:this.userInfo.unionid,distributorLvId:this.recommendList[0].id,distributorStatus:1})
 		},
 
 	};
@@ -289,138 +181,115 @@
 			}
 		}
 	}
-	/*切换*/
+	/*空*/
+.kong{
+	margin-top: 50px;
+	line-height: 1;
+	.img{
+		width: 191px;
+		height: 78px;
+		margin: 0 auto;
+	}
+	.text{
+		font-size: 17px;
+		color: #333333;
+		text-align: center;
+		padding: 35px 0 30px;
+	}
+	.btn{
+		width: 80px;
+		height: 33px;
+		border: 1px solid;
+		border-radius: 17px;
+		text-align: center;
+		margin: 0 auto;
+		color: #32a1ff;
+		font-size: 14px;
+		font-weight: bold;
+		line-height: 33px;
+	}
+}
+	swiper-item {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 10px 12px 10px 12px;
+	}
 	
-	.switchs {
+	.recommend-list {
+		background: #FFFFFF;
+		height: 49px;
 		width: 100%;
 		display: flex;
-		border-bottom: 1px solid #DEDEDE;
-		justify-content: space-between;
-		.switchs-li {
+		justify-content: space-around;
+		z-index: 99;
+		.recommend-list-li {
+			height: 49px;
+			line-height: 49px;
+			position: relative;
+			display: block;
+			text-align: center;
 			span {
-				display: block;
-				color: #666666;
+				display: inline-block;
+			}
+			.name {
+				transition: all 0.5s;
 				font-size: 14px;
-				height: 47px;
-				line-height: 47px;
+				color: #333333;
+				display: inline-block;
+				height: 30px;
+				border-radius: 3px;
+				padding: 0 2px;
+				border-bottom: 6px solid transparent;
 			}
-			&:nth-child(1) {
-				span {
-					margin-left: 65px;
-				}
-			}
-			&:nth-child(2) {
-				span {
-					margin-right: 65px;
-				}
-			}
-			.on {
-				color: #32a1ff;
-				border-bottom: 2px solid #32a1ff;
+		}
+		.list-on {
+			.name {
+				transition: all 0.5s;
+				border-bottom: 6px solid #32a1ff;
+				font-weight: bold;
 			}
 		}
 	}
-	/*会员*/
 	
-	.tamemate {
-		.tamemate-li {
-			.tamemate-tit {
-				width: 100%;
-				height: 54px;
-				padding: 0 20px 0 12px;
-				box-sizing: border-box;
-				line-height: 54px;
-				span {
-					display: block;
-					&:nth-child(1) {
-						color: #666666;
-					}
-					&:nth-child(2) {
-						font-size: 30px;
-						margin-left: 8px;
-					}
-					&:nth-child(3) {
-						color: #111111;
-						font-size: 14px;
-						margin-left: 6px;
-					}
-					&:nth-child(4) {
-						color: #999999;
-						font-size: 12px;
-					}
-				}
-				.icon {
-					transform: rotate(90deg);
-				}
-			}
-			&:nth-child(1) {
-				.tamemate-tit {
-					span {
-						&:nth-child(2) {
-							color: #0a81f9;
-						}
-					}
-				}
-			}
+	.list {
+		.tatil {
+			font-size: 33px;
+			color: #999999;
+			font-weight: bold;
+		}
+		.list-li {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px solid #DEDEDE;
+			padding: 12px 0;
 			&:nth-child(2) {
-				.tamemate-tit {
-					span {
+				padding: 30px 0 12px 0;
+			}
+			.left {
+				display: flex;
+				align-items: center;
+				.img {
+					width: 53px;
+					height: 53px;
+					border-radius: 50%;
+					overflow: hidden;
+				}
+				.name {
+					margin-left: 11px;
+					font-size: 17px;
+					color: #333333;
+					p {
 						&:nth-child(2) {
-							color: #ffa800;
+							font-size: 14px;
+							color: #999999;
 						}
 					}
 				}
 			}
-			&:nth-child(3) {
-				.tamemate-tit {
-					span {
-						&:nth-child(2) {
-							color: #2b92fa;
-						}
-					}
-				}
-			}
-			&:nth-child(4) {
-				.tamemate-tit {
-					span {
-						&:nth-child(2) {
-							color: #ff5959;
-						}
-					}
-				}
-			}
-			.data {
-				padding: 0px 20px 0px 12px;
-				box-sizing: border-box;
-				.data-li {
-					padding: 12px 0;
-					border-bottom: 1px solid #DEDEDE;
-					.img {
-						width: 44px;
-						height: 44px;
-						border-radius: 50%;
-						overflow: hidden;
-					}
-					.name {
-						margin-left: 11px;
-						span {
-							display: block;
-							&:nth-child(1) {
-								color: #111111;
-								font-size: 16px;
-							}
-							&:nth-child(2) {
-								color: #999999;
-								font-size: 12px;
-							}
-						}
-					}
-					.day {
-						color: #999999;
-						font-size: 11px;
-						line-height: 44px;
-					}
-				}
+			.right {
+				font-size: 11px;
+				color: 666666;
 			}
 		}
 	}

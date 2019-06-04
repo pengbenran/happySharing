@@ -25,6 +25,7 @@
 	import Api from '@/api/goods'
 	import nomoreTip from "@/components/nomoreTip"
 	import loading from '@/components/loading'
+	import util from '@/utils/index'
 	export default {
 		data() {
 			return {
@@ -52,14 +53,19 @@
 				let that = this
 				if(that.hasMore) {
 					let params = {};					
-					params.regionId=that.regionId;
-					params.goodCatId=that.goodCatId;
-					let discount = await Api.getRegionKindGoods(pageNum,pageSize,params)
+					params.region=that.regionId;
+					params.catId=that.goodCatId;
+					params.page=pageNum
+					params.limit=pageSize
+					let discount = await Api.getRegionKindGoods(params)
 					wx.hideLoading();
-					if(discount.rows.length < pageSize) { 
+					if(discount.page.rows.length < pageSize) { 
 						that.hasMore = false
 					}
-					that.discount = that.discount.concat(discount.rows)
+					discount.page.rows.map(item=>{
+						item.saveMoney=util.accSub(item.showPrice,item.price)	
+					})
+					that.discount = that.discount.concat(discount.page.rows)
 				}
 				else{
 					wx.showToast({

@@ -46,14 +46,6 @@ export default {
                     that.isSubmit=false
                     that.isMember=false
                     that.userLogin()
-                    if(wx.getStorageSync('distribeId')==null){
-
-                    }
-                    else{
-                      // Api.promotion(res.data.memberId,wx.getStorageSync('distribeId')).then(function(res){
-                       
-                      // })
-                    }
                   }
                 }) 
               }
@@ -71,11 +63,11 @@ export default {
           if (res.code) {
             Api.getCode(res.code).then(function(memberRes){
               if(memberRes.code!=500){
-                // wx.setStorageSync('Token','eyJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0VXNlcklkIjoiIiwiY29udGV4dE5hbWUiOiIiLCJyZW5ld2FsVGltZSI6MTU0OTI3NTAwMzE1MywiZXhwIjoxNTQ5ODIyMDA1fQ.i9Snkbj1FZp940_IShxjIjMhj6cvpSeUB0ajaQtGvcQ')
                 wx.showTabBar({})
-                wx.setStorageSync('memberId', memberRes.memberDo.id)
-                store.commit("storeUserInfo",memberRes.memberDo)
-                store.commit("storeConfig",memberRes.config)
+                if(memberRes.memberEntity.distributorStatus==1){
+                  store.commit("storeDistribInfo",memberRes.distributorInfo)
+                }
+                store.commit("storeUserInfo",memberRes.memberEntity)
                 that.$emit('getGoodsInfo')
               }
               else {

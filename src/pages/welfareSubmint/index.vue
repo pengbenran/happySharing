@@ -64,7 +64,6 @@
 			goodslist,
 			loading
 		},
-
 		data() {
 			return {
 				isLoading:false,
@@ -72,7 +71,7 @@
 				isSubmit:false,
 				goodDetail:{},
 				userInfo:{},
-				useBanlan:0
+				orderDO:{}
 			}
 		},
 		computed: {
@@ -89,7 +88,7 @@
 							if (res.confirm) {
 								that.savaPointOrder()
 							} else if (res.cancel) {
-							console.log('用户点击取消')
+							    console.log('用户点击取消')
 							}
 						}
 					})
@@ -117,91 +116,44 @@
 					lib.showToast('抱歉网络开了小差',"none")
 				})
 				if(res.code == 0){
-					that.GetQRCode(res.orderDO); //生成二维码
+					that.orderDO = res.OrderEntity
+					that.ponitOrderSuccess(); //支付成功
 				}else{
 			     	lib.showToast('抱歉网络开了小差',"none")
 				}
 			},
-			
-			//生成二维码
-			async GetQRCode(orderDO){
-				let that = this;
-				wx.showLoading({title: '加载中'})
-				let QRparams={}
-				QRparams.params=orderDO.orderId
-				QRparams.page='pages/order-cancel/main'
-				let getQRCode=await Api_order.getQRCode(QRparams).catch(err => {
-					lib.showToast('抱歉网络开了小差',"none")
-				})
-				if(getQRCode.code == 0){
-				   let data = {}
-				   data.orderId = orderDO.orderId;
-				   data.orderCode = getQRCode.url
-				   that.ponitOrderSuccess(data); //支付成功
-				}else{
-					lib.showToast('抱歉未生成！',"none")
-				}
-			},
-
 			//支付成功
-			async ponitOrderSuccess(params){
+			async ponitOrderSuccess(){
 				let that = this;
+				let params={}
+				console.log(that.orderDO.orderId);
+				params.orderId=that.orderDO.orderId
 				wx.showLoading({title: '加载中'})
 				let res = await Api.submint_OrderSuccess(params).catch(err => {
 					lib.showToast('抱歉网络开了小差',"none")
 				})
 				if(res.code == 0){
-                    that.delete_point(); //扣除用户的积分
+						util.updateUserInfo()
+						// lib.showToast('你好兑换成功',"success")
+						wx.redirectTo({
+							url: '../order-detail/main?orderId='+that.orderDO.orderId
+						})
 				}else{
-					lib.showToast('抱歉支付失败！',"none")
+						 lib.showToast('你好兑换失败',"success")
 				}
 			},
 
-
-            //扣除积分
-            delete_point(){
-				let that = this;
-				wx.hideLoading()
-                let data = {
-                    unionId:that.userInfo.unionid,
-                    point:that.goodDetail.buyIntegral
-                }
-                Api.submit_ShopOrder(data).then(res => {
-					if(res.code == 0){
-						util.updateUserInfo()
-						lib.showToast('你好兑换成功',"success")
-						wx.switchTab({
-						     url: '../order/main'
-						})
-					}else{
-						 lib.showToast('你好兑换失败',"success")
-					}
-                }).catch(err => {
-                  lib.showToast('抱歉网络开了小差',"none")
-                })
-            },
 	
 
 		},
 		mounted(){
 			let that=this
             that.userInfo = store.state.userInfo
+            console.log(that.userInfo);
 		},
-		
 		onLoad(options){
-			//1为普通订单2为预约订单
-			this.useBanlan=0
 			this.goodDetail = JSON.parse(options.goodDetail)
 			this.isLoading = true;
-		},
-		
-		onUnload(){
-			this.isLoading=false;
-			this.isChoose=true;
-			this.isSubmit=false;
-			this.goodDetail={};
-			this.userInfo={};
-			this.useBanlan=0;
 		},
 	}
 </script>

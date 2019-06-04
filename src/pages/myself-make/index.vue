@@ -18,7 +18,8 @@
 			return {
 				painting:{},
 				shareImage:'',
-				userInfo:{}
+				userInfo:{},
+				distribInfo:{}
 			};
 		},
 		components:{
@@ -27,13 +28,13 @@
 	
 		methods: {
 			// 生成二维码
-			async getErCode(unionid,inviteCode){
+			async getErCode(unionid){
 				let that=this
 				let params={}
-				params.params=store.state.userInfo.unionid+','+inviteCode+','+3
+				params.params=`${unionid},0,2`
 				let QrcodeRes=await Api.GetQrcode(params)
 				if(QrcodeRes.code==0){
-					that.eventDraw(QrcodeRes.url)
+					that.eventDraw(QrcodeRes.quick)
 				}
 				
 			},
@@ -43,10 +44,7 @@
 			   	wx.showLoading({
 			   		title:'推广码绘制中'
 			   	})	
-			   	let ImgArr = []
-			   	ImgArr[0]=store.state.config.distribePoster
-			   	ImgArr[1]=codeUrl
-			   	ImgArr[2]=that.userInfo.face
+			   
 			   	that.painting={
 			   		width: 290,
 			   		height: 413,
@@ -63,7 +61,7 @@
 			   		},
 			   		{
 			   			type: 'image',
-			   			url: ImgArr[0],
+			   			url:store.state.config.distributorPoster,
 			   			top: 0,
 			   			left: 0,
 			   			width: 290,
@@ -71,7 +69,7 @@
 			   		},
 			   		{
 			   			type: 'image',
-			   			url: ImgArr[2],
+			   			url: that.userInfo.face,
 			   			top: 320,
 			   			left: 30,
 			   			width: 50,
@@ -80,7 +78,7 @@
 			   		},
 			   		{
 			   			type: 'image',
-			   			url: ImgArr[1],
+			   			url: codeUrl,
 			   			top: 320,
 			   			left: 170,
 			   			width: 90,
@@ -100,7 +98,7 @@
 			   			isCenter:false
 			   		},{
 			   			type: 'text',
-			   			content:that.userInfo.dlvname,
+			   			content:that.distribInfo.lvName,
 			   			fontSize: 13,
 			   			color: '#666',
 			   			textAlign: 'left',
@@ -157,7 +155,10 @@
 		onLoad(options){
 			let that=this
 			that.userInfo = store.state.userInfo
-			that.getErCode(that.userInfo.unionid,options.inviteCode)
+			if(that.userInfo.distributorStatus==1){
+				that.distribInfo=store.state.distribInfo
+			}
+			that.getErCode(that.userInfo.unionid)
 		}
 	};
 </script>

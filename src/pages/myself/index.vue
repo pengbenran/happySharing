@@ -6,7 +6,7 @@
 				<div class="img"><img :src="userInfo.face" /></div>
 				<div class="cant">
 					<span>{{userInfo.name}}</span>
-					<span>ID : {{userInfo.id}}</span>
+					<span>ID : {{userInfo.memberId}}</span>
 				</div>
 				<div class="service">
 					<button  open-type="contact" session-from="weapp">
@@ -23,22 +23,22 @@
 						<div class="wrap">
 							<!--会员-->
 							<div class="member">
-								<div class="top">{{userInfo.lvname}}</div>
+								<div class="top">{{userInfo.lvName}}</div>
 								<div class="bottom">
 									<div><span>{{totalPoint}}</span><span>累计积分</span></div>
-									<div><span>{{userInfo.point}}</span><span>可用积分</span></div>
+									<div><span>{{point}}</span><span>可用积分</span></div>
 								</div>
 							</div>
 							<!--已开通推荐师-->
-							<div class="recommended" v-if="userInfo.whetherDistribe!=0">
-								<div class="top">{{userInfo.dlvname}}</div>
+							<div class="recommended" v-if="userInfo.distributorStatus==1">
+								<div class="top">{{distribInfo.lvName}}</div>
 								<div class="bottom" @click="jumpUrl('../myself-detail/main')">
-									<div><span>{{userInfo.total}}</span><span>累计佣金</span></div>
-									<div><span>{{userInfo.balance}}</span><span>可用佣金</span></div>
+									<div><span>{{total}}</span><span>累计佣金</span></div>
+									<div><span>{{balance}}</span><span>可用佣金</span></div>
 								</div>
 							</div>
 							<!--未开通推荐师-->
-							<div class="recommended" v-if="userInfo.whetherDistribe==0&&config.WhetherRecruit=='open'">
+							<div class="recommended" v-else>
 								<div class="top">开通推荐师</div>
 								<div class="bottom1">
 									<navigator class="hear" url="../myself-dredge/main" hover-class="navigator-hover">
@@ -68,14 +68,11 @@
 <script>
 import distribeApi from '@/api/distribe'
 import store from '@/store/store'
-import util from '@/utils/index'
+import utils from '@/utils/index'
 	export default {
 		data() {
 			return {
-				list: [{
-					name: "我的预约",
-					ourl: "../myself-invite/main"
-				},
+				list: [
 				{
 					name: "我的团队",
 					ourl: "../myself-team/main"
@@ -85,13 +82,14 @@ import util from '@/utils/index'
 					ourl: "../myself-make/main" 
 				},
 				{
-					name: "个人资料",
-					ourl: "../myself-data/main"
+					name: "我的特权",
+					ourl: "../myself-detail/main"
 				},
 				],
 				config:{},
 				userInfo:{},
 				canSubmit:true,
+				distribInfo:{}
 			}
 		},
 		components: {
@@ -99,18 +97,44 @@ import util from '@/utils/index'
 		},
 		computed:{
 			totalPoint(){
-				let that=this 
-				return that.userInfo.point*1+that.userInfo.consumePoint*1
+				let that=this
+				return utils.accAdd(store.state.userInfo.point,store.state.userInfo.consumePoint)
+			},
+			consumePoint(){
+				let that=this
+				return store.state.userInfo.consumePoint
+			},
+			point(){
+				let that=this
+				return store.state.userInfo.point
+			},
+			total(){
+				let that=this
+				if(store.state.userInfo.distributorStatus==1){
+					return store.state.distribInfo.total
+				}
+				else{
+					return 0
+				}				
+			},
+			balance(){
+				let that=this
+				if(store.state.userInfo.distributorStatus==1){
+					return store.state.distribInfo.balance
+				}
+				else{
+					return 0
+				}				
 			}
 		},
 		methods: {
 			async jumpUrl(url){
 				let that=this
-				if(url=='../myself-data/main'){
-					 wx.navigateTo({ url: '../myself-data/main?memberId='+that.userInfo.id});
+				if(url=='../myself-invite/main'){
+					wx.navigateTo({ url:url});
 				}
-				else if(url=='../myself-team/main'){
-					if(that.userInfo.whetherDistribe==0){
+				else{
+					if(that.userInfo.distributorStatus==2){
 						wx.showToast({
 							title:'该功能仅对推荐师开放',
 							icon:"none",
@@ -121,51 +145,14 @@ import util from '@/utils/index'
 						wx.navigateTo({ url:url});
 					}
 				}
-				else if(url=='../myself-make/main'){
-					if(that.userInfo.whetherDistribe==0){
-						wx.showToast({
-							title:'该功能仅对推荐师开放',
-							icon:"none",
-							duration:1500
-						})
-					}
-					else{
-						if(that.canSubmit){
-							that.canSubmit=false
-							let params={}
-							params.unionid=that.userInfo.unionid
-							let canGetCodeRes=await distribeApi.canGetCode(params)
-							that.canSubmit=true
-							if(canGetCodeRes.code==0){
-								if(canGetCodeRes.inviteCode==0){
-									wx.showToast({
-										title:'生成推荐码的数量达到上限',
-										icon:"none",
-										duration:1500
-									})
-								}
-								else{
-									wx.navigateTo({ url:'../myself-make/main?inviteCode='+canGetCodeRes.inviteCode});
-								}
-							}
-							else{
-								wx.showToast({
-									title:'网络错误',
-									icon:"none",
-									duration:1500
-								})
-							}
-						}
-					}
-				}
-				else{
- 				wx.navigateTo({ url:url});
-				}
 			}
 		},
 		onShow(){
 			let that = this
 			that.userInfo = store.state.userInfo
+			if(that.userInfo.distributorStatus==1){
+				that.distribInfo=store.state.distribInfo
+			}
 			that.config = store.state.config
 		},
 		onPullDownRefresh: function(){

@@ -11,7 +11,7 @@
 				<Banner :banner='bannerImg'></Banner>
 				<!--类目-->
 				<div class="cate centered">
-					<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.id,item.name)">
+					<div v-for="(item , index) in menuItem" :key="item.id" class="cate-li" @click="jumpAuroList(item.catId,item.name)">
 							<div class="img"><img :src="item.img" /></div>
 							<div class="name">{{item.name}}</div>
 					</div>
@@ -26,16 +26,17 @@
 				<!--超赞推荐-->
 				<div class="rec-wrap centered">
 					<div class="title ">超值优惠</div>
-					<div class="image  zanWarpimg">
+					<!-- <div class="image"><img :src="kindImg" /></div> -->
+				<!-- 	<div class="image  zanWarpimg">
 				       <swiper indicator-dots='true' autoplay='true'>
 							<swiper-item v-for="(item,index) in recommendimgs" :key="index">
 							<image :src="item" class="slide-image" mode='aspectFit'  />
 							</swiper-item>
 						</swiper>
-					</div>
+					</div> -->
 					<!--image end-->
 
-					<goodslist :catGoodRecommend='regionGoodRes'></goodslist>
+					<goodslist :catGoodRecommend='catGoodRecommend'></goodslist>
 					<nomoreTip v-if="!hasMore"></nomoreTip>
 					<!--goodslist end-->
 				</div>
@@ -63,7 +64,7 @@
 				regionId:'',
 				wid: '240px',
 				magleft: '10px',
-				regionGoodRes: [],
+				catGoodRecommend: [],
 				regionGoodRecommend:[],
 				bannerImg:[],
 				recommendimgs:[],
@@ -91,13 +92,18 @@
 				let that=this
 				if(that.hasMore){
 					let params={}
-					params.regionId=regionId
-					let regionGoodRes=await Api.getRegionGoods(pageNum,pageSize,params)
+					params.region=regionId
+					params.page=pageNum
+					params.limit=pageSize
+					let regionGoodRes=await Api.getRegionGood(params)
 					wx.hideLoading();
-					if(regionGoodRes.rows.length<pageSize){
+					if(regionGoodRes.recommendGood.rows.length<pageSize){
 						that.hasMore=false 
 					}
-					that.regionGoodRes=that.regionGoodRes.concat(regionGoodRes.rows)
+					that.catGoodRecommend=that.catGoodRecommend.concat(regionGoodRes.recommendGood.rows)
+					
+
+
 				}
 				else{
 					wx.showToast({
@@ -115,9 +121,8 @@
 		},
 		async onLoad(options) {
 			let that=this
-			that.regionGoodRes=[]
+			that.catGoodRecommend=[]
 			that.regionGoodRecommend=[]
-			that.bannerImg=[]
 		    that.recommendimgs=[]
 			that.nowPage=1
 			that.hasMore=true
@@ -127,43 +132,29 @@
 				title:options.regionname,		
 			})
 			// 获取地区分类下的广告
-			let typeImgRes=await Api.getTypeImg(2,options.regionId)
-			that.bannerImg=typeImgRes.data.imgs
-			that.recommendimgs = typeImgRes.data.recommendimgs
+			let regionImgParams={}
+			regionImgParams.id=options.regionId
+			let regionImgRes=await Api.getRegionImg(regionImgParams)
+			that.bannerImg=JSON.parse(regionImgRes.region.description) 
+			// that.recommendimgs=regionImgRes.region.value
 			//#endregion
 			// 获取地区分类下的商品分类
 			let GoodCatRes=await kindApi.getGoodCart()
 			that.menuItem=GoodCatRes.goodCats
 
-			 
 			that.getRegionGood(1,3,that.regionId)
 			// 获取地区分类下的商品(非推荐)
 			let params={}
-			params.regionId=options.regionId
+			params.region=options.regionId
 			//获取地区分类项的商品(推荐)
-			params.recommend=1
-			let regionGoodRecommendRes=await Api.getRegionGoods(1,6,params)
-			regionGoodRecommendRes.rows.map(item=>{
+			params.page=1
+			params.limit=6
+			let regionGoodRecommendRes=await Api.getRegionGoods(params)
+			regionGoodRecommendRes.offerGood.rows.map(item=>{
 				item.saveMoney=util.accSub(item.showPrice,item.price)	
 			})
-			that.regionGoodRecommend=regionGoodRecommendRes.rows
+			that.regionGoodRecommend=regionGoodRecommendRes.offerGood.rows
 			that.isLoading=true
-		},
-		onUnload(){
-			let that=this
-			that.displayType='flex'
-			that.menuItem= []
-			that.regionname=''
-			that.regionId=''
-			that.wid= '240px'
-			that.magleft= '10px'
-			that.regionGoodRes= []
-			that.regionGoodRecommend=[]
-			that.bannerImg=[]
-			that.recommendimgs=[]
-			that.nowPage=1
-			that.hasMore=true
-			that.isLoading=false
 		}
 	}
 </script>

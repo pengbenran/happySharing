@@ -1,34 +1,40 @@
 import * as API from './base'
 export default {
 	// 根据code判断是否是会员
-	getCode(code){		
-	 // return API.GetCode('https://nadou.guqinet.com/api/login/byCode',{code:code})
-	 return API.GetCode('http://192.168.0.114:8013/api/login/byCode',{code:code})
-
+	getCode(code){
+	 return API.GET('/api/member/getMemberinfo',{code:code})
 	},
 	// 获取用户信息并且注册会员  
-	weCatLogin(params){
-		return API.getLogin('http://192.168.0.114:8013/api/login/weChatLogin',params)
-		// return API.getLogin('https://nadou.guqinet.com/api/login/weChatLogin',params)
+	weCatLogin(params){	
+		return API.GET('/api/member/weChatLogin',params)
 	},
 	//获取商品分类 
 	getGoodCart(){
-		return API.GET('/api-good/api/goodCat')
+		return API.GET('/api/goodCat/twoCats')
 	},
 	// 获取地区分类
 	getRegin(){
-		return API.GET('/api-good/api/region')
+		return API.GET('/api/goodCat/region')
 	},
 	// 获取首页推荐商品
-	getRecommendGood(pageNum,pageSize){
-		return API.GET(`/api-good/api/good/index/${pageNum}/${pageSize}`)
+	getRecommendGood(params){
+		return API.GET(`/api/good/goods`,params)
 	},
     // 获取首页banner图和公告
     getbannerAndMessage(){
-    	return API.GET('/api-base/index/bannerAndMessage')
+    	return API.GET('/api/advertisement/getIndexImage')
     },
     // 获取根分类
     getRootKind(){
-    	return API.GET(`/api-good/api/goodCat/root`)
-    }
+    	return API.GET(`/api/goodCat/cats`)
+    },
+    // 获取小程序全局设置
+	getConfig(){
+		return API.GET('/api/member/getGlobalConfig')
+	},
+	// 获取单品秒杀商品
+	getseckill(params){
+		return API.GET('/api/good/seckill',params)
+	}
+	
 }

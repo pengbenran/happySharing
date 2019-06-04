@@ -9,7 +9,7 @@
 			<!--模块2-->
 			<div class="rec-li " >
 				<div class="rec-li-warp clr" @click="jumpShop">
-					<div class="img fl"><img :src="OrderInfo.thumbnail" /></div>
+					<div class="img fl"><img :src="OrderInfo.goodThumbnail" /></div>
 					<div class="rec-center fl">
 						<div class="tit fontHidden">{{OrderInfo.goodName}}</div>
 						<div class="name">{{OrderInfo.goodName}}</div>
@@ -34,15 +34,23 @@
 						<span>佣金抵扣: </span>
 						<span> ¥ {{OrderInfo.balance}}</span>
 					</div>	
-					<div class="price2" v-if="OrderInfo.orderType != 3">
-						<span>推荐师：</span>
+					<div class="price2">
+						<span>推荐师奖励：</span>
 						<span> ¥ {{OrderInfo.recommend}}</span>
 					</div>
-					<div class="price3">
+					<div class="price3" v-if="OrderInfo.orderType==4">
+						<span>订单积分:</span>
+						<span> {{OrderInfo.orderAmount}}积分</span>
+					</div>
+					<div class="price3" v-else>
 						<span>订单总价：</span>
 						<span> ¥ {{OrderInfo.orderAmount}}</span>
 					</div>
-					<div class="price4">
+					<div class="price4" v-if="OrderInfo.orderType==4">
+						<span>实付积分:</span>
+						<span>{{OrderInfo.needPayMoney}}积分</span>
+					</div>
+					<div class="price4" v-else>
 						<span>实付金额：</span>
 						<span> ¥ {{OrderInfo.needPayMoney}}</span>
 					</div>
@@ -51,11 +59,17 @@
 			<!--模板3-->
 			<div class="code">
 				<div class="code-center">
-					<div class="txt-img" v-if="OrderInfo.status!=3">
+					<div class="txt-img" v-if="OrderInfo.status==0">
+						<div class="img">订单待支付</div>
+					</div>
+					<div class="txt-img" v-if="OrderInfo.status==1">
 						<div class="txt">电子码</div>
 						<div class="img"><img :src="OrderInfo.orderCode" /></div>
 					</div>
-					<div class="txt-img" v-else>
+					<div class="txt-img" v-if="OrderInfo.status==2">
+						<div class="img">订单已核销</div>
+					</div>
+					<div class="txt-img" v-if="OrderInfo.status==3">
 						<div class="img">订单已过期</div>
 					</div>
 					<div class="number clr"> <span class="fl"> 订单编号：</span> <span class="fl">{{OrderInfo.orderId}}</span></div>
@@ -74,14 +88,14 @@
 						<span>下单时间:</span>
 						<span>{{OrderInfo.createTime}}</span>
 					</div>
-					<div  v-if="OrderInfo.orderType==2">
+					<div  v-if="OrderInfo.goodType==2">
 						<span>预约开始时间:</span>
-						<span v-if="OrderInfo.beginTime!=null">{{OrderInfo.beginTime}}</span>
+						<span v-if="OrderInfo.beginsTime!=null">{{OrderInfo.beginsTime}}</span>
 						<span v-else>暂未预约</span>
 					</div>
-					<div v-if="OrderInfo.orderType==2">
+					<div v-if="OrderInfo.goodType==2">
 						<span>预约结束时间:</span>
-						<span v-if="OrderInfo.endTime!=null">{{OrderInfo.endTime}}</span>
+						<span v-if="OrderInfo.endTime!=null">{{OrderInfo.endsTime}}</span>
 						<span v-else>暂未预约</span>
 					</div>
 				</div>
@@ -89,7 +103,7 @@
 
 			<!--按钮-->
 			<div class="dele">
-				<span v-if="OrderInfo.orderType==2&&OrderInfo.endTime==null" @click="showPicker">立即预约</span>
+				<span v-if="OrderInfo.goodType==2&&OrderInfo.endTime==null" @click="showPicker">立即预约</span>
 				<span @click='jumpHome' class="jumpHomebtn">回到首页</span>
 			</div>
 			<div style="margin-bottom:55px">
@@ -131,7 +145,6 @@
 	
 		methods:{
 			async showPicker() {
-				console.log(11111);
 				let that=this
 				that.mulLinkageTwoPicker=[]
 				await that.getGoodsInfo()	
@@ -141,27 +154,21 @@
 			onConfirm(e) {
     			let that=this
     			let goodBooksItem=that.goodBooks[e.index[0]]
-    			let dateTime=goodBooksItem.dateTime
-    			let endtime=e.label.split('-')[2]
-    			let begintime=e.label.split('-')[1]
-    			let endtimehour=endtime.split(':')[0]
-    			let endtimemintution=endtime.split(':')[1]
-    			let begintimehour=begintime.split(':')[0]
-    			let begintimemintution=begintime.split(':')[1]
-    			let begintimetap=begintimehour*60*60*1000+begintimemintution*60*1000+dateTime*1
-    			let endtimetap=endtimehour*60*60*1000+endtimemintution*60*1000+dateTime*1
+    			let goodBooksTime=JSON.parse(goodBooksItem.detail)
+    			let goodBooksTimeItem=goodBooksTime[e.index[1]]
     		    let appointmentParam={}
-    		    appointmentParam.beginTime=begintimetap
-				appointmentParam.endTime=endtimetap
+    		    let beginTime=goodBooksItem.dateTime.split(' ')[0]+' '+goodBooksTimeItem.startTime
+    		    let endTime=goodBooksItem.dateTime.split(' ')[0]+' '+goodBooksTimeItem.endTime
+    		    appointmentParam.beginTime=(new Date(beginTime)).getTime()
+				appointmentParam.endTime=(new Date(endTime)).getTime()
 				appointmentParam.index = e.value[1]
 				appointmentParam.orderId=that.orderId
 				appointmentParam.goodBookId = that.goodBooks[e.index[0]].id
-				appointmentParam.memberId=that.userInfo.id
-				appointmentParam.orderType=2
+				appointmentParam.memberId=store.state.userInfo.memberId
     		    API_ord.orderBook(appointmentParam).then(function(res){
     		    	if(res.code==0){
     		    		Lib.showToast('预约成功','success')
-    		    		that.getOnList()
+    		    		that.getOrderDetail(that.orderId)
     		    	}else{
     		    		Lib.showToast('预约失败','none')	
     		    	}
@@ -171,27 +178,22 @@
 				let that=this
 				let params={}  
 				params.goodId=that.OrderInfo.goodsId
-				if(that.whetherDistribe!=0){
-					params.memberLv=that.userInfo.whetherDistribe
-				}
-				let goodsDetailRes=await Api.getBookGoodDetail(params)
+				let goodsDetailRes=await Api.getBookTime(params)
 				if(goodsDetailRes.code==0){
-					that.goodsDetail=goodsDetailRes.good
-					that.goodBooks=goodsDetailRes.goodBooks
+					that.goodBooks=goodsDetailRes.books
 					let dateArr=[]
-					for(var i in goodsDetailRes.goodBooks){
+					for(var i in goodsDetailRes.books){
 						let dateArr={}
-						dateArr.label=that.timeFormat(goodsDetailRes.goodBooks[i].dateTime)
+						dateArr.label=goodsDetailRes.books[i].dateTime.split(' ')[0]
 						dateArr.value=i
 						dateArr.children=[]
-						let str=goodsDetailRes.goodBooks[i].detail
+						let str=goodsDetailRes.books[i].detail
 						let resArry=JSON.parse(str)
 						for(let j in resArry){
 							let multiArr={}
-							let resdataArry=resArry[j].split('/')
-							if(resdataArry[2]>0){
-								multiArr.label=resdataArry[1]
-								multiArr.value=resdataArry[0]
+							if(resArry[j].bookNum>0){
+								multiArr.label=resArry[j].startTime+'-'+resArry[j].endTime
+								multiArr.value=j
 								dateArr.children.push(multiArr)
 							}	
 						}
@@ -199,47 +201,43 @@
 					}
 				}
 			},
-            async getOnList(){
+			// 获取订单详情
+            async getOrderDetail(orderId){
 				let that = this;
-				let data = {orderId:that.orderId};
-				let res = await API_ord.getOrderList(data).catch(err => {
-					Lib.showToast('失败','loading')
-				});
-				if(res.code == 0){
-						if(res.pageUtils.rows[0].status == 0){
-                           res.pageUtils.rows[0].statusType = '待支付'
-						}else if (res.pageUtils.rows[0].status == 1) {
-							res.pageUtils.rows[0].statusType = '待核销'
-						}else if (res.pageUtils.rows[0].status == 2) {
-							res.pageUtils.rows[0].statusType = ' 已核销'
-						}else if (res.pageUtils.rows[0].status == 3) {
-							res.pageUtils.rows[0].statusType = '已取消'
+				let data = {orderId:orderId};
+				API_ord.getOrderDetail(data).then(function(res){
+					if(res.code == 0){	
+						if(res.orderEntity.status == 0){
+							res.orderEntity.statusType = '待支付'
+						}else if (res.orderEntity.status == 1) {
+							res.orderEntity.statusType = '待核销'
+						}else if (res.orderEntity.status == 2) {
+							res.orderEntity.statusType = ' 已核销'
+						}else if (res.orderEntity.status == 3) {
+							res.orderEntity.statusType = '已取消'
 						}
-					res.pageUtils.rows[0].createTime = Index_Lib.formatTime(res.pageUtils.rows[0].createTime)
-					if(res.pageUtils.rows[0].beginTime!=null&&res.pageUtils.rows[0].endTime!=null){
-						res.pageUtils.rows[0].beginTime=Index_Lib.formatTime(res.pageUtils.rows[0].beginTime)
-					    res.pageUtils.rows[0].endTime=Index_Lib.formatTime(res.pageUtils.rows[0].endTime)
-					}
-						
-					that.OrderInfo = res.pageUtils.rows[0]
-				};
+						res.orderEntity.createTime = Index_Lib.formatTime(res.orderEntity.createTime)
+						res.orderEntity.canUse=true
+						if(res.orderEntity.beginTime!=null&&res.orderEntity.endTime!=null){
+							res.orderEntity.beginsTime=Index_Lib.formatTime(res.orderEntity.beginTime)
+							res.orderEntity.endsTime=Index_Lib.formatTime(res.orderEntity.endTime)
+						}
+						// that.isLoading=true
+						that.OrderInfo = res.orderEntity
+					};
+				})
+			
 			},
 			jumpHome(){
 				wx.switchTab({
 					url:'../index/main'
 				})
 			},
-			timeFormat(timestamp){
-				var time = new Date(timestamp);
-				var month = time.getMonth()+1;
-    		    var date = time.getDate();
-    		    return `${month}月${date}日`
-    		}, 
 			jumpShop(){
 				let that = this;
 				if(that.OrderInfo.orderType == 1){//跳转到普通详情
 					wx.navigateTo({url:`../detail/main?goodsId=${that.OrderInfo.goodsId}`})
-				}else if(that.OrderInfo.orderType == 2){//跳转到预约详情
+				}else if(that.OrderInfo.orderType == 3){//跳转到预约详情
 					wx.navigateTo({url:`../appointmentDetail/main?goodsId=${that.OrderInfo.goodsId}`})
 				}else{
 					wx.navigateTo({//跳转到积分详情
@@ -248,12 +246,11 @@
 				}
 			},
 		},
-
-		onLoad(options){
-			 let that = this;
-			 that.userInfo=store.state.userInfo
-			 that.orderId = options.orderId;
-			 that.getOnList();
+		mounted(){
+			let that=this
+			that.isLoading=false
+			that.orderId = that.$root.$mp.query.orderId;
+			that.getOrderDetail(that.orderId)
 		},
 
 	}

@@ -11,18 +11,25 @@
 					</div>
 					<div class="desc fontHidden">{{goodsDetail.goodName}}</div>
 					<div class="Present-discounts-people clr">
-						<div class="Present fl">
-							<div class="left">
-								积分兑换: <span>{{goodsDetail.buyIntegral}}</span>
-							</div>
-							<div class="right">
-								库存：{{goodsDetail.inventory}}
-							</div>
+						<div class="preLeft">
+							<div class="Present fl">￥{{goodsDetail.price}}元</div>
+							<div class="discounts fl">优惠:{{discounts}}元</div>
 						</div>
 						<div class="preRight" v-if="Time">
 							<div class="time">{{TimeStr}}</div>
 						</div>
-						<!-- <div class="people fr">{{item.people}}</div> -->
+					</div>
+					<div class="original-sell clr">
+						<div class="original fl">原价:{{goodsDetail.showPrice}}元</div>
+						<div class="sell fr">已售:{{goodsDetail.sales}}件</div>
+					</div>
+					<div class="disribe clr">
+						<blockquote></blockquote>
+						<div class="sell fr">库存:{{goodsDetail.inventory}}</div>
+					</div>
+					<div class="phone clr">
+						<div class="phone-txt fl">商家热线 ：{{goodsDetail.shopPhone}}</div>
+						<div class="phone-img fr iconfont" @click='makePhone'>&#xe613;</div>
 					</div>
 				</div>
 	     	</div>
@@ -31,7 +38,6 @@
 				<span>商品详情</span>
 			</div>
             <div style="margin-bottom:55px"> <wxParse :content="goodsDetail.content" @preview="preview" @navigate="navigate" /></div>
-
 			<!--底下导航-->
 			<div class="nav">
 				<div class="index" @click="jumpIndex">
@@ -47,15 +53,12 @@
 					</button>
 				</div>
 				<div @click="jumpSaveOrder(index)" class="rush">
-					{{btnStr}}
+					立即兑换({{goodsDetail.buyIntegral}}积分)
 				</div>
-			</div>
-		   <loginModel ref="loginModel"></loginModel>
-		
+			</div>	
 	</div>
 </template>
 <script>
-    import Api from '@/api/goods'
     import Api_wel from '@/api/turntable'
 	import util from '@/utils/index'
 	import store from '@/store/store'
@@ -87,9 +90,8 @@
 			
 		},
 
-		methods: {
-		   
-			jumpIndex(){
+		methods: {   
+		jumpIndex(){
 				wx.switchTab({
 					url:'../index/main'
 				})
@@ -108,17 +110,13 @@
                 let that=this
                 wx.showLoading({title: '加载中'})
                 let goodsDetailRes=await Api_wel.PoinDetail_Shop(params)
-                let goodDetail = goodsDetailRes.integralGood   
-                goodDetail.goodbanner=goodDetail.images.split(',')
-                goodDetail.goodbanner.pop()
-				that.goodsDetail=goodDetail 
+                goodsDetailRes.integralGoodEntity.goodbanner=goodsDetailRes.integralGoodEntity.images.split(',')
+				that.goodsDetail=goodsDetailRes.integralGoodEntity
 				that.isLoading = true;
                 wx.hideLoading()
 			},
 
 		},
-
-
 		async onLoad(options) {
 			let that=this
 			that.goodsId =options.goodsId
@@ -126,25 +124,11 @@
 		},
 		async mounted(){
 			let that=this
-			await that.$refs.loginModel.userLogin()
             let params={}
             that.userInfo = store.state.userInfo
             params.goodId=that.goodsId
 			that.getGoodsInfo(params)
-        },
-         onShareAppMessage: function () {
-                return {
-					title: '',
-					desc: '抹哒抹哒',
-					path: 'pages/welfareDetail/main?goodId='+this.goodsId
-                }
-		},
-		onUnload(){
-			this.isLoading=false;
-			this.goodsDetail={};
-			this.userInfo={};
-			this.btnStr='立即兑换';
-		}
+        }
 	}
 </script>
 
